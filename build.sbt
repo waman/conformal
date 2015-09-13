@@ -4,21 +4,41 @@ version := "0.1"
 
 organization := "org.waman.conformal"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.11.6"
 
-libraryDependencies ++= Seq(
-  "org.spire-math" %% "spire" % "0.3.0",
-  "org.apache.commons" % "commons-math3" % "3.0" % "test",
-  "junit" % "junit" % "4.10" % "test",
-  "org.scala-lang" % "scala-swing" % "2.10.0" % "test",
-  "org.jfree" % "jfreechart" % "1.0.14" % "test",
-  "com.github.insubstantial" % "substance" % "7.2" % "test"
+
+//***** Custom settings *****
+val javaVersion = settingKey[String]("javac source/target version")
+
+val encoding = settingKey[String]("source encoding")
+
+javaVersion := "1.8"
+
+encoding := "UTF-8"
+
+//***** Options & Dependencies *****
+javacOptions ++= Seq(
+  "-source", javaVersion.value,
+  "-target", javaVersion.value,
+  "-encoding", encoding.value
 )
 
-javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-encoding", "UTF-8")
+scalacOptions ++= Seq(
+  "-Xlint",
+  "-deprecation",
+  "-unchecked",
+  "-feature",
+  "-encoding", encoding.value
+)
 
-scalacOptions ++= Seq("-deprecation", "-encoding", "UTF-8")
+libraryDependencies ++= Seq(
+  "org.spire-math" % "spire_2.11" % "0.10.1",
+  "org.apache.commons" % "commons-math3" % "3.5" % "test",
+  //"org.scala-lang" % "scala-library" % scalaVersion.value,
+  //"org.scala-lang" % "scala-swing" % "2.9.2",
+  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
+)
 
-fork := true
+fork in Global := true
 
 crossPaths := false
