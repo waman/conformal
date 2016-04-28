@@ -1,4 +1,4 @@
-package java_algorithm.random.uniform;
+package src.uniform;
 
 /**
  *  乱数のごく簡単なテスト

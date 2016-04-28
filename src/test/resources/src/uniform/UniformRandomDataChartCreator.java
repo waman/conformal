@@ -1,15 +1,17 @@
-package java_algorithm.random;
+package src.uniform;
 
+import java_algorithm.random.AbstractRandomDataChartCreator;
+import java_algorithm.random.uniform.UniformRandomGenerator;
 import org.jfree.data.xy.XYSeries;
 
 /**
  * @author waman
  */
-public class RandomDataChartCreator extends AbstractRandomDataChartCreator{
+public class UniformRandomDataChartCreator extends AbstractRandomDataChartCreator{
 
-    private final RandomGenerator<? extends Number> random;
+    private final UniformRandomGenerator random;
 
-    public RandomDataChartCreator(RandomGenerator<? extends Number> random, int samples){
+    public UniformRandomDataChartCreator(UniformRandomGenerator random, int samples){
         super(random.getClass().getSimpleName(), samples);
         this.random = random;
     }
@@ -21,7 +23,7 @@ public class RandomDataChartCreator extends AbstractRandomDataChartCreator{
         final int n = getSamples();
 
         for(int i = 0; i < n; i++){
-            double d = this.random.next().doubleValue();
+            double d = this.random.nextDouble();
             series.add(i, d);
             sum += d;
             sum2 += d*d;

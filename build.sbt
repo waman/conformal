@@ -4,7 +4,7 @@ version := "0.1"
 
 organization := "org.waman.conformal"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 
 //***** Custom settings *****
@@ -32,11 +32,9 @@ scalacOptions ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.spire-math" % "spire_2.11" % "0.10.1",
+  "org.spire-math" % "spire_2.11" % "0.11.0",
   "org.apache.commons" % "commons-math3" % "3.5" % "test",
-  //"org.scala-lang" % "scala-library" % scalaVersion.value,
-  //"org.scala-lang" % "scala-swing" % "2.9.2",
-  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
+  "org.waman" % "scalatest-util" % "0.3"
 )
 
 fork in Global := true
