@@ -1,21 +1,26 @@
 package org.waman.conformal.integral
 
-import spire.algebra.Group
+import scala.annotation.tailrec
 
 trait Permutation extends PartialFunction[Int, Int]{
 
   val degree: Int
-  protected lazy val indices: List[Int] = (0 until degree).toList
+  protected def indices: Range = 0 until degree
 
-  override def isDefinedAt(i: Int): Boolean = indices.contains(i)
+  override def isDefinedAt(i: Int): Boolean = indices contains i
 
   override def apply(i: Int): Int
-  def unapply(i: Int): Int = indices.find(apply(_) == i).get
 
-  def apply[E](objs: List[E]): List[E] = {
-    require(objs.length == degree)
-    indices.map(unapply(_)).map(objs(_))
+  /** This method should be overridden by subclasses.  */
+  def indexOf(i: Int): Int = indices.find(apply(_) == i).get
+
+  def apply[E](seq: Seq[E]): Seq[E] = {
+    require(seq.length == degree,
+      "The argument Seq must have the same length as the degree of this permutation.")
+    indices.map(indexOf).map(seq(_))
   }
+
+  def apply[E](list: List[E]): List[E] = apply(list: Seq[E]).toList
 
   def *(p: Permutation): Permutation = {
     require(degree == p.degree)
@@ -33,8 +38,8 @@ trait Permutation extends PartialFunction[Int, Int]{
     val th = this
     new Permutation {
       override val degree: Int = th.degree
-      override def apply(i: Int): Int = th.unapply(i)
-      override def unapply(i: Int): Int = th.apply(i)
+      override def apply(i: Int): Int = th.indexOf(i)
+      override def indexOf(i: Int): Int = th.apply(i)
       override def inverse: Permutation = th
       override def sgn: Int = th.sgn
     }
@@ -51,7 +56,7 @@ trait Permutation extends PartialFunction[Int, Int]{
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Permutation]
 
-  override def hashCode: Int = (degree::indices.map(apply(_))).hashCode
+  override def hashCode: Int = (degree +: indices.map(apply(_))).hashCode
 
   override def toString: String = indices.map(apply(_)).mkString("(", " ", ")")
 }
@@ -61,7 +66,7 @@ object Permutation{
   def identity(deg: Int): Permutation = new Permutation {
     override val degree: Int = deg
     override def apply(i: Int): Int = i
-    override def unapply(i: Int): Int = i
+    override def indexOf(i: Int): Int = i
     override def *(p: Permutation): Permutation = p
     override def inverse: Permutation = this
     override def sgn: Int = 1
@@ -71,41 +76,38 @@ object Permutation{
   def apply(to: Int*): Permutation = new ListPermutation(to.toList)
 }
 
-class ListPermutation(private val to: List[Int]) extends Permutation{
+abstract class AbstractListPermutation extends Permutation{
+
+  protected val to: List[Int]
 
   override val degree: Int = to.length
+  override protected def indices: Range = to.indices
 
   override def apply(i: Int): Int = to(i)
-  override def unapply(i: Int): Int = to.indexOf(i)
-
-  override lazy val sgn: Int = {  // (021453)
-  def calculateSign(list: List[Int], n: Int): Int = list match {
-      case _ :: Nil => 1
-      case _ if list.head == n => calculateSign(list.tail, n+1)
-      case _ =>  // args: list = List(2, 1, 4, 5, 3), n = 1
-        val i = list.indexOf(n)  // i = 1
-
-        val newList = exchangeHeadAndGetTail(list, i)
-        // newList = List(1, 2, 4, 5, 3) ( = List(1) ::: 2 :: List(4, 5, 3))
-        -calculateSign(newList, n+1)
-    }
-
-    def exchangeHeadAndGetTail(list: List[Int], i: Int): List[Int] =
-      list.slice(1, i) ::: list.head :: list.slice(i+1, list.length)
-
-    calculateSign(to, 0)
-  }
+  override def indexOf(i: Int): Int = to.indexOf(i)
 
   override def toString: String = to.mkString("(", " ", ")")
 }
 
+class ListPermutation(protected val to: List[Int]) extends AbstractListPermutation{
 
-class SymmetricGroup(val degree: Int) extends Group[Permutation]{
-  override def op(x: Permutation, y: Permutation): Permutation = x * y
-  override val id: Permutation = Permutation.identity(degree)
-  override def inverse(p: Permutation): Permutation = p.inverse
-}
+  require(degree > 0, "Degree of permutation must be positive: " + degree)
+  require(indices.forall(to contains _),
+    "Constructor arguments of permutation must contain all integers from 0 until "+ degree)
 
-object SymmetricGroup{
-  def apply(degree: Int): SymmetricGroup = new SymmetricGroup(degree)
+  override lazy val sgn: Int = {  // (024153)
+    @tailrec
+    def calculateSign(sign: Int, list: List[Int], n: Int): Int = list match {
+      case _ :: Nil => sign
+      case head :: _ if head == n => calculateSign(sign, list.tail, n+1)
+      case _ =>  // args: list = List(2, 4, 1, 5, 3), n = 1
+        val i = list.indexOf(n)  // i = 2
+        val (first, second) = list.splitAt(i)  // first = List(2, 4), second = List(1, 5, 3)
+        val newList = first.tail ++: first.head +: second.tail
+        // newList = List(4, 2, 5, 3) ( = List(4) ::: 2 :: List(5, 3))
+        calculateSign(-sign, newList, n+1)
+    }
+
+    calculateSign(1, to, 0)
+  }
 }

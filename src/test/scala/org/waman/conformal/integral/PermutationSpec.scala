@@ -4,7 +4,7 @@ import org.waman.conformal.ConformalCustomSpec
 
 class PermutationSpec extends ConformalCustomSpec{
 
-  "apply() method should" - {
+  "apply(List[E]) method should" - {
 
     "execute permutation of List" in {
       val conversions =
@@ -90,7 +90,7 @@ class PermutationSpec extends ConformalCustomSpec{
     }
   }
 
-  "Any methods" - {
+  "The methods of Any class" - {
 
     "toString method should" - {
 
@@ -114,12 +114,19 @@ class PermutationSpec extends ConformalCustomSpec{
     "equals() method should" - {
 
       "return true if " in {
-        __SetUp__
-        val p0 = Permutation(0, 3, 1, 2)
-        val p1 = Permutation(0, 3, 1, 2)
-        assume(p0 ne p1)
-        __Verify__
-        p0 should equal (p1)
+        val p = Permutation(0, 2, 1, 3)
+        val conversions =
+          Table(
+            ("p0", "p1"),
+            (p, p),
+            (Permutation(0, 3, 1, 2), Permutation(0, 3, 1, 2)),
+            (Permutation.identity(3), Permutation(0, 1, 2))
+          )
+
+        forAll(conversions) { (p0: Permutation, p1: Permutation) =>
+          __Verify__
+          p0 should equal(p1)
+        }
       }
     }
 
