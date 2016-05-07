@@ -56,7 +56,7 @@ trait Permutation extends PartialFunction[Int, Int]{
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Permutation]
 
-  override def hashCode: Int = (degree +: indices.map(apply(_))).hashCode
+  override def hashCode: Int = (degree +: apply(indices)).hashCode
 
   override def toString: String = indices.map(apply(_)).mkString("(", " ", ")")
 }
@@ -91,19 +91,19 @@ abstract class AbstractListPermutation extends Permutation{
 
 class ListPermutation(protected val to: List[Int]) extends AbstractListPermutation{
 
-  require(degree > 0, "Degree of permutation must be positive: " + degree)
+  require(degree > 0, "The degree of permutation must be positive: " + degree)
   require(indices.forall(to contains _),
-    "Constructor arguments of permutation must contain all integers from 0 until "+ degree)
+    "The constructor arguments of ListPermutation must contain all integers from 0 until "+ degree)
 
   override lazy val sgn: Int = {  // (024153)
     @tailrec
     def calculateSign(sign: Int, list: List[Int], n: Int): Int = list match {
       case _ :: Nil => sign
       case head :: _ if head == n => calculateSign(sign, list.tail, n+1)
-      case _ =>  // args: list = List(2, 4, 1, 5, 3), n = 1
+      case _ =>  // case for args: list = List(2, 4, 1, 5, 3), n = 1
         val i = list.indexOf(n)  // i = 2
         val (first, second) = list.splitAt(i)  // first = List(2, 4), second = List(1, 5, 3)
-        val newList = first.tail ++: first.head +: second.tail
+        val newList = first.tail ::: first.head :: second.tail
         // newList = List(4, 2, 5, 3) ( = List(4) ::: 2 :: List(5, 3))
         calculateSign(-sign, newList, n+1)
     }

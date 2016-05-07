@@ -4,7 +4,6 @@ import spire.algebra.Group
 
 import scala.annotation.tailrec
 
-
 class SymmetricGroup(val degree: Int) extends Group[Permutation]{
   import ConformalIntegralOps._
   import scala.language.postfixOps
@@ -30,7 +29,6 @@ class SymmetricGroup(val degree: Int) extends Group[Permutation]{
         n match {
           case 1 => seq
           case _ =>
-            val e = degree-n+1
             val newSeq = seq.flatMap(_.generateHigherPermutations)
             generateSignedPermutations(newSeq, n-1)
         }
