@@ -34,7 +34,7 @@ scalacOptions ++= Seq(
 libraryDependencies ++= Seq(
   "org.spire-math" % "spire_2.11" % "0.11.0",
   "org.apache.commons" % "commons-math3" % "3.5" % "test",
-  "org.waman" % "scalatest-util" % "0.4" % "test"
+  "org.waman" % "scalatest-util" % "0.6" % "test"
 )
 
 fork in Global := true

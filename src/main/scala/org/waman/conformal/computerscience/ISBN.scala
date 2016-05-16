@@ -1,22 +1,20 @@
 package org.waman.conformal.computerscience
 
-trait ISBN extends Checksum[Int]{
+
+trait ISBN extends Checksum[Int, Int]{
 
   val modulus: Int
   val digitLength: Int
-  def weight: Seq[Int]
+  val weight: Seq[Int]
 
-  def sumDigitsWithWeight(isbn: Seq[Int]): Int =
+  override protected def sum(isbn: Seq[Int]): Int =
     isbn.zip(weight).map(n => n._1 * n._2).sum
 
-  override def calculateChecksum(isbn: Seq[Int]): Int = {
-    val s = sumDigitsWithWeight(isbn)
-    modulus - (s % modulus)
-  }
+  override protected def sumToChecksum(sum: Int): Int = modulus - (sum % modulus)
 
   def completeISBN(isbn: String): String = {
-    val s = calculateChecksum(ISBN.toIntSeq(isbn)) match {
-      case 10 => "X"  // for ISBN-10
+    val s = sum(ISBN.toIntSeq(isbn)) match {
+      case 10 => "X" // for ISBN-10
       case d  => d.toString
     }
 
@@ -24,7 +22,7 @@ trait ISBN extends Checksum[Int]{
     else                   isbn + "-" + s
   }
 
-  override def check(isbn: Seq[Int]): Boolean = sumDigitsWithWeight(isbn) % modulus == 0
+  protected override def testSum(sum: Int): Boolean = sum % modulus == 0
 
   def check(isbn: String): Boolean = {
     val seq = ISBN.toIntSeq(isbn)
@@ -48,7 +46,7 @@ object ISBN10 extends ISBN{
   override val modulus: Int = 11
   override val digitLength: Int = 10
 
-  def weight: Seq[Int] = Stream.iterate(10)(i => i-1)
+  override val weight: Seq[Int] = Seq.iterate(10, 10)(i => i-1)
 
 //  override def sum(isbn: Seq[Int]): Int = {
 //    @tailrec
@@ -71,5 +69,5 @@ object ISBN13 extends ISBN{
   override val modulus: Int = 10
   override val digitLength: Int = 13
 
-  override def weight: Seq[Int] = Stream.continually(List(1, 3)).flatten
+  override val weight: Seq[Int] = Stream.continually(List(1, 3)).flatten.take(13)
 }

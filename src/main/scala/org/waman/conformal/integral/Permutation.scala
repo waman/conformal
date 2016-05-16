@@ -58,7 +58,7 @@ trait Permutation extends PartialFunction[Int, Int]{
 
   override def hashCode: Int = (degree +: apply(indices)).hashCode
 
-  override def toString: String = indices.map(apply(_)).mkString("(", " ", ")")
+  override def toString: String = indices.map(apply(_)).mkString("[", " ", "]")
 }
 
 object Permutation{
@@ -70,7 +70,7 @@ object Permutation{
     override def *(p: Permutation): Permutation = p
     override def inverse: Permutation = this
     override def sgn: Int = 1
-    override def toString: String = indices.mkString("(", " ", ")")
+    override def toString: String = indices.mkString("[", " ", "]")
   }
 
   def apply(to: Int*): Permutation = new ListPermutation(to.toList)
@@ -86,7 +86,7 @@ abstract class AbstractListPermutation extends Permutation{
   override def apply(i: Int): Int = to(i)
   override def indexOf(i: Int): Int = to.indexOf(i)
 
-  override def toString: String = to.mkString("(", " ", ")")
+  override def toString: String = to.mkString("[", " ", "]")
 }
 
 class ListPermutation(protected val to: List[Int]) extends AbstractListPermutation{

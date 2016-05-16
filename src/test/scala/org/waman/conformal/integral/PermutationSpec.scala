@@ -94,12 +94,12 @@ class PermutationSpec extends ConformalCustomSpec{
 
     "toString method should" - {
 
-      "create a String representation of permutation like (1 3 2)" in {
+      "create a String representation of permutation like [1 3 2]" in {
         val conversions =
           Table(
             ("p", "expected"),
-            (Permutation(0, 2, 1)         , "(0 2 1)"),
-            (Permutation(0, 2, 1, 4, 5, 3), "(0 2 1 4 5 3)")
+            (Permutation(0, 2, 1)         , "[0 2 1]"),
+            (Permutation(0, 2, 1, 4, 5, 3), "[0 2 1 4 5 3]")
           )
 
         forAll(conversions){ (p: Permutation, expected: String) =>

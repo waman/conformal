@@ -1,4 +1,4 @@
-package org.waman.conformal.linear
+package org.waman.conformal.algebra.linear
 
 trait Matrix[K]{
 

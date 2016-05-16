@@ -2,19 +2,26 @@ package org.waman.conformal.computerscience
 
 import scala.{specialized => spec}
 
-trait Checksum[@spec(Byte, Int) I]{
+trait Checksum[I, S]{
 
-  def calculateChecksum(bytes: Seq[I]): I
+  protected def sum(input: Seq[I]): S
 
-  def check(bytes: Seq[I]): Boolean
+  def calculateChecksum(input: Seq[I]): S = sumToChecksum(sum(input))
+  protected def sumToChecksum(sum: S): S
+
+  def check(input: Seq[I]): Boolean = testSum(sum(input))
+  protected def testSum(sum: S): Boolean
 }
 
-object SimpleChecksum extends Checksum[Byte]{
+object SimpleChecksum extends Checksum[Byte, Byte]{
 
-  override def calculateChecksum(bytes: Seq[Byte]): Byte = sumBytes(bytes)
+  override protected def sum(input: Seq[Byte]): Byte =
+    input.reduce((x, y) => (x ^ y).toByte)
 
-  override def check(bytes: Seq[Byte]): Boolean = sumBytes(bytes) == 0
+  override protected def sumToChecksum(sum: Byte): Byte = sum
 
-  def sumBytes(bytes: Seq[Byte]): Byte =
-    bytes.foldLeft(0)((sum, b) => sum ^ b).toByte
+  override protected def testSum(sum: Byte): Boolean = sum == 0
+
+  def appendChecksum(input: Seq[Byte]): Seq[Byte] =
+    Vector() ++ input :+ calculateChecksum(input)
 }

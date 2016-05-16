@@ -1,11 +1,11 @@
 package org.waman.conformal.integral
 
 import spire.algebra.Group
+import spire.implicits._
 
 import scala.annotation.tailrec
 
 class SymmetricGroup(val degree: Int) extends Group[Permutation]{
-  import ConformalIntegralOps._
   import scala.language.postfixOps
 
   require(degree > 0, "Degree of permutation must be positive: " + degree)
@@ -14,7 +14,7 @@ class SymmetricGroup(val degree: Int) extends Group[Permutation]{
   override val id: Permutation = Permutation.identity(degree)
   override def inverse(p: Permutation): Permutation = p.inverse
 
-  def order: Int = degree!
+  def order: BigInt = degree!
   def elements: Seq[Permutation] = permutations
 
   def permutations: Seq[Permutation] = degree match {

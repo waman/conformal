@@ -7,6 +7,7 @@ package java_algorithm.computerscience.check;
 * 16 ビットの CRC を 2 つの方法で求めます。
 */
 public class CRC16 {
+
     static final int CRCPOLY1 = 0x1021;  // x^{16}+x^{12}+x^5+1
     static final int CRCPOLY2 = 0x8408;  // 左右逆転
     static final int BYTE_BIT = 8;       // １バイトのビット数

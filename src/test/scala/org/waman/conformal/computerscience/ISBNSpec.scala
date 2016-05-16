@@ -31,28 +31,9 @@ class ISBNSpec extends ConformalCustomSpec{
 
     "weight method should be the same Sequence as Seq(10, 9, 8,...)" in {
       __Exercise__
-      val sut = ISBN10.weight.take(10)
+      val sut = ISBN10.weight
       __Verify__
       sut should contain theSameElementsInOrderAs Seq(10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
-    }
-
-    "sumDigitsWithWeight() method should" - {
-
-      "sum digits of ISBN with weight" in {
-        val conversions =
-          Table(
-            ("isbn", "checksum"),
-            ("4-7741-1729-3", 253),
-            ("4-87408-852-X", 297)
-          )
-
-        forAll(conversions){ (isbn: String, checksum: Int) =>
-          __Exercise__
-          val sut = ISBN10.sumDigitsWithWeight(ISBN.toIntSeq(isbn))
-          __Verify__
-          sut should equal (checksum)
-        }
-      }
     }
 
     "check() method should" - {
@@ -101,9 +82,9 @@ class ISBNSpec extends ConformalCustomSpec{
 
     "weight method should be the same Sequence as Seq(1, 3, 1, 3, ...)" in {
       __Exercise__
-      val sut = ISBN13.weight.take(6)
+      val sut = ISBN13.weight
       __Verify__
-      sut should contain theSameElementsInOrderAs Seq(1, 3, 1, 3, 1, 3)
+      sut should contain theSameElementsInOrderAs Seq(1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1)
     }
 
     "check() method should" - {

@@ -37,7 +37,7 @@ public class GetCRC {
         int i = 0;
 
         while (--n >= 0)
-            r = (r >> BYTE_BIT) ^ crcTable[(r ^ c[i++]) & 0xFF];
+            r = (r >>> BYTE_BIT) ^ crcTable[(r ^ c[i++]) & 0xFF];  //TODO
 
         return r;
     }
