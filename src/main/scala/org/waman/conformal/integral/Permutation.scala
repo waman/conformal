@@ -1,10 +1,12 @@
 package org.waman.conformal.integral
 
 import scala.annotation.tailrec
+import org.waman.conformal._
 
 trait Permutation extends PartialFunction[Int, Int]{
 
   val degree: Int
+  protected def to: Seq[Int]
   protected def indices: Range = 0 until degree
 
   override def isDefinedAt(i: Int): Boolean = indices contains i
@@ -27,6 +29,7 @@ trait Permutation extends PartialFunction[Int, Int]{
     val th = this
     new Permutation {
       override val degree: Int = th.degree
+      override protected def to: Seq[Int] = th.indices.map(p(_))
       override def apply(i: Int): Int = th(p(i))
       override def sgn: Int = th.sgn * p.sgn
     }
@@ -38,6 +41,7 @@ trait Permutation extends PartialFunction[Int, Int]{
     val th = this
     new Permutation {
       override val degree: Int = th.degree
+      override protected def to: Seq[Int] = th.indices.map(th.indexOf)
       override def apply(i: Int): Int = th.indexOf(i)
       override def indexOf(i: Int): Int = th.apply(i)
       override def inverse: Permutation = th
@@ -47,6 +51,30 @@ trait Permutation extends PartialFunction[Int, Int]{
 
   def sgn: Int
 
+  //***** Order related *****
+  def next: Option[Permutation] = degree match {
+    case 1 => None
+    case _ =>
+      to.sliding(2).toSeq.lastIndexWhere(p => p.head < p(1)) match {
+        case -1 => None
+        case i =>  //  case for args: list = List(0, 2, 4, 1, 5, 3), i = 3 (1 < 5)
+          val a = to(i)  // a = 1
+          val j = to.lastIndexWhere(p => a < p)  // j = 5 (1 < 3)
+          val swapped = swap(to, i, j)  // swapped = List(0, 2, 4, 3, 5, 1)
+
+          @tailrec
+          def swapTail(to: Seq[Int], i: Int, j: Int): Seq[Int] =
+            if(i < j) swapTail(swap(to, i, j), i+1, j-1)
+            else      to
+
+//          val newTo = swapTail(swapped, i+1, degree-1)  // newTo = List(0, 2, 4, 3, 1, 5)
+          val (first, second) = swapped.splitAt(i+1)  // first = List(0, 2, 4, 3), second = List(5, 1)
+          val newTo = first ++ second.reverse  // newTo = List(0, 2, 4, 3, 1, 5)
+          Some(new ListPermutation(newTo.toList))
+      }
+  }
+
+  //***** Methods of Any *****
   override def equals(other: Any): Boolean = other match {
     case that: Permutation =>
       that.canEqual(this) &&
@@ -65,6 +93,7 @@ object Permutation{
 
   def identity(deg: Int): Permutation = new Permutation {
     override val degree: Int = deg
+    override protected def to: Seq[Int] = indices
     override def apply(i: Int): Int = i
     override def indexOf(i: Int): Int = i
     override def *(p: Permutation): Permutation = p
@@ -74,6 +103,41 @@ object Permutation{
   }
 
   def apply(to: Int*): Permutation = new ListPermutation(to.toList)
+
+  def allPermutations(degree: Int): Seq[Permutation] = degree match {
+    case 1 => Seq(identity(degree))
+    case 2 => Seq(identity(degree), signed(List(1, 0), -1))
+    case 3 => Seq(identity(degree), signed(List(0, 2, 1), -1),
+      signed(List(1, 0, 2), -1), signed(List(1, 2, 0),  1),
+      signed(List(2, 0, 1),  1), signed(List(2, 1, 0), -1))
+    case _ =>
+      @tailrec
+      def generateSignedPermutations(seq: Seq[SignedPermutation], n: Int): Seq[SignedPermutation] =
+        n match {
+          case 1 => seq
+          case _ =>
+            val newSeq = seq.flatMap(_.generateHigherPermutations)
+            generateSignedPermutations(newSeq, n-1)
+        }
+
+      val p1 = new SignedPermutation(List(0), 1)
+      generateSignedPermutations(Stream(p1), degree)
+  }
+
+  private[Permutation] class SignedPermutation(protected val to: List[Int], val sgn: Int)
+    extends AbstractListPermutation{
+
+    def generateHigherPermutations: Seq[SignedPermutation] =
+      (degree to 0 by -1).map{ i =>
+        val (first, second) = to.splitAt(i)
+        val newTo = first ::: degree :: second
+        val newSign = if((degree-i) % 2 == 0) sgn else -sgn
+        new SignedPermutation(newTo, newSign)
+      }
+  }
+
+  private[Permutation] def signed(to: List[Int], sign: Int): Permutation
+  = new SignedPermutation(to, sign)
 }
 
 abstract class AbstractListPermutation extends Permutation{

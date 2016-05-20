@@ -144,10 +144,11 @@ trait NormalBitOrder{ self: CRC =>
   protected final def processBits(r: Int, n: Int): Int = n match {
     case 0 => r
     case _ =>
-      r & placeFilter match {
-        case 0 => processBits(r << 1, n-1)
-        case _ => processBits((r << 1) ^ divisor, n-1)
+      val s = r & placeFilter match {
+        case 0 => r << 1
+        case _ => (r << 1) ^ divisor
       }
+      processBits(s, n-1)
   }
 
   override def check(input: Seq[Byte]): Boolean = {
@@ -156,20 +157,18 @@ trait NormalBitOrder{ self: CRC =>
 
     val nBits = bitCount / CRC.BitsPerByte
     val (nInit, nLast) = input.splitAt(input.length-nBits)
-    val r = sum(nInit)
-    val s = r ^ CRC.toInt(nLast)
-    testSum(s)
+    testSum(sum(nInit) ^ CRC.toInt(nLast))
   }
 }
 
 trait NormalBitOrderWithTable extends NormalBitOrder{ self: CRC =>
 
-  def tableLength = 1 << CRC.BitsPerByte
+  def tableSize = 1 << CRC.BitsPerByte
 
-  lazy val table: List[Int] = (0 until tableLength).map{ i =>
+  lazy val table: Seq[Int] = (0 until tableSize).map{ i =>
     val r = i << (bitCount - CRC.BitsPerByte)
     processBits(r , CRC.BitsPerByte) & mask
-  }.toList
+  }
 
   override protected def processOneByte(r: Int, b: Byte): Int =
     (r << CRC.BitsPerByte) ^ table((r >> (bitCount - CRC.BitsPerByte)^ b) & 0xFF)
@@ -191,18 +190,18 @@ trait ReversedBitOrder extends CRC{ self: CRC =>
   protected final def processBits(r: Int, n: Int): Int = n match {
     case 0 => r
     case _ =>
-      r & 1 match {
-        case 0 => processBits(r >>> 1, n-1)
-        case _ => processBits((r >>> 1) ^ divisor, n-1)
+      val s = r & 1 match {
+        case 0 => r >>> 1
+        case _ => (r >>> 1) ^ divisor
       }
+
+      processBits(s, n-1)
   }
 
   override def check(input: Seq[Byte]): Boolean = {
     val nBits = bitCount / CRC.BitsPerByte
     val (nInit, nLast) = input.splitAt(input.length-nBits)
-    val r = sum(nInit)
-    val s = r ^ CRC.toInt(nLast.reverse)
-    testSum(s)
+    testSum(sum(nInit) ^ CRC.toInt(nLast.reverse))
   }
 }
 
@@ -210,9 +209,9 @@ trait ReversedBitOrderWithTable extends ReversedBitOrder{ self: CRC =>
 
   def tableLength = 1 << CRC.BitsPerByte
 
-  lazy val table: List[Int] = (0 until tableLength).map{ r =>
+  lazy val table: Seq[Int] = (0 until tableLength).map{ r =>
     processBits(r , CRC.BitsPerByte) & mask
-  }.toList
+  }
 
   override protected def processOneByte(r: Int, b: Byte): Int =
     (r >>> CRC.BitsPerByte) ^ table((r ^ b) & 0xFF)
@@ -226,15 +225,6 @@ trait Bit16{ self: CRC =>
 trait Bit32{ self: CRC =>
 
   override val bitCount = 32
-
-//  def check(input: Seq[Byte], checksum: Int): Boolean = {
-//    val s = calculateChecksum(input)
-//    val s1 = processOneByte(s , (checksum >>> (CRC.BitsPerByte*3)).toByte)
-//    val s2 = processOneByte(s1, (checksum >>> (CRC.BitsPerByte*2)).toByte)
-//    val s3 = processOneByte(s2, (checksum >>>  CRC.BitsPerByte).toByte)
-//    val s4 = processOneByte(s3, checksum.toByte)
-//    testSum(s4)
-//  }
 }
 
 //***** CRC Objects *****

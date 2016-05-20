@@ -11,6 +11,8 @@ class CRCSpec extends ConformalCustomSpec{
     println(Integer.toBinaryString(-50))
     println(Integer.toBinaryString(((-50) ^ CRC16.mask) ^ CRC16.mask))
     println(Integer.toBinaryString(~(~(-50) & CRC16.mask)))
+
+    ('a' to 'z').map(_.toByte).foreach(b => println(Integer.toHexString(b)))
   }
 
   "CRC object" - {

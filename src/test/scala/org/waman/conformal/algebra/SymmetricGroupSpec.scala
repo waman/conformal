@@ -1,7 +1,8 @@
-package org.waman.conformal.integral
+package org.waman.conformal.algebra
 
-import org.waman.conformal.ConformalCustomSpec
 import org.scalatest.LoneElement._
+import org.waman.conformal.ConformalCustomSpec
+import org.waman.conformal.integral.Permutation
 
 class SymmetricGroupSpec extends ConformalCustomSpec{
 
@@ -36,7 +37,7 @@ class SymmetricGroupSpec extends ConformalCustomSpec{
       val sg1 = SymmetricGroup(1)
       val expected = Permutation(0)
       __Exercise__
-      val ps = sg1.permutations
+      val ps = sg1.elements
       __Verify__
       ps.length should equal (1)
       ps.loneElement should equal (expected)
@@ -46,7 +47,7 @@ class SymmetricGroupSpec extends ConformalCustomSpec{
       __SetUp__
       val sg2 = SymmetricGroup(2)
       __Exercise__
-      val ps = sg2.permutations
+      val ps = sg2.elements
       __Verify__
       ps.length should equal (2)
       ps should contain allOf(Permutation(0, 1), Permutation(1, 0))
@@ -56,7 +57,7 @@ class SymmetricGroupSpec extends ConformalCustomSpec{
       __SetUp__
       val sg3 = SymmetricGroup(3)
       __Exercise__
-      val ps = sg3.permutations
+      val ps = sg3.elements
       __Verify__
       ps.length should equal (6)
       ps should contain allOf(
@@ -69,7 +70,7 @@ class SymmetricGroupSpec extends ConformalCustomSpec{
       __SetUp__
       val sg4 = SymmetricGroup(4)
       __Exercise__
-      val ps = sg4.permutations
+      val ps = sg4.elements
       __Verify__
       ps.length should equal (24)
       ps should contain allOf(

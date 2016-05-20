@@ -1,8 +1,13 @@
 package org.waman.conformal.integral
 
+import org.scalatest.OptionValues._
 import org.waman.conformal.ConformalCustomSpec
 
 class PermutationSpec extends ConformalCustomSpec{
+
+  "test" in {
+    (0 to 0).sliding(3).foreach(println)
+  }
 
   "apply(List[E]) method should" - {
 
@@ -86,6 +91,54 @@ class PermutationSpec extends ConformalCustomSpec{
         val sut = p.sgn
         __Verify__
         sut should equal(expected)
+      }
+    }
+  }
+
+  "next method should" - {
+
+    "return None if the next permutation does not exist" in {
+      val conversions = Table(
+        "p",
+        Permutation(0),
+        Permutation(1, 0),
+        Permutation(2, 1, 0),
+        Permutation(3, 2, 1, 0),
+        Permutation(4, 3, 2, 1, 0)
+      )
+
+      forAll(conversions){ p: Permutation =>
+        __Exercise__
+        val sut = p.next
+        __Verify__
+        sut should equal (None)
+      }
+
+    }
+
+    "return the next permutation in lexicographic order" in {
+      val conversions = Table(
+        ("p", "expected"),
+        (Permutation(0, 1), Permutation(1, 0)),
+        (Permutation(0, 1, 2), Permutation(0, 2, 1)),
+        (Permutation(0, 2, 1), Permutation(1, 0, 2)),
+        (Permutation(1, 0, 2), Permutation(1, 2, 0)),
+        (Permutation(2, 0, 1), Permutation(2, 1, 0)),
+        (Permutation(0, 1, 2, 3), Permutation(0, 1, 3, 2)),
+        (Permutation(0, 1, 3, 2), Permutation(0, 2, 1, 3)),
+        (Permutation(0, 3, 2, 1), Permutation(1, 0, 2, 3)),
+        (Permutation(1, 0, 2, 3), Permutation(1, 0, 3, 2)),
+        (Permutation(1, 3, 2, 0), Permutation(2, 0, 1, 3)),
+        (Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1)),
+        (Permutation(2, 3, 1, 0), Permutation(3, 0, 1, 2)),
+        (Permutation(0, 2, 4, 1, 5, 3), Permutation(0, 2, 4, 3, 1, 5))
+      )
+
+      forAll(conversions){ (p: Permutation, expected: Permutation) =>
+        __Exercise__
+        val sut = p.next
+        __Verify__
+        sut.value should equal (expected)
       }
     }
   }
