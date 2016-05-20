@@ -10,18 +10,11 @@ trait ConformalIntegralOps{
 
   implicit def convertIntegralToIntegralOps[I: Integral](i: I): ConformalIntegral[I] =
     new ConformalIntegral(i)
-
-  def factorial[I: Integral](i: I): I = factorial(1, i)
-
-  @tailrec
-  private def factorial[I: Integral](prod: I, n: I): I = n match {
-    case 0 => prod
-    case _ => factorial(prod * n, n-1)
-  }
 }
 
 object ConformalIntegralOps extends ConformalIntegralOps
 
 class ConformalIntegral[I: Integral](i: I){
-  val ! : I = ConformalIntegralOps.factorial(i)
+  val ! : I = factorial(i)
+  def P(r: I): I = permutationCount(i, r)
 }

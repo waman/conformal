@@ -1,7 +1,8 @@
 package org.waman.conformal.integral
 
-import scala.annotation.tailrec
 import org.waman.conformal._
+
+import scala.annotation.tailrec
 
 trait Permutation extends PartialFunction[Int, Int]{
 
