@@ -6,7 +6,6 @@ import spire.implicits._
 
 package object integral {
 
-
   def factorial[I: Integral](i: I): I = factorial(1, i)
 
   @tailrec

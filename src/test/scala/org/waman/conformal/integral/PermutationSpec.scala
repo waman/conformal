@@ -5,10 +5,6 @@ import org.waman.conformal.ConformalCustomSpec
 
 class PermutationSpec extends ConformalCustomSpec{
 
-  "test" in {
-    (0 to 0).sliding(3).foreach(println)
-  }
-
   "apply(List[E]) method should" - {
 
     "execute permutation of List" in {
@@ -29,7 +25,7 @@ class PermutationSpec extends ConformalCustomSpec{
     }
   }
 
-  "*() method should" - {
+  "* operator should" - {
 
     "compose two permutations" in {
       val conversions =
@@ -131,7 +127,10 @@ class PermutationSpec extends ConformalCustomSpec{
         (Permutation(1, 3, 2, 0), Permutation(2, 0, 1, 3)),
         (Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1)),
         (Permutation(2, 3, 1, 0), Permutation(3, 0, 1, 2)),
-        (Permutation(0, 2, 4, 1, 5, 3), Permutation(0, 2, 4, 3, 1, 5))
+        (Permutation(0, 2, 4, 1, 5, 3), Permutation(0, 2, 4, 3, 1, 5)),
+
+        (Permutation(1, 2, 0) * Permutation(2, 1, 0) /* [0, 2, 1] */, Permutation(1, 0, 2)),
+        (Permutation(1, 2, 0).inverse /* [2, 0, 1] */, Permutation(2, 1, 0))
       )
 
       forAll(conversions){ (p: Permutation, expected: Permutation) =>

@@ -7,8 +7,8 @@ import scala.annotation.tailrec
 trait Permutation extends PartialFunction[Int, Int]{
 
   val degree: Int
-  protected def to: Seq[Int]
   protected def indices: Range = 0 until degree
+  protected def towards: Seq[Int] = indices.map(apply(_))
 
   override def isDefinedAt(i: Int): Boolean = indices contains i
 
@@ -30,7 +30,6 @@ trait Permutation extends PartialFunction[Int, Int]{
     val th = this
     new Permutation {
       override val degree: Int = th.degree
-      override protected def to: Seq[Int] = th.indices.map(p(_))
       override def apply(i: Int): Int = th(p(i))
       override def sgn: Int = th.sgn * p.sgn
     }
@@ -42,7 +41,6 @@ trait Permutation extends PartialFunction[Int, Int]{
     val th = this
     new Permutation {
       override val degree: Int = th.degree
-      override protected def to: Seq[Int] = th.indices.map(th.indexOf)
       override def apply(i: Int): Int = th.indexOf(i)
       override def indexOf(i: Int): Int = th.apply(i)
       override def inverse: Permutation = th
@@ -56,21 +54,16 @@ trait Permutation extends PartialFunction[Int, Int]{
   def next: Option[Permutation] = degree match {
     case 1 => None
     case _ =>
+      val to = towards
       to.sliding(2).toSeq.lastIndexWhere(p => p.head < p(1)) match {
         case -1 => None
-        case i =>  //  case for args: list = List(0, 2, 4, 1, 5, 3), i = 3 (1 < 5)
-          val a = to(i)  // a = 1
+        case i =>  //  case for args: to = Seq(0, 2, 4, 1, 5, 3), i = 3 (1 < 5)
+          val a = apply(i)  // a = 1
           val j = to.lastIndexWhere(p => a < p)  // j = 5 (1 < 3)
-          val swapped = swap(to, i, j)  // swapped = List(0, 2, 4, 3, 5, 1)
+          val swapped = swap(to, i, j)  // swapped = Seq(0, 2, 4, 3, 5, 1)
 
-          @tailrec
-          def swapTail(to: Seq[Int], i: Int, j: Int): Seq[Int] =
-            if(i < j) swapTail(swap(to, i, j), i+1, j-1)
-            else      to
-
-//          val newTo = swapTail(swapped, i+1, degree-1)  // newTo = List(0, 2, 4, 3, 1, 5)
-          val (first, second) = swapped.splitAt(i+1)  // first = List(0, 2, 4, 3), second = List(5, 1)
-          val newTo = first ++ second.reverse  // newTo = List(0, 2, 4, 3, 1, 5)
+          val (first, second) = swapped.splitAt(i+1)  // first = Seq(0, 2, 4, 3), second = Seq(5, 1)
+          val newTo = first ++ second.reverse  // newTo = Seq(0, 2, 4, 3, 1, 5)
           Some(new ListPermutation(newTo.toList))
       }
   }
@@ -87,14 +80,14 @@ trait Permutation extends PartialFunction[Int, Int]{
 
   override def hashCode: Int = (degree +: apply(indices)).hashCode
 
-  override def toString: String = indices.map(apply(_)).mkString("[", " ", "]")
+  override def toString: String = towards.mkString("[", " ", "]")
 }
 
 object Permutation{
 
   def identity(deg: Int): Permutation = new Permutation {
     override val degree: Int = deg
-    override protected def to: Seq[Int] = indices
+    override protected def towards: Seq[Int] = indices
     override def apply(i: Int): Int = i
     override def indexOf(i: Int): Int = i
     override def *(p: Permutation): Permutation = p
@@ -125,12 +118,12 @@ object Permutation{
       generateSignedPermutations(Stream(p1), degree)
   }
 
-  private[Permutation] class SignedPermutation(protected val to: List[Int], val sgn: Int)
-    extends AbstractListPermutation{
+  private[Permutation] class SignedPermutation(towards: List[Int], val sgn: Int)
+    extends AbstractListPermutation(towards){
 
     def generateHigherPermutations: Seq[SignedPermutation] =
       (degree to 0 by -1).map{ i =>
-        val (first, second) = to.splitAt(i)
+        val (first, second) = towards.splitAt(i)
         val newTo = first ::: degree :: second
         val newSign = if((degree-i) % 2 == 0) sgn else -sgn
         new SignedPermutation(newTo, newSign)
@@ -141,23 +134,21 @@ object Permutation{
   = new SignedPermutation(to, sign)
 }
 
-abstract class AbstractListPermutation extends Permutation{
+abstract class AbstractListPermutation(override protected val towards: List[Int]) extends Permutation{
 
-  protected val to: List[Int]
+  override protected def indices: Range = towards.indices
+  override val degree: Int = towards.length
 
-  override val degree: Int = to.length
-  override protected def indices: Range = to.indices
+  override def apply(i: Int): Int = towards(i)
+  override def indexOf(i: Int): Int = towards.indexOf(i)
 
-  override def apply(i: Int): Int = to(i)
-  override def indexOf(i: Int): Int = to.indexOf(i)
-
-  override def toString: String = to.mkString("[", " ", "]")
+  override def toString: String = towards.mkString("[", " ", "]")
 }
 
-class ListPermutation(protected val to: List[Int]) extends AbstractListPermutation{
+class ListPermutation(towards: List[Int]) extends AbstractListPermutation(towards){
 
   require(degree > 0, "The degree of permutation must be positive: " + degree)
-  require(indices.forall(to contains _),
+  require(indices.forall(towards contains _),
     "The constructor arguments of ListPermutation must contain all integers from 0 until "+ degree)
 
   override lazy val sgn: Int = {  // (024153)
@@ -173,6 +164,6 @@ class ListPermutation(protected val to: List[Int]) extends AbstractListPermutati
         calculateSign(-sign, newList, n+1)
     }
 
-    calculateSign(1, to, 0)
+    calculateSign(1, towards, 0)
   }
 }
