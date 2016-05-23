@@ -6,7 +6,7 @@ import scala.annotation.tailrec
 
 trait Permutation extends PartialFunction[Int, Int]{
 
-  val degree: Int
+  def degree: Int
   protected def indices: Range = 0 until degree
   protected def towards: Seq[Int] = indices.map(apply(_))
 
@@ -29,7 +29,7 @@ trait Permutation extends PartialFunction[Int, Int]{
     require(degree == p.degree)
     val th = this
     new Permutation {
-      override val degree: Int = th.degree
+      override def degree: Int = th.degree
       override def apply(i: Int): Int = th(p(i))
       override def sgn: Int = th.sgn * p.sgn
     }
@@ -40,7 +40,7 @@ trait Permutation extends PartialFunction[Int, Int]{
   def inverse: Permutation = {
     val th = this
     new Permutation {
-      override val degree: Int = th.degree
+      override def degree: Int = th.degree
       override def apply(i: Int): Int = th.indexOf(i)
       override def indexOf(i: Int): Int = th.apply(i)
       override def inverse: Permutation = th
@@ -86,7 +86,7 @@ trait Permutation extends PartialFunction[Int, Int]{
 object Permutation{
 
   def identity(deg: Int): Permutation = new Permutation {
-    override val degree: Int = deg
+    override def degree: Int = deg
     override protected def towards: Seq[Int] = indices
     override def apply(i: Int): Int = i
     override def indexOf(i: Int): Int = i
@@ -131,13 +131,13 @@ object Permutation{
   }
 
   private[Permutation] def signed(to: List[Int], sign: Int): Permutation
-  = new SignedPermutation(to, sign)
+    = new SignedPermutation(to, sign)
 }
 
 abstract class AbstractListPermutation(override protected val towards: List[Int]) extends Permutation{
 
   override protected def indices: Range = towards.indices
-  override val degree: Int = towards.length
+  override def degree: Int = towards.length
 
   override def apply(i: Int): Int = towards(i)
   override def indexOf(i: Int): Int = towards.indexOf(i)
