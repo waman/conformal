@@ -3,7 +3,7 @@ package org.waman.conformal.integral
 import org.scalatest.OptionValues._
 import org.waman.conformal.ConformalCustomSpec
 
-class PermutationSpec extends ConformalCustomSpec{
+class PermutationSpec extends ConformalCustomSpec {
 
   "apply(List[E]) method should" - {
 
@@ -11,16 +11,16 @@ class PermutationSpec extends ConformalCustomSpec{
       val conversions =
         Table(
           ("p", "arg", "expected"),
-          (Permutation.identity(3)      , List("a", "b", "c")               , "abc"),
-          (Permutation(0, 2, 1)         , List("a", "b", "c")               , "acb"),
+          (Permutation.identity(3), List("a", "b", "c"), "abc"),
+          (Permutation(0, 2, 1), List("a", "b", "c"), "acb"),
           (Permutation(0, 2, 1, 4, 5, 3), List("a", "b", "c", "d", "e", "f"), "acbfde")
         )
 
-      forAll(conversions){ (p: Permutation, objs: List[Any], expected: String) =>
+      forAll(conversions) { (p: Permutation, objs: List[Any], expected: String) =>
         __Exercise__
         val sut = p(objs)
         __Verify__
-        sut.mkString("") should equal (expected)
+        sut.mkString("") should equal(expected)
       }
     }
   }
@@ -31,8 +31,8 @@ class PermutationSpec extends ConformalCustomSpec{
       val conversions =
         Table(
           ("p0", "p1", "arg"),
-          (Permutation.identity(3), Permutation(1, 2, 0)   , List("a", "b", "c")),
-          (Permutation(0, 2, 1)   , Permutation(1, 2, 0)   , List("a", "b", "c")),
+          (Permutation.identity(3), Permutation(1, 2, 0), List("a", "b", "c")),
+          (Permutation(0, 2, 1), Permutation(1, 2, 0), List("a", "b", "c")),
           (Permutation(0, 3, 2, 1), Permutation(3, 1, 2, 0), List("a", "b", "c", "d"))
         )
 
@@ -40,7 +40,7 @@ class PermutationSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = p0(p1(arg))
         __Exercise__
-        val sut = (p0 * p1)(arg)
+        val sut = (p0 * p1) (arg)
         __Verify__
         sut should equal(expected)
       }
@@ -76,10 +76,10 @@ class PermutationSpec extends ConformalCustomSpec{
       val conversions =
         Table(
           ("p", "expected"),
-          (Permutation.identity(3)      ,  1),
-          (Permutation(0, 2, 1)         , -1),
+          (Permutation.identity(3), 1),
+          (Permutation(0, 2, 1), -1),
           (Permutation(0, 2, 1, 4, 5, 3), -1),
-          (Permutation(2, 0, 1)         ,  1)
+          (Permutation(2, 0, 1), 1)
         )
 
       forAll(conversions) { (p: Permutation, expected: Int) =>
@@ -91,106 +91,225 @@ class PermutationSpec extends ConformalCustomSpec{
     }
   }
 
-  "next method should" - {
+  "Order related methods" - {
 
-    "return None if the next permutation does not exist" in {
-      val conversions = Table(
-        "p",
-        Permutation(0),
-        Permutation(1, 0),
-        Permutation(2, 1, 0),
-        Permutation(3, 2, 1, 0),
-        Permutation(4, 3, 2, 1, 0)
-      )
-
-      forAll(conversions){ p: Permutation =>
-        __Exercise__
-        val sut = p.next
-        __Verify__
-        sut should equal (None)
-      }
-
+    "Permutation implements Ordered trait" in {
+      __SetUp__
+      val p0 = Permutation(0, 1, 2)
+      val p1 = Permutation(2, 0, 1)
+      __Exercise__
+      val sut = p0 < p1
+      __Verify__
+      sut should be(true)
     }
 
-    "return the next permutation in lexicographic order" in {
-      val conversions = Table(
-        ("p", "expected"),
-        (Permutation(0, 1), Permutation(1, 0)),
-        (Permutation(0, 1, 2), Permutation(0, 2, 1)),
-        (Permutation(0, 2, 1), Permutation(1, 0, 2)),
-        (Permutation(1, 0, 2), Permutation(1, 2, 0)),
-        (Permutation(2, 0, 1), Permutation(2, 1, 0)),
-        (Permutation(0, 1, 2, 3), Permutation(0, 1, 3, 2)),
-        (Permutation(0, 1, 3, 2), Permutation(0, 2, 1, 3)),
-        (Permutation(0, 3, 2, 1), Permutation(1, 0, 2, 3)),
-        (Permutation(1, 0, 2, 3), Permutation(1, 0, 3, 2)),
-        (Permutation(1, 3, 2, 0), Permutation(2, 0, 1, 3)),
-        (Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1)),
-        (Permutation(2, 3, 1, 0), Permutation(3, 0, 1, 2)),
-        (Permutation(0, 2, 4, 1, 5, 3), Permutation(0, 2, 4, 3, 1, 5)),
+    "next method should" - {
 
-        (Permutation(1, 2, 0) * Permutation(2, 1, 0) /* [0, 2, 1] */, Permutation(1, 0, 2)),
-        (Permutation(1, 2, 0).inverse /* [2, 0, 1] */, Permutation(2, 1, 0))
-      )
+      "return None if the next permutation does not exist" in {
+        val conversions = Table(
+          "p",
+          Permutation(0),
+          Permutation(1, 0),
+          Permutation(2, 1, 0),
+          Permutation(3, 2, 1, 0),
+          Permutation(4, 3, 2, 1, 0)
+        )
 
-      forAll(conversions){ (p: Permutation, expected: Permutation) =>
-        __Exercise__
-        val sut = p.next
-        __Verify__
-        sut.value should equal (expected)
+        forAll(conversions) { p: Permutation =>
+          __Exercise__
+          val sut = p.next
+          __Verify__
+          sut should equal(None)
+        }
+
+      }
+
+      "return the next permutation in lexicographic order" in {
+        val conversions = Table(
+          ("p", "expected"),
+          (Permutation(0, 1), Permutation(1, 0)),
+          (Permutation(0, 1, 2), Permutation(0, 2, 1)),
+          (Permutation(0, 2, 1), Permutation(1, 0, 2)),
+          (Permutation(1, 0, 2), Permutation(1, 2, 0)),
+          (Permutation(2, 0, 1), Permutation(2, 1, 0)),
+          (Permutation(0, 1, 2, 3), Permutation(0, 1, 3, 2)),
+          (Permutation(0, 1, 3, 2), Permutation(0, 2, 1, 3)),
+          (Permutation(0, 3, 2, 1), Permutation(1, 0, 2, 3)),
+          (Permutation(1, 0, 2, 3), Permutation(1, 0, 3, 2)),
+          (Permutation(1, 3, 2, 0), Permutation(2, 0, 1, 3)),
+          (Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1)),
+          (Permutation(2, 3, 1, 0), Permutation(3, 0, 1, 2)),
+          (Permutation(0, 2, 4, 1, 5, 3), Permutation(0, 2, 4, 3, 1, 5)),
+
+          (Permutation(1, 2, 0) * Permutation(2, 1, 0) /* [0, 2, 1] */ , Permutation(1, 0, 2)),
+          (Permutation(1, 2, 0).inverse /* [2, 0, 1] */ , Permutation(2, 1, 0))
+        )
+
+        forAll(conversions) { (p: Permutation, expected: Permutation) =>
+          __Exercise__
+          val sut = p.next
+          __Verify__
+          sut.value should equal(expected)
+        }
+      }
+    }
+
+    "sequenceNumber method should" - {
+
+      "return the sequence number in lexicographic number" in {
+        val conversions = Table(
+          ("p", "expected"),
+          (Permutation(0), 0),
+
+          (Permutation(0, 1), 0),
+          (Permutation(1, 0), 1),
+
+          (Permutation(0, 1, 2), 0),
+          (Permutation(0, 2, 1), 1),
+          (Permutation(1, 0, 2), 2),
+          (Permutation(1, 2, 0), 3),
+          (Permutation(2, 0, 1), 4),
+          (Permutation(2, 1, 0), 5),
+
+          (Permutation(0, 1, 2, 3), 0),
+          (Permutation(0, 3, 1, 2), 12),
+          (Permutation(3, 1, 2, 0), 20)
+        )
+
+        forAll(conversions) { (p: Permutation, expected: Int) =>
+          __Exercise__
+          val sut = p.sequenceNumber
+          __Verify__
+          sut should equal(expected)
+        }
+      }
+    }
+
+    "sequenceNumberInFactorialRepresentation method should" - {
+
+      "return the sequence number in lexicographic number as factorial representation" in {
+        val conversions = Table(
+          ("p", "expected"),
+//          (Permutation(0), Seq(0)),
+
+          (Permutation(0, 1), List(0)),
+          (Permutation(1, 0), List(1)),
+
+          (Permutation(0, 1, 2), List(0)),  // 012
+          (Permutation(0, 2, 1), List(1)),  // 011
+          (Permutation(1, 0, 2), List(1, 0)),  // 102
+          (Permutation(1, 2, 0), List(1, 1)),  // 010
+          (Permutation(2, 0, 1), List(2, 0)),  // 001
+          (Permutation(2, 1, 0), List(2, 1))  // 000
+        )
+
+        forAll(conversions) { (p: Permutation, expected: List[Int]) =>
+          __Exercise__
+          val sut = p.sequenceNumberInFactorialRepresentation
+          __Verify__
+          sut should equal (FactorialRepresentation(expected))
+        }
+      }
+    }
+
+    "The methods of Any class" - {
+
+      "toString method should" - {
+
+        "create a String representation of permutation like [1 3 2]" in {
+          val conversions =
+            Table(
+              ("p", "expected"),
+              (Permutation(0, 2, 1), "[0 2 1]"),
+              (Permutation(0, 2, 1, 4, 5, 3), "[0 2 1 4 5 3]")
+            )
+
+          forAll(conversions) { (p: Permutation, expected: String) =>
+            __Exercise__
+            val sut = p.toString
+            __Verify__
+            sut should equal(expected)
+          }
+        }
+      }
+
+      "equals() method should" - {
+
+        "return true if " in {
+          val p = Permutation(0, 2, 1, 3)
+          val conversions =
+            Table(
+              ("p0", "p1"),
+              (p, p),
+              (Permutation(0, 3, 1, 2), Permutation(0, 3, 1, 2)),
+              (Permutation.identity(3), Permutation(0, 1, 2))
+            )
+
+          forAll(conversions) { (p0: Permutation, p1: Permutation) =>
+            __Verify__
+            p0 should equal(p1)
+          }
+        }
+      }
+
+      "hashCode property should" - {
+
+        "return the same value if two permutations are equivalent" in {
+          __SetUp__
+          val p0 = Permutation(0, 3, 1, 2)
+          val p1 = Permutation(0, 3, 1, 2)
+          assume(p0 ne p1)
+          __Verify__
+          p0.hashCode should equal(p1.hashCode)
+        }
       }
     }
   }
 
-  "The methods of Any class" - {
+  "Companion object" - {
 
-    "toString method should" - {
+    "nthPermutation(Int, Int) method should " - {
 
-      "create a String representation of permutation like [1 3 2]" in {
-        val conversions =
-          Table(
-            ("p", "expected"),
-            (Permutation(0, 2, 1)         , "[0 2 1]"),
-            (Permutation(0, 2, 1, 4, 5, 3), "[0 2 1 4 5 3]")
-          )
+      "return the permutation corresponding to the sequence number in lexicographic order" in {
+        val conversions = Table(
+          ("n", "expected"),
+          (0, Permutation(0, 1, 2)),
+          (1, Permutation(0, 2, 1)),
+          (2, Permutation(1, 0, 2)),
+          (3, Permutation(1, 2, 0)),
+          (4, Permutation(2, 0, 1)),
+          (5, Permutation(2, 1, 0))
+        )
 
-        forAll(conversions){ (p: Permutation, expected: String) =>
+        forAll(conversions) { (n: Int, expected: Permutation) =>
           __Exercise__
-          val sut = p.toString
+          val sut = Permutation.nthPermutation(n, 3)
           __Verify__
+//          println(sut)
           sut should equal (expected)
         }
       }
     }
 
-    "equals() method should" - {
+    "nthPermutation(FactorialRepresentation, Int) method should " - {
 
-      "return true if " in {
-        val p = Permutation(0, 2, 1, 3)
-        val conversions =
-          Table(
-            ("p0", "p1"),
-            (p, p),
-            (Permutation(0, 3, 1, 2), Permutation(0, 3, 1, 2)),
-            (Permutation.identity(3), Permutation(0, 1, 2))
-          )
+      "return the permutation corresponding to the sequence number in lexicographic order" in {
+        val conversions = Table(
+          ("n", "expected"),
+          (FactorialRepresentation(0), Permutation(0, 1, 2)),
+          (FactorialRepresentation(1), Permutation(0, 2, 1)),
+          (FactorialRepresentation(1, 0), Permutation(1, 0, 2)),
+          (FactorialRepresentation(1, 1), Permutation(1, 2, 0)),
+          (FactorialRepresentation(2, 0), Permutation(2, 0, 1)),
+          (FactorialRepresentation(2, 1), Permutation(2, 1, 0))
+        )
 
-        forAll(conversions) { (p0: Permutation, p1: Permutation) =>
+        forAll(conversions) { (n: FactorialRepresentation, expected: Permutation) =>
+          __Exercise__
+          val sut = Permutation.nthPermutation(n, 3)
           __Verify__
-          p0 should equal(p1)
+          sut should equal (expected)
         }
-      }
-    }
-
-    "hashCode property should" - {
-
-      "return the same value if two permutations are equivalent" in {
-        __SetUp__
-        val p0 = Permutation(0, 3, 1, 2)
-        val p1 = Permutation(0, 3, 1, 2)
-        assume(p0 ne p1)
-        __Verify__
-        p0.hashCode should equal (p1.hashCode)
       }
     }
   }

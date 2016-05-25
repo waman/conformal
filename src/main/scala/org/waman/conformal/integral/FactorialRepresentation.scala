@@ -6,16 +6,22 @@ import spire.implicits._
 import scala.annotation.tailrec
 import scala.{specialized => spec}
 
-case class FactorialRepresentation(private val coefficients: Seq[Int]) {
-
-  def this(cHead: Int, cTail: Int*) = this(cHead +: cTail)
+class FactorialRepresentation private (private val coefficients: List[Int] /* descendant */) {
 
   def order: Int = coefficients.length
   def coefficient(n: Int): Int =  coefficients(order - n)
 
-  (order to 1 by -1).foreach { i =>
-    val c_i = coefficient(i)
-    require(0 <= c_i && c_i <= i,
+  def coefficientsInDescendant: List[Int] = coefficients
+  def coefficientsInAscendant : List[Int] = coefficients.reverse
+
+  def coefficientsInDescendantWithFixedLength(n: Int): List[Int] =
+    List.fill(n - order)(0) ++: coefficientsInDescendant
+
+  def coefficientsInAscendantWithFixedLength(n: Int): List[Int] =
+    coefficientsInDescendantWithFixedLength(n).reverse
+
+  coefficientsInAscendant.zipWithIndex.foreach{ case (c_i, i) => // the order of each term is i+1
+    require(0 <= c_i && c_i <= i+1,
       s"The ${i}th coefficient (the ${order - i}th element of argument) must be in a range [0, $i] (inclusive)")
   }
 
@@ -31,18 +37,45 @@ case class FactorialRepresentation(private val coefficients: Seq[Int]) {
 
   def toInt: Int = toVal[Int]
   def toLong: Long = toVal[Long]
+
+  //***** Methods of Any *****
+  override def toString: String =
+    coefficients
+      .zipWithIndex
+      .map{ case (c_i, n_i) => (c_i, order-n_i)}
+      .map{ case (c_i, i) => s"$i!*$c_i" }
+      .mkString(" + ")
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case that: FactorialRepresentation =>
+      that.canEqual(this) &&
+        coefficients == that.coefficients
+  }
+
+  def canEqual(that: Any): Boolean = that.isInstanceOf[FactorialRepresentation]
+
+  override def hashCode(): Int = coefficients.hashCode
 }
 
 object FactorialRepresentation{
 
+  /** descendant */
+  def apply(coefficients: List[Int]): FactorialRepresentation = {
+    val canonical = coefficients.dropWhile(_ == 0)
+    new FactorialRepresentation(canonical)
+  }
+
+  /** descendant */
+  def apply(coefficient: Int*): FactorialRepresentation = apply(coefficient.toList)
+
   def fromInt(i: Int): FactorialRepresentation = {
     @tailrec
-    def divide(cs: Seq[Int], dividend: Int, divisor: Int): Seq[Int] = dividend match {
+    def divide(cs: List[Int], dividend: Int, divisor: Int): List[Int] = dividend match {
       case 0 => cs
       case _ => divide((dividend % divisor) +: cs, dividend / divisor, divisor + 1)
     }
 
     val cs = divide(Nil, i, 2)
-    new FactorialRepresentation(cs)
+    apply(cs)
   }
 }

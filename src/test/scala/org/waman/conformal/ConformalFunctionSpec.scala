@@ -13,4 +13,40 @@ class ConformalFunctionSpec  extends ConformalCustomSpec{
       sut should contain theSameElementsInOrderAs Seq("d", "b", "c", "a", "e")
     }
   }
+
+  "indexOfMax method should" - {
+
+    "return the index of the max element" in {
+      val conversions =
+        Table(
+          ("seq", "expected"),
+          (Seq(2, 1, 3, 0), 2)
+        )
+
+      forAll(conversions){ (seq: Seq[Int], expected: Int) =>
+        __Exercise__
+        val sut = indexOfMax(seq)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+  }
+
+  "indexOfMin method should" - {
+
+    "return the index of the min element" in {
+      val conversions =
+        Table(
+          ("seq", "expected"),
+          (Seq(2, 1, 3, 0), 3)
+        )
+
+      forAll(conversions){ (seq: Seq[Int], expected: Int) =>
+        __Exercise__
+        val sut = indexOfMin(seq)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+  }
 }

@@ -4,7 +4,7 @@ import org.waman.conformal._
 
 import scala.annotation.tailrec
 
-trait Permutation extends PartialFunction[Int, Int]{
+trait Permutation extends PartialFunction[Int, Int] with Ordered[Permutation]{
 
   def degree: Int
   protected def indices: Range = 0 until degree
@@ -51,6 +51,14 @@ trait Permutation extends PartialFunction[Int, Int]{
   def sgn: Int
 
   //***** Order related *****
+  override def compare(that: Permutation): Int =
+    indices.map(i => (apply(i), that(i))).find(p => p._1 != p._2) match {
+      case None => 0
+      case Some((x, y)) =>
+        if(x < y) -1
+        else       1
+    }
+
   def next: Option[Permutation] = degree match {
     case 1 => None
     case _ =>
@@ -66,6 +74,25 @@ trait Permutation extends PartialFunction[Int, Int]{
           val newTo = first ++ second.reverse  // newTo = Seq(0, 2, 4, 3, 1, 5)
           Some(new ListPermutation(newTo.toList))
       }
+  }
+
+  //***** Methods of Order *****
+  /** Return the sequence number in the lexicographic order */
+  def sequenceNumber: Int = sequenceNumberInFactorialRepresentation.toInt
+
+  def sequenceNumberInFactorialRepresentation: FactorialRepresentation = {
+    @tailrec
+    def sequenceNumber(fact: Vector[Int], towards: Seq[Int]): Seq[Int] =
+      towards.length match {
+        case 1 => fact :+ towards.head
+        case _ =>
+          val a = towards.head
+          val seq = towards.map(i => if(i > a) i-1 else i)
+          sequenceNumber(fact :+ seq.head, seq.tail)
+      }
+
+    val fact = sequenceNumber(Vector(), towards)
+    FactorialRepresentation(fact.init.toList)
   }
 
   //***** Methods of Any *****
@@ -132,6 +159,23 @@ object Permutation{
 
   private[Permutation] def signed(to: List[Int], sign: Int): Permutation
     = new SignedPermutation(to, sign)
+
+  def nthPermutation(n: Int, degree: Int): Permutation =
+    nthPermutation(FactorialRepresentation.fromInt(n), degree)
+
+  def nthPermutation(n: FactorialRepresentation, degree: Int): Permutation = {
+    @tailrec
+    def nthPermutation(towards: List[Int], fact: Vector[Int]): List[Int] = fact.isEmpty match {
+      case true  => towards
+      case false =>
+        val a = fact.last
+        val newTowards = a +: towards.map(i => if(i >= a) i+1 else i)
+        nthPermutation(newTowards, fact.init)
+    }
+
+    val towards = nthPermutation(Nil, n.coefficientsInDescendantWithFixedLength(degree-1).toVector :+ 0)
+    new ListPermutation(towards)
+  }
 }
 
 abstract class AbstractListPermutation(override protected val towards: List[Int]) extends Permutation{
@@ -158,10 +202,8 @@ class ListPermutation(towards: List[Int]) extends AbstractListPermutation(toward
       case head :: _ if head == n => calculateSign(sign, list.tail, n+1)
       case _ =>  // case for args: list = List(2, 4, 1, 5, 3), n = 1
         val i = list.indexOf(n)  // i = 2
-        val (first, second) = list.splitAt(i)  // first = List(2, 4), second = List(1, 5, 3)
-        val newList = first.tail ::: first.head :: second.tail
-        // newList = List(4, 2, 5, 3) ( = List(4) ::: 2 :: List(5, 3))
-        calculateSign(-sign, newList, n+1)
+        val swapped = swap(list, 0, i) // swapped = List(1, 4, 2, 5, 3)
+        calculateSign(-sign, swapped.tail, n+1)
     }
 
     calculateSign(1, towards, 0)
