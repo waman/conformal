@@ -95,6 +95,7 @@ trait Permutation extends PartialFunction[Int, Int] with Ordered[Permutation]{
     FactorialRepresentation(fact.init.toList)
   }
 
+
   //***** Methods of Any *****
   override def equals(other: Any): Boolean = other match {
     case that: Permutation =>
