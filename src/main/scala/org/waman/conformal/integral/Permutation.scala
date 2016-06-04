@@ -179,19 +179,8 @@ object Permutation{
     = new SignedPermutation(to, sign)
 
   //***** Sequence number in lexicographic order *****
-  def nthPermutation(n: Int, degree: Int): Permutation = {
-    @tailrec
-    def nthPermutation(towards: List[Int], dividend: Int, divisor: Int): List[Int] = divisor match {
-      case _ if divisor == degree => towards
-      case _ =>
-        val i = dividend % divisor
-        val newTowards = swap(towards, divisor-1, i)
-        nthPermutation(newTowards, dividend / divisor, divisor + 1)
-    }
-
-    val towards = nthPermutation((0 until degree).toList, n, 2)
-    new ListPermutation(towards)
-  }
+  def nthPermutation(n: Int, degree: Int): Permutation =
+    nthPermutation(FactorialRepresentation.fromInt(n), degree)
 
   def nthPermutation(n: FactorialRepresentation, degree: Int): Permutation = {
     @tailrec

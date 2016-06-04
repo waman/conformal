@@ -173,8 +173,8 @@ class PermutationSpec extends ConformalCustomSpec {
           (Permutation(2, 1, 0), 5),
 
           (Permutation(0, 1, 2, 3), 0),
-          (Permutation(0, 3, 1, 2), 12),
-          (Permutation(3, 1, 2, 0), 20)
+          (Permutation(0, 3, 1, 2), 4),
+          (Permutation(3, 1, 2, 0), 21)
         )
 
         forAll(conversions) { (p: Permutation, expected: Int) =>
