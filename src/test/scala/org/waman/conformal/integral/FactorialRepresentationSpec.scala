@@ -52,25 +52,25 @@ class FactorialRepresentationSpec extends ConformalCustomSpec{
       }
     }
 
-    "coefficientsInDescendantWithFixedLength method should" - {
+    "coefficientsAsNthOrderInDescendant(Int) method should" - {
 
       "return the coefficient in descendant order with pad 0" in {
         __SetUp__
         val fr = FactorialRepresentation(1, 3, 0, 1)
         __Exercise__
-        val sut = fr.coefficientsInDescendantWithFixedLength(6)
+        val sut = fr.coefficientsAsNthOrderInDescendant(6)
         __Verify__
         sut should contain theSameElementsInOrderAs Seq(0, 0, 1, 3, 0, 1)
       }
     }
 
-    "coefficientsInAscendantWithFixedLength method should" - {
+    "coefficientsAsNthOrderInAscendant(Int) method should" - {
 
       "return the coefficient in ascendant order with pad 0" in {
         __SetUp__
         val fr = FactorialRepresentation(1, 3, 0, 1)
         __Exercise__
-        val sut = fr.coefficientsInAscendantWithFixedLength(6)
+        val sut = fr.coefficientsAsNthOrderInAscendant(6)
         __Verify__
         sut should contain theSameElementsInOrderAs Seq(1, 0, 3, 1, 0, 0)
       }
@@ -135,12 +135,21 @@ class FactorialRepresentationSpec extends ConformalCustomSpec{
     "toString method should" - {
 
       "return a string representation of factorial representation" in {
-        __SetUp__
-        val fr = FactorialRepresentation(3, 1, 2, 0, 0)
-        __Exercise__
-        val sut = fr.toString
-        __Verify__
-        sut should equal ("5!*3 + 4!*1 + 3!*2 + 2!*0 + 1!*0")
+        val conversions =
+          Table(
+            ("coefficients", "expected"),
+            (Nil, "0!*0"),
+            (List(3, 1, 2, 0, 0), "5!*3 + 4!*1 + 3!*2 + 2!*0 + 1!*0")
+          )
+
+        forAll(conversions){ (coefficients: List[Int], expected: String) =>
+          __SetUp__
+          val fr = FactorialRepresentation(coefficients)
+          __Exercise__
+          val sut = fr.toString
+          __Verify__
+          sut should equal (expected)
+        }
       }
     }
   }
@@ -152,9 +161,11 @@ class FactorialRepresentationSpec extends ConformalCustomSpec{
 
       "work well when an argument is one Int value" in {
         __Exercise__
+        val sut  = FactorialRepresentation()
         val sut0 = FactorialRepresentation(0)
         val sut1 = FactorialRepresentation(1)
         __Verify__
+        sut  should equal (FactorialRepresentation(Nil))
         sut0 should equal (FactorialRepresentation(List(0)))
         sut1 should equal (FactorialRepresentation(List(1)))
 
@@ -171,10 +182,19 @@ class FactorialRepresentationSpec extends ConformalCustomSpec{
       }
 
       "drop head zeros" in {
-        __Exercise__
-        val sut = FactorialRepresentation(0, 0 ,1, 1)
-        __Verify__
-        sut should equal (FactorialRepresentation(1, 1))
+        val conversions =
+          Table(
+            ("coefficients", "expected"),
+            (List(0, 0, 0), Nil),
+            (List(0, 0, 1, 1), List(1, 1))
+          )
+
+        forAll(conversions){ (coefficients: List[Int], expected: List[Int]) =>
+          __Exercise__
+          val sut = FactorialRepresentation(coefficients)
+          __Verify__
+          sut should equal (FactorialRepresentation(expected))
+        }
       }
     }
 

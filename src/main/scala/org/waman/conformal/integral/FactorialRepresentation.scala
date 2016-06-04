@@ -14,11 +14,11 @@ class FactorialRepresentation private (private val coefficients: List[Int] /* de
   def coefficientsInDescendant: List[Int] = coefficients
   def coefficientsInAscendant : List[Int] = coefficients.reverse
 
-  def coefficientsInDescendantWithFixedLength(n: Int): List[Int] =
+  def coefficientsAsNthOrderInDescendant(n: Int): List[Int] =
     List.fill(n - order)(0) ++: coefficientsInDescendant
 
-  def coefficientsInAscendantWithFixedLength(n: Int): List[Int] =
-    coefficientsInDescendantWithFixedLength(n).reverse
+  def coefficientsAsNthOrderInAscendant(n: Int): List[Int] =
+    coefficientsAsNthOrderInDescendant(n).reverse
 
   coefficientsInAscendant.zipWithIndex.foreach{ case (c_i, i) => // the order of each term is i+1
     require(0 <= c_i && c_i <= i+1,
@@ -39,12 +39,15 @@ class FactorialRepresentation private (private val coefficients: List[Int] /* de
   def toLong: Long = toVal[Long]
 
   //***** Methods of Any *****
-  override def toString: String =
-    coefficients
-      .zipWithIndex
-      .map{ case (c_i, n_i) => (c_i, order-n_i)}
-      .map{ case (c_i, i) => s"$i!*$c_i" }
-      .mkString(" + ")
+  override def toString: String = coefficients match {
+    case Nil => "0!*0"
+    case _ =>
+      coefficients
+        .zipWithIndex
+        .map{ case (c_i, n_i) => (c_i, order-n_i)}
+        .map{ case (c_i, i) => s"$i!*$c_i" }
+        .mkString(" + ")
+  }
 
   override def equals(other: scala.Any): Boolean = other match {
     case that: FactorialRepresentation =>

@@ -78,6 +78,7 @@ class PermutationSpec extends ConformalCustomSpec {
           ("p", "expected"),
           (Permutation.identity(3), 1),
           (Permutation(0, 2, 1), -1),
+          (Permutation(0, 2, 4, 1, 5, 3),  1),
           (Permutation(0, 2, 1, 4, 5, 3), -1),
           (Permutation(2, 0, 1), 1)
         )
@@ -190,17 +191,19 @@ class PermutationSpec extends ConformalCustomSpec {
       "return the sequence number in lexicographic number as factorial representation" in {
         val conversions = Table(
           ("p", "expected"),
-//          (Permutation(0), Seq(0)),
+          (Permutation(0), List(0)),
 
           (Permutation(0, 1), List(0)),
           (Permutation(1, 0), List(1)),
 
-          (Permutation(0, 1, 2), List(0)),  // 012
-          (Permutation(0, 2, 1), List(1)),  // 011
-          (Permutation(1, 0, 2), List(1, 0)),  // 102
-          (Permutation(1, 2, 0), List(1, 1)),  // 010
-          (Permutation(2, 0, 1), List(2, 0)),  // 001
-          (Permutation(2, 1, 0), List(2, 1))  // 000
+          (Permutation(0, 1, 2), List(0)),
+          (Permutation(0, 2, 1), List(1)),
+          (Permutation(1, 0, 2), List(1, 0)),
+          (Permutation(1, 2, 0), List(1, 1)),
+          (Permutation(2, 0, 1), List(2, 0)),
+          (Permutation(2, 1, 0), List(2, 1)),
+
+          (Permutation(3, 1, 0, 5, 4, 2), List(3, 1, 0, 2, 1))
         )
 
         forAll(conversions) { (p: Permutation, expected: List[Int]) =>
@@ -272,20 +275,21 @@ class PermutationSpec extends ConformalCustomSpec {
 
       "return the permutation corresponding to the sequence number in lexicographic order" in {
         val conversions = Table(
-          ("n", "expected"),
-          (0, Permutation(0, 1, 2)),
-          (1, Permutation(0, 2, 1)),
-          (2, Permutation(1, 0, 2)),
-          (3, Permutation(1, 2, 0)),
-          (4, Permutation(2, 0, 1)),
-          (5, Permutation(2, 1, 0))
+          ("n", "degree", "expected"),
+          (0, 3, Permutation(0, 1, 2)),
+          (1, 3, Permutation(0, 2, 1)),
+          (2, 3, Permutation(1, 0, 2)),
+          (3, 3, Permutation(1, 2, 0)),
+          (4, 3, Permutation(2, 0, 1)),
+          (5, 3, Permutation(2, 1, 0)),
+
+          (389, 6, Permutation(3, 1, 0, 5, 4, 2))
         )
 
-        forAll(conversions) { (n: Int, expected: Permutation) =>
+        forAll(conversions) { (n: Int, degree: Int, expected: Permutation) =>
           __Exercise__
-          val sut = Permutation.nthPermutation(n, 3)
+          val sut = Permutation.nthPermutation(n, degree)
           __Verify__
-//          println(sut)
           sut should equal (expected)
         }
       }
@@ -295,18 +299,22 @@ class PermutationSpec extends ConformalCustomSpec {
 
       "return the permutation corresponding to the sequence number in lexicographic order" in {
         val conversions = Table(
-          ("n", "expected"),
-          (FactorialRepresentation(0), Permutation(0, 1, 2)),
-          (FactorialRepresentation(1), Permutation(0, 2, 1)),
-          (FactorialRepresentation(1, 0), Permutation(1, 0, 2)),
-          (FactorialRepresentation(1, 1), Permutation(1, 2, 0)),
-          (FactorialRepresentation(2, 0), Permutation(2, 0, 1)),
-          (FactorialRepresentation(2, 1), Permutation(2, 1, 0))
+          ("n", "degree", "expected"),
+          (List(0)   , 3, Permutation(0, 1, 2)),
+          (List(1)   , 3, Permutation(0, 2, 1)),
+          (List(1, 0), 3, Permutation(1, 0, 2)),
+          (List(1, 1), 3, Permutation(1, 2, 0)),
+          (List(2, 0), 3, Permutation(2, 0, 1)),
+          (List(2, 1), 3, Permutation(2, 1, 0)),
+
+          (List(3, 1, 0, 2, 1), 6, Permutation(3, 1, 0, 5, 4, 2))
         )
 
-        forAll(conversions) { (n: FactorialRepresentation, expected: Permutation) =>
+        forAll(conversions) { (n: List[Int], degree: Int, expected: Permutation) =>
+          __SetUp__
+          val fr = FactorialRepresentation(n)
           __Exercise__
-          val sut = Permutation.nthPermutation(n, 3)
+          val sut = Permutation.nthPermutation(fr, degree)
           __Verify__
           sut should equal (expected)
         }

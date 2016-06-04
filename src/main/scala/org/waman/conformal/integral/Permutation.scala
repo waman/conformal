@@ -82,17 +82,30 @@ trait Permutation extends PartialFunction[Int, Int] with Ordered[Permutation]{
 
   def sequenceNumberInFactorialRepresentation: FactorialRepresentation = {
     @tailrec
-    def sequenceNumber(fact: Vector[Int], towards: Seq[Int]): Seq[Int] =
-      towards.length match {
-        case 1 => fact :+ towards.head
-        case _ =>
-          val a = towards.head
-          val seq = towards.map(i => if(i > a) i-1 else i)
-          sequenceNumber(fact :+ seq.head, seq.tail)
+    def sequenceNumber(fact: List[Int], towards: Vector[Int]): List[Int] =
+      towards.isEmpty match {
+        case true  => fact
+        case false =>
+          val (init, last) = (towards.init, towards.last)
+          val n = last - init.count(_ < last)
+          sequenceNumber(n::fact, init)
       }
 
-    val fact = sequenceNumber(Vector(), towards)
-    FactorialRepresentation(fact.init.toList)
+    val fact = sequenceNumber(Nil, towards.toVector.init)  // The last place (place of 0!) is removed
+
+//    @tailrec
+//    def sequenceNumber(fact: Vector[Int], towards: Seq[Int]): Seq[Int] =
+//      towards.length match {
+//        case 1 => fact  // The last place (place of 0!) is ignored
+//        case _ =>
+//          val a = towards.head
+//          val seq = towards.map(i => if(i > a) i-1 else i)
+//          sequenceNumber(fact :+ seq.head, seq.tail)
+//      }
+//
+//    val fact = sequenceNumber(Vector(), towards).toList
+
+    FactorialRepresentation(fact)
   }
 
 
@@ -126,12 +139,16 @@ object Permutation{
 
   def apply(to: Int*): Permutation = new ListPermutation(to.toList)
 
+  private lazy val allPermutationsOfOrder1 = Seq(identity(1))
+  private lazy val allPermutationsOfOrder2 = Seq(identity(2), signed(List(1, 0), -1))
+  private lazy val allPermutationsOfOrder3 =
+    Seq(identity(3), signed(List(0, 2, 1), -1), signed(List(1, 0, 2), -1),
+      signed(List(1, 2, 0),  1), signed(List(2, 0, 1),  1), signed(List(2, 1, 0), -1))
+
   def allPermutations(degree: Int): Seq[Permutation] = degree match {
-    case 1 => Seq(identity(degree))
-    case 2 => Seq(identity(degree), signed(List(1, 0), -1))
-    case 3 => Seq(identity(degree), signed(List(0, 2, 1), -1),
-      signed(List(1, 0, 2), -1), signed(List(1, 2, 0),  1),
-      signed(List(2, 0, 1),  1), signed(List(2, 1, 0), -1))
+    case 1 => allPermutationsOfOrder1
+    case 2 => allPermutationsOfOrder2
+    case 3 => allPermutationsOfOrder3
     case _ =>
       @tailrec
       def generateSignedPermutations(seq: Seq[SignedPermutation], n: Int): Seq[SignedPermutation] =
@@ -161,20 +178,48 @@ object Permutation{
   private[Permutation] def signed(to: List[Int], sign: Int): Permutation
     = new SignedPermutation(to, sign)
 
-  def nthPermutation(n: Int, degree: Int): Permutation =
-    nthPermutation(FactorialRepresentation.fromInt(n), degree)
+  //***** Sequence number in lexicographic order *****
+  def nthPermutation(n: Int, degree: Int): Permutation = {
+    @tailrec
+    def nthPermutation(towards: List[Int], dividend: Int, divisor: Int): List[Int] = divisor match {
+      case _ if divisor == degree => towards
+      case _ =>
+        val i = dividend % divisor
+        val newTowards = swap(towards, divisor-1, i)
+        nthPermutation(newTowards, dividend / divisor, divisor + 1)
+    }
+
+    val towards = nthPermutation((0 until degree).toList, n, 2)
+    new ListPermutation(towards)
+  }
 
   def nthPermutation(n: FactorialRepresentation, degree: Int): Permutation = {
     @tailrec
-    def nthPermutation(towards: List[Int], fact: Vector[Int]): List[Int] = fact.isEmpty match {
-      case true  => towards
-      case false =>
-        val a = fact.last
-        val newTowards = a +: towards.map(i => if(i >= a) i+1 else i)
-        nthPermutation(newTowards, fact.init)
+    def nthPermutation(towards: Vector[Int], rest: List[Int], fact: List[Int]): Vector[Int] = fact match {
+      case Nil => towards :+ rest.head
+      case 0 :: tail =>
+        nthPermutation(towards :+ rest.head, rest.tail, tail)
+      case head :: tail =>
+        // case for towards = Vector(), rest = List(0, 1, 2, 3, 4, 5), fact = List(3, 1, 0, 2, 1)
+        val (first, second) = rest.splitAt(head)  // first = List(0, 1, 2), second = List(3, 4, 5)
+        nthPermutation(towards :+ second.head, first ::: second.tail, tail)
+          // next call arg: towards = Vector(3), rest = List(0, 1, 2, 4, 5), fact = List(1, 0, 2, 1)
     }
 
-    val towards = nthPermutation(Nil, n.coefficientsInDescendantWithFixedLength(degree-1).toVector :+ 0)
+    val cs = n.coefficientsAsNthOrderInDescendant(degree-1)
+    val towards = nthPermutation(Vector(), (0 until degree).toList, cs).toList
+
+//    @tailrec
+//    def nthPermutation(towards: List[Int], fact: Vector[Int]): List[Int] = fact.isEmpty match {
+//      case true  => towards
+//      case false =>
+//        val a = fact.last
+//        val newTowards = a :: towards.map(i => if(i >= a) i+1 else i)
+//        nthPermutation(newTowards, fact.init)
+//    }
+//
+//    val towards = nthPermutation(Nil, n.coefficientsAsNthOrderInDescendant(degree-1).toVector :+ 0)
+
     new ListPermutation(towards)
   }
 }
@@ -203,8 +248,13 @@ class ListPermutation(towards: List[Int]) extends AbstractListPermutation(toward
       case head :: _ if head == n => calculateSign(sign, list.tail, n+1)
       case _ =>  // case for args: list = List(2, 4, 1, 5, 3), n = 1
         val i = list.indexOf(n)  // i = 2
-        val swapped = swap(list, 0, i) // swapped = List(1, 4, 2, 5, 3)
-        calculateSign(-sign, swapped.tail, n+1)
+
+//        val swapped = swap(list, 0, i) // swapped = List(1, 4, 2, 5, 3)
+//        val nextList = swapped.tail
+        val (first, second) = list.splitAt(i)  // first = List(2, 4), second = List(1, 5, 3)
+        val nextList = first.tail ::: first.head :: second.tail  // nextList = List(4, 2, 5, 3)
+
+        calculateSign(-sign, nextList, n+1)
     }
 
     calculateSign(1, towards, 0)
