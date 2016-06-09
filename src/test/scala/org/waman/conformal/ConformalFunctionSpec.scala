@@ -5,12 +5,42 @@ class ConformalFunctionSpec  extends ConformalCustomSpec{
   "swap(Seq, Int, Int) method should" - {
 
     "exchange the two elements of 1st arg seq specified by the 2nd and 3rd arg" in {
+      val conversions = Table(
+        ("i", "j", "expected"),
+        (0, 3, Seq("d", "b", "c", "a", "e")),
+        (1, 1, Seq("a", "b", "c", "d", "e"))
+      )
+
       __SetUp__
       val seq = Seq("a", "b", "c", "d", "e")
-      __Exercise__
-      val sut = swap(seq, 0, 3)
-      __Verify__
-      sut should contain theSameElementsInOrderAs Seq("d", "b", "c", "a", "e")
+
+      forAll(conversions){ (i: Int, j: Int, expected: Seq[String]) =>
+        __Exercise__
+        val sut = swap(seq, i, j)
+        __Verify__
+        sut should contain theSameElementsInOrderAs expected
+      }
+    }
+  }
+
+  "swap(Seq, Int, Int) method should" - {
+
+    "remove the element of 1st arg seq specified by the 2nd arg" in {
+      val conversions = Table(
+        ("i", "expected"),
+        (0, Seq("b", "c", "d", "e")),
+        (1, Seq("a", "c", "d", "e"))
+      )
+
+      __SetUp__
+      val seq = Seq("a", "b", "c", "d", "e")
+
+      forAll(conversions){ (i: Int, expected: Seq[String]) =>
+        __Exercise__
+        val sut = removeAt(seq, i)
+        __Verify__
+        sut should contain theSameElementsInOrderAs expected
+      }
     }
   }
 

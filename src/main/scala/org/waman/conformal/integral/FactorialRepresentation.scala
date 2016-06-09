@@ -6,18 +6,18 @@ import spire.implicits._
 import scala.annotation.tailrec
 import scala.{specialized => spec}
 
-class FactorialRepresentation private (private val coefficients: List[Int] /* descendant */) {
+class FactorialRepresentation private (private val coefficients: Seq[Int] /* descendant */) {
 
   def order: Int = coefficients.length
   def coefficient(n: Int): Int =  coefficients(order - n)
 
-  def coefficientsInDescendant: List[Int] = coefficients
-  def coefficientsInAscendant : List[Int] = coefficients.reverse
+  def coefficientsInDescendant: Seq[Int] = coefficients
+  def coefficientsInAscendant : Seq[Int] = coefficients.reverse
 
-  def coefficientsAsNthOrderInDescendant(n: Int): List[Int] =
-    List.fill(n - order)(0) ++: coefficientsInDescendant
+  def coefficientsAsNthOrderInDescendant(n: Int): Seq[Int] =
+    Seq.fill(n - order)(0) ++: coefficientsInDescendant
 
-  def coefficientsAsNthOrderInAscendant(n: Int): List[Int] =
+  def coefficientsAsNthOrderInAscendant(n: Int): Seq[Int] =
     coefficientsAsNthOrderInDescendant(n).reverse
 
   coefficientsInAscendant.zipWithIndex.foreach{ case (c_i, i) => // the order of each term is i+1
@@ -62,7 +62,10 @@ class FactorialRepresentation private (private val coefficients: List[Int] /* de
 
 object FactorialRepresentation{
 
-  /** descendant */
+  /**
+    * descendant
+    * arg type is List (not Seq) to distinguish apply(Int*)
+    */
   def apply(coefficients: List[Int]): FactorialRepresentation = {
     val canonical = coefficients.dropWhile(_ == 0)
     new FactorialRepresentation(canonical)

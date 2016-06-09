@@ -47,7 +47,7 @@ class PermutationSpec extends ConformalCustomSpec {
     }
   }
 
-  "inverse() method should" - {
+  "inverse method should" - {
 
     "return the inverse permutation" in {
       val conversions =
@@ -70,7 +70,7 @@ class PermutationSpec extends ConformalCustomSpec {
     }
   }
 
-  "sgn() method should" - {
+  "sgn method should" - {
 
     "return sign of permutation" in {
       val conversions =
@@ -270,6 +270,104 @@ class PermutationSpec extends ConformalCustomSpec {
   }
 
   "Companion object" - {
+
+    "allPermutations() method should" - {
+
+      "generate all permutations for degree = 1" in {
+        val conversions = Table(
+          "permutations",
+          Permutation.allPermutationsInLexicographicOrder(1),
+          Permutation.allPermutationsWithSignCalculated(1)
+        )
+
+        __SetUp__
+        val expected = Set(Permutation(0))
+
+        forAll(conversions){ ps: Seq[Permutation] =>
+          __Verify__
+          ps.toSet should equal (expected)
+        }
+      }
+
+      "generate all permutations for degree = 2" in {
+        val conversions = Table(
+          "permutations",
+          Permutation.allPermutationsInLexicographicOrder(2),
+          Permutation.allPermutationsWithSignCalculated(2)
+        )
+
+        val expected = Set(Permutation(0, 1), Permutation(1, 0))
+
+        forAll(conversions){ ps: Seq[Permutation] =>
+          __Verify__
+          ps.toSet should equal (expected)
+        }
+      }
+
+      "generate all permutations for degree = 3" in {
+        val conversions = Table(
+          "permutations",
+          Permutation.allPermutationsInLexicographicOrder(3),
+          Permutation.allPermutationsWithSignCalculated(3)
+        )
+
+        val expected = Set(
+          Permutation(0, 1, 2), Permutation(0, 2, 1),
+          Permutation(1, 0, 2), Permutation(1, 2, 0),
+          Permutation(2, 0, 1), Permutation(2, 1, 0))
+
+        forAll(conversions){ ps: Seq[Permutation] =>
+          __Verify__
+          ps.toSet should equal (expected)
+        }
+      }
+
+      "generate all permutations for degree = 4" in {
+        val conversions = Table(
+          "permutations",
+          Permutation.allPermutationsInLexicographicOrder(4),
+          Permutation.allPermutationsWithSignCalculated(4)
+        )
+
+        __SetUp__
+        val expected = Set(
+          Permutation(0, 1, 2, 3), Permutation(0, 1, 3, 2),
+          Permutation(0, 2, 1, 3), Permutation(0, 2, 3, 1),
+          Permutation(0, 3, 1, 2), Permutation(0, 3, 2, 1),
+
+          Permutation(1, 0, 2, 3), Permutation(1, 0, 3, 2),
+          Permutation(1, 2, 0, 3), Permutation(1, 2, 3, 0),
+          Permutation(1, 3, 0, 2), Permutation(1, 3, 2, 0),
+
+          Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1),
+          Permutation(2, 1, 0, 3), Permutation(2, 1, 3, 0),
+          Permutation(2, 3, 0, 1), Permutation(2, 3, 1, 0),
+
+          Permutation(3, 0, 1, 2), Permutation(3, 0, 2, 1),
+          Permutation(3, 1, 0, 2), Permutation(3, 1, 2, 0),
+          Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0))
+
+        forAll(conversions){ ps: Seq[Permutation] =>
+          val list = ps.toList
+          __Verify__
+          ps.toSet should equal (expected)
+        }
+      }
+
+      "allPermutationsInLexicographicOrder method should" - {
+
+        "return permutations in the lexicographic order" in {
+          val conversions = Table("degree", 1, 2, 3, 4, 5)
+
+          forAll(conversions){ degree: Int =>
+            __Exercise__
+            val sut = Permutation.allPermutationsInLexicographicOrder(degree)
+            __Verify__
+            sut should be (sorted)
+          }
+        }
+      }
+    }
 
     "nthPermutation(Int, Int) method should " - {
 

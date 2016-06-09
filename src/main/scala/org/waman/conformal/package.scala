@@ -12,7 +12,25 @@ package object conformal {
       }
     }
 
-  def swap[E](list: List[E], i: Int, j: Int): List[E] = swap(list: Seq[E], i, j).toList
+  def insertAt[E](seq: Seq[E], i: Int, e: E): Seq[E] = i match {
+    case 0 => e +: seq
+    case _ if i == seq.length => seq :+ e
+    case _ =>
+      val (first, second) = seq.splitAt(i)
+      first ++: e +: second
+  }
+
+  def insertAt[E](vec: Vector[E], i: Int, e: E): Vector[E] = insertAt(vec: Seq[E], i, e).toVector
+
+  def removeAt[E](seq: Seq[E], i: Int): Seq[E] = i match {
+    case 0 => seq.tail
+//    case _ if i == seq.length => seq.init
+    case _ =>
+      val (first, second) = seq.splitAt(i)
+      first ++: second.tail
+  }
+
+  def removeAt[E](seq: Vector[E], i: Int): Vector[E] = removeAt(seq: Seq[E], i).toVector
 
   def indexOfMax[T](seq: Seq[T])(implicit ord: Ordering[T]): Int =
     seq.zipWithIndex.reduceLeft[(T, Int)]{ case (x, y) =>
