@@ -12,6 +12,14 @@ package object conformal {
       }
     }
 
+  def swap[E](vec: Vector[E], i: Int, j: Int): Vector[E] = {
+    if(i == j) vec
+    else{
+      val e = vec(i)
+      vec.updated(i, vec(j)).updated(j, e)
+    }
+  }
+
   def insertAt[E](seq: Seq[E], i: Int, e: E): Seq[E] = i match {
     case 0 => e +: seq
     case _ if i == seq.length => seq :+ e

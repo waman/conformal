@@ -144,8 +144,8 @@ object Permutation{
   class SeqPermutation(towards: Seq[Int]) extends AbstractSeqPermutation(towards){
 
     override lazy val sgn: Int = {  // (024153)
-    @tailrec
-    def calculateSign(sign: Int, towards: Seq[Int], n: Int): Int = towards match {
+      @tailrec
+      def calculateSign(sign: Int, towards: Seq[Int], n: Int): Int = towards match {
         case _ +: Nil => sign
         case head +: _ if head == n => calculateSign(sign, towards.tail, n+1)
         case _ =>  // case for args: list = Seq(2, 4, 1, 5, 3), n = 1
@@ -166,13 +166,16 @@ object Permutation{
   class SignedPermutation(towards: Vector[Int], val sgn: Int)
       extends AbstractSeqPermutation(towards){
 
-    def generateHigherPermutations: Seq[SignedPermutation] =
+    def generateHigherDegreePermutations: Seq[SignedPermutation] =
       (degree to 0 by -1).map{ i =>
         val newTo = insertAt(towards, i, degree)
         val newSign = if((degree-i) % 2 == 0) sgn else -sgn
         new SignedPermutation(newTo, newSign)
       }
   }
+
+  private[Permutation] def signed(to: Vector[Int], sign: Int): SignedPermutation =
+    new SignedPermutation(to, sign)
 
   def identity(deg: Int): Permutation = new Permutation {
     override def degree: Int = deg
@@ -231,37 +234,41 @@ object Permutation{
           if(calculateSign)
             allPermutationsWithSignCalculated(degree)
           else
-            Nil  // TODO
+            allPermutationsWithSignCalculated(degree)  // TODO
         }
     }
 
   private[integral] def allPermutationsInLexicographicOrder(degree: Int): Seq[Permutation] = {
 
-    case class PermutationInfo(towards: Vector[Int], available: Vector[Int])
+    case class PermutationInfo(towards: Vector[Int], available: Vector[Int]){
+
+      def reduceOneStep: Seq[PermutationInfo] = {
+        @tailrec
+        def generate(seq: Seq[PermutationInfo], i: Int): Seq[PermutationInfo] =
+          i match {
+            case -1 => seq
+            case _  =>
+              val newTowards = towards :+ available(i)
+              val newAvailable = removeAt(available, i)
+              val newInfo = PermutationInfo(newTowards, newAvailable)
+              generate(newInfo +: seq, i-1)
+          }
+
+        generate(Nil, available.length-1)
+      }
+    }
 
     @tailrec
-    def generatePermutations(accum: Stream[PermutationInfo], n: Int): Stream[PermutationInfo] =
+    def generateAll(stream: Stream[PermutationInfo], n: Int): Stream[PermutationInfo] =
       n match {
-        case 0 => accum
+        case 0 => stream
         case _ =>
-          val newAccum = accum.flatMap{ info =>
-            @tailrec
-            def nextPermutationInfo(seq: Seq[PermutationInfo], i: Int): Seq[PermutationInfo] =
-              i match {
-                case -1 => seq
-                case _  =>
-                  val newTowards = info.towards :+ info.available(i)
-                  val newAvailable = removeAt(info.available, i)
-                  nextPermutationInfo(PermutationInfo(newTowards, newAvailable) +: seq, i-1)
-              }
-
-            nextPermutationInfo(Nil, n-1)
-          }
-          generatePermutations(newAccum, n-1)
+          val newStream = stream.flatMap(_.reduceOneStep)
+          generateAll(newStream, n-1)
       }
 
     val info = PermutationInfo(Vector(), (0 until degree).toVector)
-    generatePermutations(Stream(info), degree).map(info => new SeqPermutation(info.towards))
+    generateAll(Stream(info), degree).map(info => new SeqPermutation(info.towards))
   }
 
   private[integral] def allPermutationsWithSignCalculated(degree: Int): Seq[Permutation] = {
@@ -270,7 +277,7 @@ object Permutation{
       n match {
         case 1 => stream
         case _ =>
-          val newStream = stream.flatMap(_.generateHigherPermutations)
+          val newStream = stream.flatMap(_.generateHigherDegreePermutations)
           generatePermutations(newStream, n-1)
       }
 
@@ -278,8 +285,25 @@ object Permutation{
     generatePermutations(Stream(p1), degree)
   }
 
-  private[Permutation] def signed(to: Vector[Int], sign: Int): SignedPermutation =
-    new SignedPermutation(to, sign)
+  def allPermutations[E](arg: Seq[E]): Seq[Seq[E]] = {
+    @tailrec
+    def generateAll(stream: Stream[Vector[E]], n: Int): Stream[Seq[E]] = n match {
+      case -1 => stream
+      case _ =>
+        val newStream = stream.flatMap{ v =>
+          @tailrec
+          def generate(seq: Seq[Vector[E]], i: Int): Seq[Vector[E]] = i match {
+            case -1 => seq
+            case _  => generate(seq :+ swap(v, i, n), i-1)
+          }
+
+          generate(Vector(), n)
+        }
+        generateAll(newStream, n-1)
+    }
+
+    generateAll(Stream(arg.toVector), arg.length-1)
+  }
 
   //***** Sequence number in lexicographic order *****
   def nthPermutation(n: Int, degree: Int): Permutation =

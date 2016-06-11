@@ -1,6 +1,7 @@
 package org.waman.conformal.integral
 
 import org.scalatest.OptionValues._
+import org.scalatest.LoneElement._
 import org.waman.conformal.ConformalCustomSpec
 
 class PermutationSpec extends ConformalCustomSpec {
@@ -271,9 +272,9 @@ class PermutationSpec extends ConformalCustomSpec {
 
   "Companion object" - {
 
-    "allPermutations() method should" - {
+    "allPermutations(Int) method should" - {
 
-      "generate all permutations for degree = 1" in {
+      "generate all permutations of degree 1" in {
         val conversions = Table(
           "permutations",
           Permutation.allPermutationsInLexicographicOrder(1),
@@ -289,7 +290,7 @@ class PermutationSpec extends ConformalCustomSpec {
         }
       }
 
-      "generate all permutations for degree = 2" in {
+      "generate all permutations of degree 2" in {
         val conversions = Table(
           "permutations",
           Permutation.allPermutationsInLexicographicOrder(2),
@@ -304,7 +305,7 @@ class PermutationSpec extends ConformalCustomSpec {
         }
       }
 
-      "generate all permutations for degree = 3" in {
+      "generate all permutations of degree 3" in {
         val conversions = Table(
           "permutations",
           Permutation.allPermutationsInLexicographicOrder(3),
@@ -322,7 +323,7 @@ class PermutationSpec extends ConformalCustomSpec {
         }
       }
 
-      "generate all permutations for degree = 4" in {
+      "generate all permutations of degree 4" in {
         val conversions = Table(
           "permutations",
           Permutation.allPermutationsInLexicographicOrder(4),
@@ -366,6 +367,39 @@ class PermutationSpec extends ConformalCustomSpec {
             sut should be (sorted)
           }
         }
+      }
+    }
+
+    "allPermutations(Seq) method should" - {
+
+      "generate all permutations of degree 1" in {
+        __SetUp__
+        val list = List("a")
+        __Exercise__
+        val sut = Permutation.allPermutations(list)
+        __Verify__
+        sut.loneElement should equal (List("a"))
+      }
+
+      "generate all permutations of degree 2" in {
+        __SetUp__
+        val list = List("a", "b")
+        __Exercise__
+        val sut = Permutation.allPermutations(list)
+        __Verify__
+        sut should equal (Seq(List("a", "b"), List("b", "a")))
+      }
+
+      "generate all permutations of degree 3" in {
+        __SetUp__
+        val list = List("a", "b", "c")
+        __Exercise__
+        val sut = Permutation.allPermutations(list)
+        __Verify__
+        sut should equal (Seq(
+          List("a", "b", "c"), List("b", "a", "c"),
+          List("a", "c", "b"), List("c", "a", "b"),
+          List("c", "b", "a"), List("b", "c", "a")))
       }
     }
 

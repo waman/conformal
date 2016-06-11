@@ -4,7 +4,12 @@ import spire.math.Integral
 import scala.annotation.tailrec
 import spire.implicits._
 
+import scala.language.implicitConversions
+
 package object integral {
+
+  implicit def convertIntToFactorialRepresentation(i: Int): FactorialRepresentation =
+    FactorialRepresentation.fromInt(i)
 
   def factorial[I: Integral](i: I): I = {
     @tailrec
