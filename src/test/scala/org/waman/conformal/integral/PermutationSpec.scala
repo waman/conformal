@@ -272,183 +272,235 @@ class PermutationSpec extends ConformalCustomSpec {
 
   "Companion object" - {
 
-    "allPermutations(Int) method should" - {
+    "Permutation generation" - {
 
-      "generate all permutations of degree 1" in {
-        val conversions = Table(
-          "permutations",
-          Permutation.allPermutationsInLexicographicOrder(1),
-          Permutation.allPermutationsWithSignCalculated(1)
-        )
+      "allPermutations(Int) method should" - {
 
-        __SetUp__
-        val expected = Set(Permutation(0))
+        "generate all permutations of degree 1" in {
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations(1),
+            Permutation.allPermutations1(1),
+            Permutation.allPermutationsWithSign1(1),
+            Permutation.allPermutations2(1),
+            Permutation.allPermutationsWithSign2(1)
+          )
 
-        forAll(conversions){ ps: Seq[Permutation] =>
-          __Verify__
-          ps.toSet should equal (expected)
+          __SetUp__
+          val expected = Set(Permutation(0))
+
+          forAll(conversions) { ps: Seq[Permutation] =>
+            __Verify__
+            ps.toSet should equal(expected)
+          }
+        }
+
+        "generate all permutations of degree 2" in {
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations(2),
+            Permutation.allPermutations1(2),
+            Permutation.allPermutationsWithSign1(2),
+            Permutation.allPermutations2(2),
+            Permutation.allPermutationsWithSign2(2)
+          )
+
+          val expected = Set(Permutation(0, 1), Permutation(1, 0))
+
+          forAll(conversions) { ps: Seq[Permutation] =>
+            __Verify__
+            ps.toSet should equal(expected)
+          }
+        }
+
+        "generate all permutations of degree 3" in {
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations(3),
+            Permutation.allPermutations1(3),
+            Permutation.allPermutationsWithSign1(3),
+            Permutation.allPermutations2(3),
+            Permutation.allPermutationsWithSign2(3)
+          )
+
+          val expected = Set(
+            Permutation(0, 1, 2), Permutation(0, 2, 1),
+            Permutation(1, 0, 2), Permutation(1, 2, 0),
+            Permutation(2, 0, 1), Permutation(2, 1, 0))
+
+          forAll(conversions) { ps: Seq[Permutation] =>
+            __Verify__
+            ps.toSet should equal(expected)
+          }
+        }
+
+        "generate all permutations of degree 4" in {
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations(4),
+            Permutation.allPermutations1(4),
+            Permutation.allPermutationsWithSign1(4),
+            Permutation.allPermutations2(4),
+            Permutation.allPermutationsWithSign2(4)
+          )
+
+          __SetUp__
+          val expected = Set(
+            Permutation(0, 1, 2, 3), Permutation(0, 1, 3, 2),
+            Permutation(0, 2, 1, 3), Permutation(0, 2, 3, 1),
+            Permutation(0, 3, 1, 2), Permutation(0, 3, 2, 1),
+
+            Permutation(1, 0, 2, 3), Permutation(1, 0, 3, 2),
+            Permutation(1, 2, 0, 3), Permutation(1, 2, 3, 0),
+            Permutation(1, 3, 0, 2), Permutation(1, 3, 2, 0),
+
+            Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1),
+            Permutation(2, 1, 0, 3), Permutation(2, 1, 3, 0),
+            Permutation(2, 3, 0, 1), Permutation(2, 3, 1, 0),
+
+            Permutation(3, 0, 1, 2), Permutation(3, 0, 2, 1),
+            Permutation(3, 1, 0, 2), Permutation(3, 1, 2, 0),
+            Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0))
+
+          forAll(conversions) { ps: Seq[Permutation] =>
+            val list = ps.toList
+            __Verify__
+            ps.toSet should equal(expected)
+          }
         }
       }
 
-      "generate all permutations of degree 2" in {
-        val conversions = Table(
-          "permutations",
-          Permutation.allPermutationsInLexicographicOrder(2),
-          Permutation.allPermutationsWithSignCalculated(2)
-        )
-
-        val expected = Set(Permutation(0, 1), Permutation(1, 0))
-
-        forAll(conversions){ ps: Seq[Permutation] =>
-          __Verify__
-          ps.toSet should equal (expected)
-        }
-      }
-
-      "generate all permutations of degree 3" in {
-        val conversions = Table(
-          "permutations",
-          Permutation.allPermutationsInLexicographicOrder(3),
-          Permutation.allPermutationsWithSignCalculated(3)
-        )
-
-        val expected = Set(
-          Permutation(0, 1, 2), Permutation(0, 2, 1),
-          Permutation(1, 0, 2), Permutation(1, 2, 0),
-          Permutation(2, 0, 1), Permutation(2, 1, 0))
-
-        forAll(conversions){ ps: Seq[Permutation] =>
-          __Verify__
-          ps.toSet should equal (expected)
-        }
-      }
-
-      "generate all permutations of degree 4" in {
-        val conversions = Table(
-          "permutations",
-          Permutation.allPermutationsInLexicographicOrder(4),
-          Permutation.allPermutationsWithSignCalculated(4)
-        )
-
-        __SetUp__
-        val expected = Set(
-          Permutation(0, 1, 2, 3), Permutation(0, 1, 3, 2),
-          Permutation(0, 2, 1, 3), Permutation(0, 2, 3, 1),
-          Permutation(0, 3, 1, 2), Permutation(0, 3, 2, 1),
-
-          Permutation(1, 0, 2, 3), Permutation(1, 0, 3, 2),
-          Permutation(1, 2, 0, 3), Permutation(1, 2, 3, 0),
-          Permutation(1, 3, 0, 2), Permutation(1, 3, 2, 0),
-
-          Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1),
-          Permutation(2, 1, 0, 3), Permutation(2, 1, 3, 0),
-          Permutation(2, 3, 0, 1), Permutation(2, 3, 1, 0),
-
-          Permutation(3, 0, 1, 2), Permutation(3, 0, 2, 1),
-          Permutation(3, 1, 0, 2), Permutation(3, 1, 2, 0),
-          Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0))
-
-        forAll(conversions){ ps: Seq[Permutation] =>
-          val list = ps.toList
-          __Verify__
-          ps.toSet should equal (expected)
-        }
-      }
-
-      "allPermutationsInLexicographicOrder method should" - {
+      "allPermutations1(Int) and allPermutationsWithSign1 method should" - {
 
         "return permutations in the lexicographic order" in {
-          val conversions = Table("degree", 1, 2, 3, 4, 5)
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations1(1),
+            Permutation.allPermutations1(2),
+            Permutation.allPermutations1(3),
+            Permutation.allPermutations1(4),
+            Permutation.allPermutations1(5),
+            Permutation.allPermutationsWithSign1(1),
+            Permutation.allPermutationsWithSign1(2),
+            Permutation.allPermutationsWithSign1(3),
+            Permutation.allPermutationsWithSign1(4),
+            Permutation.allPermutationsWithSign1(5)
+          )
 
-          forAll(conversions){ degree: Int =>
-            __Exercise__
-            val sut = Permutation.allPermutationsInLexicographicOrder(degree)
+          forAll(conversions) { sut: Seq[Permutation] =>
             __Verify__
-            sut should be (sorted)
+            sut should be(sorted)
+          }
+        }
+      }
+
+      "allPermutations(Seq) method should" - {
+
+        "generate all permutations of degree 1" in {
+          __SetUp__
+          val list = List("a")
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations(list),
+            Permutation.allPermutations1(list),
+            Permutation.allPermutations2(list),
+            Permutation.allPermutations3(list)
+          )
+
+          forAll(conversions) { sut: Seq[Seq[String]] =>
+            __Verify__
+            sut.loneElement should equal(List("a"))
+          }
+        }
+
+        "generate all permutations of degree 2" in {
+          __SetUp__
+          val list = List("a", "b")
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations(list),
+            Permutation.allPermutations1(list),
+            Permutation.allPermutations2(list),
+            Permutation.allPermutations3(list)
+          )
+
+          forAll(conversions) { sut: Seq[Seq[String]] =>
+            __Verify__
+            sut should equal(Seq(List("a", "b"), List("b", "a")))
+          }
+        }
+
+        "generate all permutations of degree 3" in {
+          __SetUp__
+          val list = List("a", "b", "c")
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutations(list),
+            Permutation.allPermutations1(list),
+            Permutation.allPermutations2(list),
+            Permutation.allPermutations3(list)
+          )
+
+          forAll(conversions) { sut: Seq[Seq[String]] =>
+            __Verify__
+            sut.toSet should equal(Set(
+              List("a", "b", "c"), List("b", "a", "c"),
+              List("a", "c", "b"), List("c", "a", "b"),
+              List("c", "b", "a"), List("b", "c", "a")))
           }
         }
       }
     }
 
-    "allPermutations(Seq) method should" - {
+    "nthPermutation" - {
 
-      "generate all permutations of degree 1" in {
-        __SetUp__
-        val list = List("a")
-        __Exercise__
-        val sut = Permutation.allPermutations(list)
-        __Verify__
-        sut.loneElement should equal (List("a"))
-      }
+      "nthPermutation(Int, Int) method should " - {
 
-      "generate all permutations of degree 2" in {
-        __SetUp__
-        val list = List("a", "b")
-        __Exercise__
-        val sut = Permutation.allPermutations(list)
-        __Verify__
-        sut should equal (Seq(List("a", "b"), List("b", "a")))
-      }
+        "return the permutation corresponding to the sequence number in lexicographic order" in {
+          val conversions = Table(
+            ("n", "degree", "expected"),
+            (0, 3, Permutation(0, 1, 2)),
+            (1, 3, Permutation(0, 2, 1)),
+            (2, 3, Permutation(1, 0, 2)),
+            (3, 3, Permutation(1, 2, 0)),
+            (4, 3, Permutation(2, 0, 1)),
+            (5, 3, Permutation(2, 1, 0)),
 
-      "generate all permutations of degree 3" in {
-        __SetUp__
-        val list = List("a", "b", "c")
-        __Exercise__
-        val sut = Permutation.allPermutations(list)
-        __Verify__
-        sut should equal (Seq(
-          List("a", "b", "c"), List("b", "a", "c"),
-          List("a", "c", "b"), List("c", "a", "b"),
-          List("c", "b", "a"), List("b", "c", "a")))
-      }
-    }
+            (389, 6, Permutation(3, 1, 0, 5, 4, 2))
+          )
 
-    "nthPermutation(Int, Int) method should " - {
-
-      "return the permutation corresponding to the sequence number in lexicographic order" in {
-        val conversions = Table(
-          ("n", "degree", "expected"),
-          (0, 3, Permutation(0, 1, 2)),
-          (1, 3, Permutation(0, 2, 1)),
-          (2, 3, Permutation(1, 0, 2)),
-          (3, 3, Permutation(1, 2, 0)),
-          (4, 3, Permutation(2, 0, 1)),
-          (5, 3, Permutation(2, 1, 0)),
-
-          (389, 6, Permutation(3, 1, 0, 5, 4, 2))
-        )
-
-        forAll(conversions) { (n: Int, degree: Int, expected: Permutation) =>
-          __Exercise__
-          val sut = Permutation.nthPermutation(n, degree)
-          __Verify__
-          sut should equal (expected)
+          forAll(conversions) { (n: Int, degree: Int, expected: Permutation) =>
+            __Exercise__
+            val sut = Permutation.nthPermutation(n, degree)
+            __Verify__
+            sut should equal(expected)
+          }
         }
       }
-    }
 
-    "nthPermutation(FactorialRepresentation, Int) method should " - {
+      "nthPermutation(FactorialRepresentation, Int) method should " - {
 
-      "return the permutation corresponding to the sequence number in lexicographic order" in {
-        val conversions = Table(
-          ("n", "degree", "expected"),
-          (List(0)   , 3, Permutation(0, 1, 2)),
-          (List(1)   , 3, Permutation(0, 2, 1)),
-          (List(1, 0), 3, Permutation(1, 0, 2)),
-          (List(1, 1), 3, Permutation(1, 2, 0)),
-          (List(2, 0), 3, Permutation(2, 0, 1)),
-          (List(2, 1), 3, Permutation(2, 1, 0)),
+        "return the permutation corresponding to the sequence number in lexicographic order" in {
+          val conversions = Table(
+            ("n", "degree", "expected"),
+            (List(0), 3, Permutation(0, 1, 2)),
+            (List(1), 3, Permutation(0, 2, 1)),
+            (List(1, 0), 3, Permutation(1, 0, 2)),
+            (List(1, 1), 3, Permutation(1, 2, 0)),
+            (List(2, 0), 3, Permutation(2, 0, 1)),
+            (List(2, 1), 3, Permutation(2, 1, 0)),
 
-          (List(3, 1, 0, 2, 1), 6, Permutation(3, 1, 0, 5, 4, 2))
-        )
+            (List(3, 1, 0, 2, 1), 6, Permutation(3, 1, 0, 5, 4, 2))
+          )
 
-        forAll(conversions) { (n: List[Int], degree: Int, expected: Permutation) =>
-          __SetUp__
-          val fr = FactorialRepresentation(n)
-          __Exercise__
-          val sut = Permutation.nthPermutation(fr, degree)
-          __Verify__
-          sut should equal (expected)
+          forAll(conversions) { (n: List[Int], degree: Int, expected: Permutation) =>
+            __SetUp__
+            val fr = FactorialRepresentation(n)
+            __Exercise__
+            val sut = Permutation.nthPermutation(fr, degree)
+            __Verify__
+            sut should equal(expected)
+          }
         }
       }
     }
