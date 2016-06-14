@@ -6,22 +6,42 @@ import org.waman.conformal.ConformalCustomSpec
 
 class PermutationSpec extends ConformalCustomSpec {
 
-  "apply(List[E]) method should" - {
+  "apply(Seq[E]) method should" - {
 
-    "execute permutation of List" in {
+    "execute permutation of Seq" in {
       val conversions =
         Table(
           ("p", "arg", "expected"),
-          (Permutation.identity(3), List("a", "b", "c"), "abc"),
-          (Permutation(0, 2, 1), List("a", "b", "c"), "acb"),
-          (Permutation(0, 2, 1, 4, 5, 3), List("a", "b", "c", "d", "e", "f"), "acbfde")
+          (Permutation.identity(3), Seq("a", "b", "c"), "abc"),
+          (Permutation(0, 2, 1), Seq("a", "b", "c"), "acb"),
+          (Permutation(0, 2, 1, 4, 5, 3), Seq("a", "b", "c", "d", "e", "f"), "acbfde")
         )
 
-      forAll(conversions) { (p: Permutation, objs: List[Any], expected: String) =>
+      forAll(conversions) { (p: Permutation, objs: Seq[String], expected: String) =>
         __Exercise__
         val sut = p(objs)
         __Verify__
         sut.mkString("") should equal(expected)
+      }
+    }
+  }
+
+  "apply(String) method should" - {
+
+    "execute permutation of String" in {
+      val conversions =
+        Table(
+          ("p", "s", "expected"),
+          (Permutation.identity(3), "abc", "abc"),
+          (Permutation(0, 2, 1), "abc", "acb"),
+          (Permutation(0, 2, 1, 4, 5, 3), "abcdef", "acbfde")
+        )
+
+      forAll(conversions) { (p: Permutation, s: String, expected: String) =>
+        __Exercise__
+        val sut = p(s)
+        __Verify__
+        sut should equal(expected)
       }
     }
   }
@@ -375,6 +395,11 @@ class PermutationSpec extends ConformalCustomSpec {
         "return permutations in the lexicographic order" in {
           val conversions = Table(
             "permutations",
+            Permutation.allPermutations(1),
+            Permutation.allPermutations(2),
+            Permutation.allPermutations(3),
+            Permutation.allPermutations(4),
+            Permutation.allPermutations(5),
             Permutation.allPermutations1(1),
             Permutation.allPermutations1(2),
             Permutation.allPermutations1(3),
@@ -447,6 +472,52 @@ class PermutationSpec extends ConformalCustomSpec {
               List("a", "b", "c"), List("b", "a", "c"),
               List("a", "c", "b"), List("c", "a", "b"),
               List("c", "b", "a"), List("b", "c", "a")))
+          }
+        }
+      }
+
+      "allPermutations(String) method should" - {
+
+        "return all permutations of arg string" in {
+          __SetUp__
+          val s = "abcd"
+          val expected = Seq(
+            "abcd", "abdc", "acbd", "acdb", "adbc", "adcb",
+            "bacd", "badc", "bcad", "bcda", "bdac", "bdca",
+            "cabd", "cadb", "cbad", "cbda", "cdab", "cdba",
+            "dabc", "dacb", "dbac", "dbca", "dcab", "dcba"
+          )
+          __Exercise__
+          val sut = Permutation.allPermutations(s)
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+
+      "allPermutationsWithSign(Int) methods should" - {
+
+        "return permutations with correct sign" in {
+          val conversions = Table(
+            "permutations",
+            Permutation.allPermutationsWithSign1(1),
+            Permutation.allPermutationsWithSign1(2),
+            Permutation.allPermutationsWithSign1(3),
+            Permutation.allPermutationsWithSign1(4),
+            Permutation.allPermutationsWithSign1(5),
+            Permutation.allPermutationsWithSign2(1),
+            Permutation.allPermutationsWithSign2(2),
+            Permutation.allPermutationsWithSign2(3),
+            Permutation.allPermutationsWithSign2(4),
+            Permutation.allPermutationsWithSign2(5)
+          )
+
+          forAll(conversions){ ps: Seq[Permutation] =>
+            ps.foreach{ p =>
+              __SetUp__
+              val expected = Permutation(p.towards:_*).sgn
+              __Verify__
+              p.sgn should equal (expected)
+            }
           }
         }
       }
