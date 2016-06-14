@@ -262,6 +262,7 @@ object Permutation{
     * The result is in lexicographic order if the argument seq is ascendant.
     */
   def allPermutations1[E](arg: Seq[E]): Seq[Seq[E]] = {
+    require(arg.nonEmpty)
 
     case class Builder11[F](permuted: Vector[F], available: Vector[F])
         extends PermutationBuilder[F, Builder11[F]]{
@@ -274,8 +275,8 @@ object Permutation{
             case _  =>
               val newPermuted = permuted :+ available(i)
               val newAvailable = removeAt(available, i)
-              val newInfo = Builder11(newPermuted, newAvailable)
-              nextGeneration(newInfo +: accum, i-1)
+              val newBuilder = Builder11(newPermuted, newAvailable)
+              nextGeneration(newBuilder +: accum, i-1)
           }
 
         nextGeneration(Nil, available.length-1)
@@ -294,6 +295,7 @@ object Permutation{
   /** Implementation 1.3 (generate Permutation objects in lexicographic order with permutation sign pre-calculated) */
   private[integral]
   def allPermutationsWithSign1(degree: Int): Seq[Permutation] = {
+    require(degree > 0)
 
     case class Builder13(permuted: Vector[Int], available: Vector[Int], sign: Int)
         extends PermutationBuilder[Int, Builder13]{
@@ -307,8 +309,8 @@ object Permutation{
               val newPermuted = permuted :+ available(i)
               val newAvailable = removeAt(available, i)
               val newSign = if(i % 2 == 0) sign else -sign
-              val newInfo = Builder13(newPermuted, newAvailable, newSign)
-              nextGeneration(newInfo +: accum, i-1)
+              val newBuilder = Builder13(newPermuted, newAvailable, newSign)
+              nextGeneration(newBuilder +: accum, i-1)
           }
 
         nextGeneration(Nil, available.length-1)
@@ -324,18 +326,17 @@ object Permutation{
   /** Implementation 2.1 (generate permutations of any seq) */
   private[integral]
   def allPermutations2[E](arg: Seq[E]): Seq[Seq[E]] = {
+    require(arg.nonEmpty)
 
     case class Builder21[F](permuted: Vector[F], available: Seq[F])
         extends PermutationBuilder[F, Builder21[F]]{
 
-      val degree = permuted.length
-
-      override def nextGeneration: Seq[Builder21[F]] =
-        (degree to 0 by -1).map{ i =>
+      override def nextGeneration: Seq[Builder21[F]] = {
+        (permuted.length to 0 by -1).map{ i =>
           val newPermuted = insertAt(permuted, i, available.head)
-          val newAvailable = available.tail
-          Builder21(newPermuted, newAvailable)
+          Builder21(newPermuted, available.tail)
         }
+      }
     }
 
     val init = Builder21(Vector(), arg)
@@ -350,18 +351,19 @@ object Permutation{
   /** Implementation 2.3 (generate Permutation objects with permutation sign pre-calculated) */
   private[integral]
   def allPermutationsWithSign2(degree: Int): Seq[Permutation] = {
+    require(degree > 0)
 
     case class Builder23(permuted: Seq[Int], sign: Int)
         extends PermutationBuilder[Int, Builder23]{
 
-      val degree = permuted.length
-
-      override def nextGeneration: Seq[Builder23] =
+      override def nextGeneration: Seq[Builder23] = {
+        val degree = permuted.length
         (degree to 0 by -1).map{ i =>
           val newPermuted = insertAt(permuted, i, degree)
           val newSign = if((degree-i) % 2 == 0) sign else -sign
           Builder23(newPermuted, newSign)
         }
+      }
 
       def toPermutation: Permutation = signed(permuted, sign)
     }
@@ -372,26 +374,116 @@ object Permutation{
 
   /** Implementation 3 (generate all permutation of any seq with swapping elements) */
   def allPermutations3[E](arg: Seq[E]): Seq[Seq[E]] = {
+    require(arg.nonEmpty)
 
     @tailrec
-    def generatePermutations(stream: Stream[Vector[E]], n: Int): Stream[Vector[E]] = n match {
+    def generatePermutations(stream: Stream[Vector[E]], i: Int): Stream[Vector[E]] = i match {
       case -1 => stream
       case _ =>
         val newStream = stream.flatMap{ v =>
           @tailrec
-          def nextGeneration(accum: Vector[Vector[E]], i: Int): Vector[Vector[E]] = i match {
+          def nextGeneration(accum: Vector[Vector[E]], j: Int): Vector[Vector[E]] = j match {
             case -1 => accum
             case _  =>
-              val next = swap(v, i, n)
-              nextGeneration(accum :+ next, i-1)
+              val next = swap(v, i, j)
+              nextGeneration(accum :+ next, j-1)
           }
 
-          nextGeneration(Vector(), n)
+          nextGeneration(Vector(), i)
         }
-        generatePermutations(newStream, n-1)
+        generatePermutations(newStream, i-1)
     }
 
     generatePermutations(Stream(arg.toVector), arg.length-1)
+  }
+
+  //***** other permutation generators *****
+  def parityPermutations[E](arg: Seq[E], parity: Int): Seq[Seq[E]] = {
+    require(arg.length > 1)
+
+    case class Builder[F](permuted: Vector[F], available: Vector[F], sign: Int)
+      extends PermutationBuilder[F, Builder[F]]{
+
+      override def nextGeneration: Seq[Builder[F]] = {
+        @tailrec
+        def nextGeneration(accum: Seq[Builder[F]], i: Int): Seq[Builder[F]] =
+          i match {
+            case -1 => accum
+            case _  =>
+              val newPermuted = permuted :+ available(i)
+              val newAvailable = removeAt(available, i)
+              val newSign = if(i % 2 == 0) sign else -sign
+              val newBuilder = Builder(newPermuted, newAvailable, newSign)
+              nextGeneration(newBuilder +: accum, i-1)
+          }
+
+        nextGeneration(Nil, available.length-1)
+      }
+    }
+
+    val init = Builder(Vector(), arg.toVector, 1)
+
+    generatePermutations(init, arg.length-2).map{
+      case b if b.sign == parity =>
+        b.permuted ++: b.available
+      case b =>
+        b.permuted ++: b.available.reverse
+    }
+  }
+
+  def evenPermutations[E](arg: Seq[E]): Seq[Seq[E]] = arg.length match {
+    case 1 => Seq(arg)
+    case _ => parityPermutations(arg, 1)
+  }
+
+  def evenPermutations(degree: Int): Seq[Permutation] =
+    evenPermutations(0 until degree).map(signed(_, 1))
+
+  def oddPermutations[E](arg: Seq[E]): Seq[Seq[E]] = arg.length match {
+    case 1 => Nil
+    case _ => parityPermutations (arg, -1)
+  }
+
+  def oddPermutations(degree: Int): Seq[Permutation] =
+    oddPermutations(0 until degree).map(signed(_, -1))
+
+  def derangements[E](arg: Seq[E]): Seq[Seq[E]] =
+    derangements(arg.length).map(_(arg))
+
+  def derangements(degree: Int): Seq[Permutation] = {
+    require(degree > 0)
+
+    case class Builder(permuted: Vector[Int], available: Vector[Int], n: Int)
+        extends PermutationBuilder[Int, Builder]{
+
+      override def nextGeneration: Seq[Builder] = {
+        @tailrec
+        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] = {
+          i match {
+            case -1 => accum
+            case _ =>
+              val entry = available(i)
+              if(entry == n) {
+                nextGeneration(accum, i-1)
+              }else{
+                val newPermuted = permuted :+ entry
+                val newAvailable = removeAt(available, i)
+                val newBuilder = Builder(newPermuted, newAvailable, n+1)
+                nextGeneration(newBuilder +: accum, i-1)
+              }
+          }
+        }
+
+        nextGeneration(Nil, available.length-1)
+      }
+    }
+
+    degree match {
+      case 1 => Nil
+      case _ =>
+        val init = Builder(Vector(), (0 until degree).toVector, 0)
+        generatePermutations(init, degree).map(b => new SeqPermutation(b.permuted))
+    }
   }
 
   //***** Sequence number in lexicographic order *****

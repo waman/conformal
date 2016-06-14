@@ -521,6 +521,89 @@ class PermutationSpec extends ConformalCustomSpec {
           }
         }
       }
+
+      "parity" - {
+
+        "evenPermutations(Int) method should" - {
+
+          "return all even permutations" in {
+            val conversions = Table(
+              ("degree", "expected"),
+              (1, Seq(Permutation(0))),
+              (2, Seq(Permutation(0, 1))),
+              (3, Seq(Permutation(0, 1, 2), Permutation(1, 2, 0), Permutation(2, 0, 1))),
+              (4, Seq(
+                Permutation(0, 1, 2, 3), Permutation(0, 2, 3, 1), Permutation(0, 3, 1, 2),
+                Permutation(1, 0, 3, 2), Permutation(1, 2, 0, 3), Permutation(1, 3, 2, 0),
+                Permutation(2, 0, 1, 3), Permutation(2, 1, 3, 0), Permutation(2, 3, 0, 1),
+                Permutation(3, 0, 2, 1), Permutation(3, 1, 0, 2), Permutation(3, 2, 1, 0)
+              ))
+            )
+
+            forAll(conversions){ (degree: Int, expected: Seq[Permutation]) =>
+              __Exercise__
+              val sut = Permutation.evenPermutations(degree)
+              __Verify__
+              sut should equal (expected)
+              sut.foreach{ p =>
+                p.sgn should equal (1)
+              }
+            }
+          }
+        }
+
+        "oddPermutations(Int) method should" - {
+
+          "return all even permutations" in {
+            val conversions = Table(
+              ("degree", "expected"),
+              (1, Seq()),
+              (2, Seq(Permutation(1, 0))),
+              (3, Seq(Permutation(0, 2, 1), Permutation(1, 0, 2), Permutation(2, 1, 0))),
+              (4, Seq(
+                Permutation(0, 1, 3, 2), Permutation(0, 2, 1, 3), Permutation(0, 3, 2, 1),
+                Permutation(1, 0, 2, 3), Permutation(1, 2, 3, 0), Permutation(1, 3, 0, 2),
+                Permutation(2, 0, 3, 1), Permutation(2, 1, 0, 3), Permutation(2, 3, 1, 0),
+                Permutation(3, 0, 1, 2), Permutation(3, 1, 2, 0), Permutation(3, 2, 0, 1)
+              ))
+            )
+
+            forAll(conversions){ (degree: Int, expected: Seq[Permutation]) =>
+              __Exercise__
+              val sut = Permutation.oddPermutations(degree)
+              __Verify__
+              sut should equal (expected)
+              sut.foreach{ p =>
+                p.sgn should equal (-1)
+              }
+            }
+          }
+        }
+      }
+
+      "derangements(Int) method should" - {
+
+        "return all derangements" in {
+          val conversions = Table(
+            ("degree", "expected"),
+            (1, Set[Permutation]()),
+            (2, Set(Permutation(1, 0))),
+            (3, Set(Permutation(1, 2, 0), Permutation(2, 0, 1))),
+            (4, Set(
+              Permutation(1, 0, 3, 2), Permutation(1, 2, 3, 0), Permutation(1, 3, 0, 2),
+              Permutation(2, 0, 3, 1), Permutation(2, 3, 0, 1), Permutation(2, 3, 1, 0),
+              Permutation(3, 0, 1, 2), Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0)
+            ))
+          )
+
+          forAll(conversions){ (degree: Int, expected: Set[Permutation]) =>
+            __Exercise__
+            val sut = Permutation.derangements(degree)
+            __Verify__
+            sut.toSet should equal (expected)
+          }
+        }
+      }
     }
 
     "nthPermutation" - {
