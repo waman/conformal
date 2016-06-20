@@ -1,6 +1,7 @@
 package org.waman.conformal.integral
 
 import org.waman.conformal._
+import spire.math.Integral
 
 import scala.annotation.tailrec
 import scala.collection.immutable.LinearSeq
@@ -8,8 +9,7 @@ import scala.collection.immutable.LinearSeq
 trait Permutation extends PartialFunction[Int, Int] with Ordered[Permutation]{
 
   def degree: Int
-  def indices: Range = 0 until degree
-  def towards: Seq[Int] = indices.map(apply(_))
+  protected def indices: Range = 0 until degree
 
   override def isDefinedAt(i: Int): Boolean = indices.contains(i)
 
@@ -26,7 +26,7 @@ trait Permutation extends PartialFunction[Int, Int] with Ordered[Permutation]{
 
   def apply[E](list: List[E]): List[E] = apply(list: Seq[E]).toList
 
-  def apply(s: String): String = apply(s: Seq[Char]).mkString("")
+  def apply(s: String): String = apply(s: Seq[Char]).mkString
 
   def *(p: Permutation): Permutation = {
     require(degree == p.degree)
@@ -65,7 +65,7 @@ trait Permutation extends PartialFunction[Int, Int] with Ordered[Permutation]{
   def next: Option[Permutation] = degree match {
     case 1 => None
     case _ =>
-      val to = towards
+      val to = toSeq
       to.sliding(2).toSeq.lastIndexWhere(p => p.head < p(1)) match {
         case -1 => None
         case i =>  //  case for args: to = Seq(0, 2, 4, 1, 5, 3), i = 3 (1 < 5)
@@ -85,61 +85,70 @@ trait Permutation extends PartialFunction[Int, Int] with Ordered[Permutation]{
 
   def sequenceNumberInFactorialRepresentation: FactorialRepresentation = {
     @tailrec
-    def sequenceNumber(fact: List[Int], towards: Vector[Int]): List[Int] =
-      towards.isEmpty match {
+    def sequenceNumber(fact: List[Int], permuted: Vector[Int]): List[Int] =
+      permuted.isEmpty match {
         case true  => fact
         case false =>
-          val (init, last) = (towards.init, towards.last)
+          val (init, last) = (permuted.init, permuted.last)
           val n = last - init.count(_ < last)
           sequenceNumber(n::fact, init)
       }
 
-    val fact = sequenceNumber(Nil, towards.toVector.init)  // The last place (place of 0!) is removed
+    val fact = sequenceNumber(Nil, toSeq.toVector.init)  // The last place (place of 0!) is removed
 
 //    // another implementation
 //    @tailrec
-//    def sequenceNumber(fact: Vector[Int], towards: List[Int]): List[Int] =
-//      towards.length match {
+//    def sequenceNumber(fact: Vector[Int], permuted: List[Int]): List[Int] =
+//      permuted.length match {
 //        case 1 => fact  // The last place (place of 0!) is ignored
 //        case _ =>
-//          val a = towards.head
-//          val list = towards.map(i => if(i > a) i-1 else i)
+//          val a = permuted.head
+//          val list = permuted.map(i => if(i > a) i-1 else i)
 //          sequenceNumber(fact :: list.head, list.tail)
 //      }
 //
-//    val fact = sequenceNumber(Vector(), towards).toList
+//    val fact = sequenceNumber(Vector(), toSeq).toList
 
     FactorialRepresentation(fact)
   }
 
+  //***** Type converters *****
+  def toSeq: Seq[Int] = indices.map(apply(_))
+  def toMap: Map[Int, Int] = indices.map{i => (i, apply(i))}.toMap
 
   //***** Methods of Any *****
   override def equals(other: Any): Boolean = other match {
     case that: Permutation =>
       that.canEqual(this) &&
         degree == that.degree &&
-          towards == that.towards  // indices.forall(i => apply(i) == that.apply(i))
+          toSeq == that.toSeq  // indices.forall(i => apply(i) == that.apply(i))
   }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Permutation]
 
   override def hashCode: Int = (degree +: apply(indices)).hashCode
 
-  override def toString: String = towards.mkString("[", " ", "]")
+  override def toString: String = toSeq.mkString("[", " ", "]")
 }
 
 object Permutation{
+  //***** n! and nPr *****
+  def permutationCount[I: Integral](n: I): I = factorial(n)
+  def permutationCount[I: Integral](n: I, r: I): I = PartialPermutation.permutationCount(n, r)
 
+  //***** Concrete class of Permutation *****
   private[Permutation]
-  abstract class AbstractSeqPermutation(override val towards: Seq[Int]) extends Permutation{
+  abstract class AbstractSeqPermutation(val permuted: Seq[Int]) extends Permutation{
 
-    override def indices: Range = towards.indices
-    override def degree: Int = towards.length
+    override def indices: Range = permuted.indices
+    override def degree: Int = permuted.length
 
-    override def apply(i: Int): Int = towards(i)
-    override def indexOf(i: Int): Int = towards.indexOf(i)
+    override def apply(i: Int): Int = permuted(i)
+    override def indexOf(i: Int): Int = permuted.indexOf(i)
 
-    override def toString: String = towards.mkString("[", " ", "]")
+    override def toSeq: Seq[Int] = permuted
+
+    override def toString: String = permuted.mkString("[", " ", "]")
   }
 
   /**
@@ -147,30 +156,30 @@ object Permutation{
     * The validation is done in apply() factory methods.
     */
   private[Permutation]
-  class SeqPermutation(towards: Seq[Int]) extends AbstractSeqPermutation(towards){
+  class SeqPermutation(permuted: Seq[Int]) extends AbstractSeqPermutation(permuted){
 
     override lazy val sgn: Int = {  // (024153)
       @tailrec
-      def calculateSign(sign: Int, towards: Seq[Int], n: Int): Int = towards match {
+      def calculateSign(sign: Int, permuted: Seq[Int], n: Int): Int = permuted match {
         case _ +: Nil => sign
-        case head +: _ if head == n => calculateSign(sign, towards.tail, n+1)
+        case head +: _ if head == n => calculateSign(sign, permuted.tail, n+1)
         case _ =>  // case for args: list = Seq(2, 4, 1, 5, 3), n = 1
-          val i = towards.indexOf(n)  // i = 2
+          val i = permuted.indexOf(n)  // i = 2
 
-//          val swapped = swap(towards, 0, i) // swapped = Seq(1, 4, 2, 5, 3)
+//          val swapped = swap(permuted, 0, i) // swapped = Seq(1, 4, 2, 5, 3)
 //          val newTowards = swapped.tail
-          val newTowards = towards.updated(i, towards.head).tail  // newTowards = Seq(4, 2, 5, 3)
+          val newTowards = permuted.updated(i, permuted.head).tail  // newTowards = Seq(4, 2, 5, 3)
 
           calculateSign(-sign, newTowards, n+1)
       }
 
-      calculateSign(1, towards.toVector, 0)
+      calculateSign(1, permuted.toVector, 0)
     }
   }
 
   def identity(deg: Int): Permutation = new Permutation {
     override def degree: Int = deg
-    override def towards: Seq[Int] = indices
+    override def toSeq: Seq[Int] = indices
     override def apply(i: Int): Int = i
     override def indexOf(i: Int): Int = i
     override def *(p: Permutation): Permutation = p
@@ -181,29 +190,46 @@ object Permutation{
 
   //***** apply constructors *****
   // apply constructors validate the arguments as well as instantiation
-  def apply(towards: Int*): Permutation = apply(towards.toList)
+  def apply(permuted: LinearSeq[Int]): Permutation = {
+    validatePermutationArguments(permuted)
+    new SeqPermutation(permuted)
+  }
 
-  private def validatePermutationArguments(towards: Seq[Int]): Unit = {
-    val degree = towards.length
+  def apply(permuted: IndexedSeq[Int]): Permutation = {
+    validatePermutationArguments(permuted)
+    new SeqPermutation(permuted)
+  }
+
+  private def validatePermutationArguments(permuted: Seq[Int]): Unit = {
+    val degree = permuted.length
 
     require(degree > 0, "The degree of permutation must be positive: " + degree)
-    require(towards.indices.forall(i => towards.count(_ == i) == 1),
-      "The constructor arguments of SeqPermutation must contain all integers once from 0 until "+ degree)
+    require(permuted.indices.forall(i => permuted.count(_ == i) == 1),
+      "The constructor arguments of permutation must contain all integers once from 0 until "+ degree)
   }
 
-  def apply(towards: LinearSeq[Int]): Permutation = {
-    validatePermutationArguments(towards)
-    new SeqPermutation(towards)
+  trait ConstructorVarargManager[E]{
+    def apply(args: Seq[E]): Seq[Int]
   }
 
-  def apply(towards: IndexedSeq[Int]): Permutation = {
-    validatePermutationArguments(towards)
-    new SeqPermutation(towards)
+  /**
+    * <code>
+    *   Permutation(0, 3, 1, 2)
+    *   Permutation(0 -> 0, 2 -> 1, 3 -> 2, 1 -> 3)
+    * </code>
+    *
+    * @tparam E Int or (Int, Int)
+    */
+  def apply[E: ConstructorVarargManager](args: E*): Permutation = {
+    val manager = implicitly[ConstructorVarargManager[E]]
+    val permuted = manager(args)
+    validatePermutationArguments(permuted)
+    new SeqPermutation(permuted)
   }
 
   //***** Some implementations of generating all permutations *****
-  private[Permutation] def signed(towards: Seq[Int], sign: Int): Permutation =
-    new AbstractSeqPermutation(towards){
+  private[Permutation] def signed(permuted: Seq[Int], sign: Int): Permutation =
+    new AbstractSeqPermutation(permuted){
       override def sgn: Int = sign
     }
 
@@ -224,7 +250,7 @@ object Permutation{
     case _ => allPermutations1(arg)
   }
 
-  def allPermutations(s: String): Seq[String] = allPermutations(s: Seq[Char]).map(_.mkString(""))
+  def allPermutations(s: String): Seq[String] = allPermutations(s: Seq[Char]).map(_.mkString)
 
   def allPermutations(degree: Int, calculateSign: Boolean = false): Seq[Permutation] =
     degree match {
@@ -238,23 +264,9 @@ object Permutation{
           allPermutations1(degree)
     }
 
-  trait PermutationBuilder[E, B <: PermutationBuilder[E, B]]{
-    def nextGeneration: Seq[B]
+  trait PermutationBuilder[E, B <: PermutationBuilder[E, B]]
+      extends CombinatorialBuilder[E, B]{
     def permuted: Seq[E]
-  }
-
-  private def generatePermutations[B <: PermutationBuilder[_, B]](init: B, n: Int): Stream[B] = {
-
-    @tailrec
-    def generateAll(stream: Stream[B], n: Int): Stream[B] =
-      n match {
-        case 0 => stream
-        case _ =>
-          val newStream = stream.flatMap(_.nextGeneration)
-          generateAll(newStream, n-1)
-      }
-
-    generateAll(Stream(init), n)
   }
 
   /**
@@ -284,13 +296,40 @@ object Permutation{
     }
 
     val init = Builder11(Vector(), arg.toVector)
-    generatePermutations(init, arg.length).map(_.permuted)
+    generateCombinatorial(init, arg.length).map(_.permuted)
   }
 
   /** Implementation 1.2 (generate Permutation objects in lexicographic order) */
   private[integral]
   def allPermutations1(degree: Int): Seq[Permutation] =
     allPermutations1(0 until degree).map(new SeqPermutation(_))
+//  {
+//    require(degree > 0)
+//
+//    case class Builder12(permuted: Vector[Int], available: Vector[Int])
+//      extends PermutationBuilder[Int, Builder12]{
+//
+//      override def nextGeneration: Seq[Builder12] = {
+//        @tailrec
+//        def nextGeneration(accum: Seq[Builder12], i: Int): Seq[Builder12] =
+//          i match {
+//            case -1 => accum
+//            case _  =>
+//              val newPermuted = permuted :+ available(i)
+//              val newAvailable = removeAt(available, i)
+//              val newBuilder = Builder12(newPermuted, newAvailable)
+//              nextGeneration(newBuilder +: accum, i-1)
+//          }
+//
+//        nextGeneration(Nil, available.length-1)
+//      }
+//
+//      def toPermutation = new SeqPermutation(permuted)
+//    }
+//
+//    val init = Builder12(Vector(), (0 until degree).toVector)
+//    generateCombinatorial(init, degree).map(_.toPermutation)
+//  }
 
   /** Implementation 1.3 (generate Permutation objects in lexicographic order with permutation sign pre-calculated) */
   private[integral]
@@ -320,7 +359,7 @@ object Permutation{
     }
 
     val init = Builder13(Vector(), (0 until degree).toVector, 1)
-    generatePermutations(init, degree).map(_.toPermutation)
+    generateCombinatorial(init, degree).map(_.toPermutation)
   }
 
   /** Implementation 2.1 (generate permutations of any seq) */
@@ -340,13 +379,33 @@ object Permutation{
     }
 
     val init = Builder21(Vector(), arg)
-    generatePermutations(init, arg.length).map(_.permuted)
+    generateCombinatorial(init, arg.length).map(_.permuted)
   }
 
   /** Implementation 2.2 (generate Permutation objects) */
   private[integral]
   def allPermutations2(degree: Int): Seq[Permutation] =
-    allPermutations2(0 until degree).map(towards => new SeqPermutation(towards))
+    allPermutations2(0 until degree).map(permuted => new SeqPermutation(permuted))
+//  {
+//    require(degree > 0)
+//
+//    case class Builder22(permuted: Seq[Int])
+//      extends PermutationBuilder[Int, Builder22]{
+//
+//      override def nextGeneration: Seq[Builder22] = {
+//        val degree = permuted.length
+//        (degree to 0 by -1).map{ i =>
+//          val newPermuted = insertAt(permuted, i, degree)
+//          Builder22(newPermuted)
+//        }
+//      }
+//
+//      def toPermutation: Permutation = new SeqPermutation(permuted)
+//    }
+//
+//    val init = Builder22(Vector())
+//    generateCombinatorial(init, degree).map(_.toPermutation)
+//  }
 
   /** Implementation 2.3 (generate Permutation objects with permutation sign pre-calculated) */
   private[integral]
@@ -369,7 +428,7 @@ object Permutation{
     }
 
     val init = Builder23(Vector(), 1)
-    generatePermutations(init, degree).map(_.toPermutation)
+    generateCombinatorial(init, degree).map(_.toPermutation)
   }
 
   /** Implementation 3 (generate all permutation of any seq with swapping elements) */
@@ -423,7 +482,7 @@ object Permutation{
 
     val init = Builder(Vector(), arg.toVector, 1)
 
-    generatePermutations(init, arg.length-2).map{
+    generateCombinatorial(init, arg.length-2).map{
       case b if b.sign == parity =>
         b.permuted ++: b.available
       case b =>
@@ -482,7 +541,7 @@ object Permutation{
       case 1 => Nil
       case _ =>
         val init = Builder(Vector(), (0 until degree).toVector, 0)
-        generatePermutations(init, degree).map(b => new SeqPermutation(b.permuted))
+        generateCombinatorial(init, degree).map(b => new SeqPermutation(b.permuted))
     }
   }
 
@@ -492,30 +551,30 @@ object Permutation{
 
   def nthPermutation(n: FactorialRepresentation, degree: Int): Permutation = {
     @tailrec
-    def nthPermutation(towards: Vector[Int], rest: Seq[Int], fact: Seq[Int]): Vector[Int] = fact match {
-      case Nil => towards :+ rest.head
+    def nthPermutation(permuted: Vector[Int], rest: Seq[Int], fact: Seq[Int]): Vector[Int] = fact match {
+      case Nil => permuted :+ rest.head
       case 0 +: tail =>
-        nthPermutation(towards :+ rest.head, rest.tail, tail)
+        nthPermutation(permuted :+ rest.head, rest.tail, tail)
       case head +: tail =>
-        // case for towards = Vector(), rest = Seq(0, 1, 2, 3, 4, 5), fact = Seq(3, 1, 0, 2, 1)
-        nthPermutation(towards :+ rest(head), removeAt(rest, head), tail)
-          // next call arg: towards = Vector(3), rest = Seq(0, 1, 2, 4, 5), fact = Seq(1, 0, 2, 1)
+        // case for permuted = Vector(), rest = Seq(0, 1, 2, 3, 4, 5), fact = Seq(3, 1, 0, 2, 1)
+        nthPermutation(permuted :+ rest(head), removeAt(rest, head), tail)
+          // next call arg: permuted = Vector(3), rest = Seq(0, 1, 2, 4, 5), fact = Seq(1, 0, 2, 1)
     }
 
     val cs = n.coefficientsAsNthOrderInDescendant(degree-1)
-    val towards = nthPermutation(Vector(), 0 until degree, cs).toList
+    val permuted = nthPermutation(Vector(), 0 until degree, cs).toList
 
 //    @tailrec
-//    def nthPermutation(towards: List[Int], fact: Vector[Int]): List[Int] = fact.isEmpty match {
-//      case true  => towards
+//    def nthPermutation(permuted: List[Int], fact: Vector[Int]): List[Int] = fact.isEmpty match {
+//      case true  => permuted
 //      case false =>
 //        val a = fact.last
-//        val newTowards = a :: towards.map(i => if(i >= a) i+1 else i)
+//        val newTowards = a :: permuted.map(i => if(i >= a) i+1 else i)
 //        nthPermutation(newTowards, fact.init)
 //    }
 //
-//    val towards = nthPermutation(Nil, n.coefficientsAsNthOrderInDescendant(degree-1).toVector :+ 0)
+//    val permuted = nthPermutation(Nil, n.coefficientsAsNthOrderInDescendant(degree-1).toVector :+ 0)
 
-    new SeqPermutation(towards)
+    new SeqPermutation(permuted)
   }
 }

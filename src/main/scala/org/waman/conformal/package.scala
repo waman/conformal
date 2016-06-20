@@ -1,5 +1,9 @@
 package org.waman
 
+import scala.annotation.unchecked.uncheckedVariance
+import scala.collection.generic.CanBuildFrom
+import scala.language.higherKinds
+
 package object conformal {
 
   def swap[E](seq: Seq[E], i: Int, j: Int): Seq[E] =
@@ -32,7 +36,6 @@ package object conformal {
 
   def removeAt[E](seq: Seq[E], i: Int): Seq[E] = i match {
     case 0 => seq.tail
-//    case _ if i == seq.length => seq.init
     case _ =>
       val (first, second) = seq.splitAt(i)
       first ++: second.tail

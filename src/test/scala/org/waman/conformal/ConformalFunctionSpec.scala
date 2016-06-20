@@ -23,12 +23,11 @@ class ConformalFunctionSpec  extends ConformalCustomSpec{
     }
   }
 
-  "swap(Seq, Int, Int) method should" - {
+  "removeAt(Seq, Int) method should" - {
 
     "remove the element of 1st arg seq specified by the 2nd arg" in {
       val conversions = Table(
-        ("i", "expected"),
-        (0, Seq("b", "c", "d", "e")),
+        ("i", "expected"),        (0, Seq("b", "c", "d", "e")),
         (1, Seq("a", "c", "d", "e"))
       )
 

@@ -290,7 +290,54 @@ class PermutationSpec extends ConformalCustomSpec {
     }
   }
 
+  "Type conversions" - {
+
+    "toMap() method should" - {
+
+      "convert Permutation object to a Map[Int, Int] one" in {
+        val conversions = Table(
+          ("permutation", "expected"),
+          (Permutation(0, 3, 1, 2), Map(0 -> 0, 1 -> 3, 2 -> 1, 3 -> 2))
+        )
+
+        forAll(conversions){ (p: Permutation, expected: Map[Int, Int]) =>
+          __Exercise__
+          val sut = p.toMap
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+    }
+  }
+
   "Companion object" - {
+
+    "apply() factory methods" - {
+
+      "apply(Int*) method should" - {
+
+        "create Permutation object" in {
+          __SetUp__
+          val expected = Permutation(List(0, 3, 1, 2))
+          __Exercise__
+          val sut = Permutation(0, 3, 1, 2)
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+
+      "apply((Int, Int)*) method should" - {
+
+        "create Permutation object" in {
+          __SetUp__
+          val expected = Permutation(List(0, 3, 1, 2))
+          __Exercise__
+          val sut = Permutation(0 -> 0, 2 -> 1, 3 -> 2, 1 -> 3)
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+    }
 
     "Permutation generation" - {
 
@@ -514,7 +561,7 @@ class PermutationSpec extends ConformalCustomSpec {
           forAll(conversions){ ps: Seq[Permutation] =>
             ps.foreach{ p =>
               __SetUp__
-              val expected = Permutation(p.towards:_*).sgn
+              val expected = Permutation(p.toSeq:_*).sgn
               __Verify__
               p.sgn should equal (expected)
             }
