@@ -6,6 +6,8 @@ import org.waman.conformal.ConformalCustomSpec
 
 class PermutationSpec extends ConformalCustomSpec {
 
+  def perm(pi: Int*) = Permutation.fromProperIndices(pi)
+
   "apply(Seq[E]) method should" - {
 
     "execute permutation of Seq" in {
@@ -125,6 +127,16 @@ class PermutationSpec extends ConformalCustomSpec {
       sut should be(true)
     }
 
+    "Two Permutations can not be compared when these degrees do not equal" in {
+      __SetUp__
+      val p0 = Permutation(0, 2, 1)
+      val p1 = Permutation(0, 1, 3, 2)
+      __Verify__
+      an [IllegalArgumentException] should be thrownBy{
+        p0 < p1
+      }
+    }
+
     "next method should" - {
 
       "return None if the next permutation does not exist" in {
@@ -149,22 +161,22 @@ class PermutationSpec extends ConformalCustomSpec {
       "return the next permutation in lexicographic order" in {
         val conversions = Table(
           ("p", "expected"),
-          (Permutation(0, 1), Permutation(1, 0)),
-          (Permutation(0, 1, 2), Permutation(0, 2, 1)),
-          (Permutation(0, 2, 1), Permutation(1, 0, 2)),
-          (Permutation(1, 0, 2), Permutation(1, 2, 0)),
-          (Permutation(2, 0, 1), Permutation(2, 1, 0)),
-          (Permutation(0, 1, 2, 3), Permutation(0, 1, 3, 2)),
-          (Permutation(0, 1, 3, 2), Permutation(0, 2, 1, 3)),
-          (Permutation(0, 3, 2, 1), Permutation(1, 0, 2, 3)),
-          (Permutation(1, 0, 2, 3), Permutation(1, 0, 3, 2)),
-          (Permutation(1, 3, 2, 0), Permutation(2, 0, 1, 3)),
-          (Permutation(2, 0, 1, 3), Permutation(2, 0, 3, 1)),
-          (Permutation(2, 3, 1, 0), Permutation(3, 0, 1, 2)),
-          (Permutation(0, 2, 4, 1, 5, 3), Permutation(0, 2, 4, 3, 1, 5)),
+          (perm(0, 1), perm(1, 0)),
+          (perm(0, 1, 2), perm(0, 2, 1)),
+          (perm(0, 2, 1), perm(1, 0, 2)),
+          (perm(1, 0, 2), perm(1, 2, 0)),
+          (perm(2, 0, 1), perm(2, 1, 0)),
+          (perm(0, 1, 2, 3), perm(0, 1, 3, 2)),
+          (perm(0, 1, 3, 2), perm(0, 2, 1, 3)),
+          (perm(0, 3, 2, 1), perm(1, 0, 2, 3)),
+          (perm(1, 0, 2, 3), perm(1, 0, 3, 2)),
+          (perm(1, 3, 2, 0), perm(2, 0, 1, 3)),
+          (perm(2, 0, 1, 3), perm(2, 0, 3, 1)),
+          (perm(2, 3, 1, 0), perm(3, 0, 1, 2)),
+          (perm(0, 2, 4, 1, 5, 3), perm(0, 2, 4, 3, 1, 5)),
 
-          (Permutation(1, 2, 0) * Permutation(2, 1, 0) /* [0, 2, 1] */ , Permutation(1, 0, 2)),
-          (Permutation(1, 2, 0).inverse /* [2, 0, 1] */ , Permutation(2, 1, 0))
+          (Permutation(1, 2, 0) * Permutation(2, 1, 0) /* [021] = perm(021) */ , perm(1, 0, 2)),
+          (Permutation(1, 2, 0).inverse /* perm(120) */ , perm(2, 0, 1))
         )
 
         forAll(conversions) { (p: Permutation, expected: Permutation) =>
@@ -181,21 +193,21 @@ class PermutationSpec extends ConformalCustomSpec {
       "return the sequence number in lexicographic number" in {
         val conversions = Table(
           ("p", "expected"),
-          (Permutation(0), 0),
+          (perm(0), 0),
 
-          (Permutation(0, 1), 0),
-          (Permutation(1, 0), 1),
+          (perm(0, 1), 0),
+          (perm(1, 0), 1),
 
-          (Permutation(0, 1, 2), 0),
-          (Permutation(0, 2, 1), 1),
-          (Permutation(1, 0, 2), 2),
-          (Permutation(1, 2, 0), 3),
-          (Permutation(2, 0, 1), 4),
-          (Permutation(2, 1, 0), 5),
+          (perm(0, 1, 2), 0),
+          (perm(0, 2, 1), 1),
+          (perm(1, 0, 2), 2),
+          (perm(1, 2, 0), 3),
+          (perm(2, 0, 1), 4),
+          (perm(2, 1, 0), 5),
 
-          (Permutation(0, 1, 2, 3), 0),
-          (Permutation(0, 3, 1, 2), 4),
-          (Permutation(3, 1, 2, 0), 21)
+          (perm(0, 1, 2, 3), 0),
+          (perm(0, 3, 1, 2), 4),
+          (perm(3, 1, 2, 0), 21)
         )
 
         forAll(conversions) { (p: Permutation, expected: Int) =>
@@ -212,19 +224,19 @@ class PermutationSpec extends ConformalCustomSpec {
       "return the sequence number in lexicographic number as factorial representation" in {
         val conversions = Table(
           ("p", "expected"),
-          (Permutation(0), List(0)),
+          (perm(0), List(0)),
 
-          (Permutation(0, 1), List(0)),
-          (Permutation(1, 0), List(1)),
+          (perm(0, 1), List(0)),
+          (perm(1, 0), List(1)),
 
-          (Permutation(0, 1, 2), List(0)),
-          (Permutation(0, 2, 1), List(1)),
-          (Permutation(1, 0, 2), List(1, 0)),
-          (Permutation(1, 2, 0), List(1, 1)),
-          (Permutation(2, 0, 1), List(2, 0)),
-          (Permutation(2, 1, 0), List(2, 1)),
+          (perm(0, 1, 2), List(0)),
+          (perm(0, 2, 1), List(1)),
+          (perm(1, 0, 2), List(1, 0)),
+          (perm(1, 2, 0), List(1, 1)),
+          (perm(2, 0, 1), List(2, 0)),
+          (perm(2, 1, 0), List(2, 1)),
 
-          (Permutation(3, 1, 0, 5, 4, 2), List(3, 1, 0, 2, 1))
+          (perm(3, 1, 0, 5, 4, 2), List(3, 1, 0, 2, 1))
         )
 
         forAll(conversions) { (p: Permutation, expected: List[Int]) =>
@@ -435,33 +447,40 @@ class PermutationSpec extends ConformalCustomSpec {
             ps.toSet should equal(expected)
           }
         }
-      }
 
-      "allPermutations1(Int) and allPermutationsWithSign1 method should" - {
+        "Lexicographic Order" - {
 
-        "return permutations in the lexicographic order" in {
-          val conversions = Table(
-            "permutations",
-            Permutation.allPermutations(1),
-            Permutation.allPermutations(2),
-            Permutation.allPermutations(3),
-            Permutation.allPermutations(4),
-            Permutation.allPermutations(5),
-            Permutation.allPermutations1(1),
-            Permutation.allPermutations1(2),
-            Permutation.allPermutations1(3),
-            Permutation.allPermutations1(4),
-            Permutation.allPermutations1(5),
-            Permutation.allPermutationsWithSign1(1),
-            Permutation.allPermutationsWithSign1(2),
-            Permutation.allPermutationsWithSign1(3),
-            Permutation.allPermutationsWithSign1(4),
-            Permutation.allPermutationsWithSign1(5)
+          val permutationGeneratorConversions = Table(
+            "allPermutations",
+            Permutation.allPermutations(_:Int),
+            Permutation.allPermutations1(_:Int),
+            Permutation.allPermutationsWithSign1(_:Int)
           )
 
-          forAll(conversions) { sut: Seq[Permutation] =>
-            __Verify__
-            sut should be(sorted)
+          val degreeConversions = Table("degree", 1, 2, 3, 4, 5)
+
+          "allPermutations(Int) like methods return permutations in lexicographic order" in {
+            forAll(permutationGeneratorConversions){ gen: (Int => Seq[Permutation]) =>
+              forAll(degreeConversions) { degree: Int =>
+                __Exercise__
+                val sut = gen(degree)
+                __Verify__
+                sut should be (sorted)
+              }
+            }
+          }
+
+          "allPermutations(Int) like methods return permutations which map Seq to those in lexicographic order" in {
+            forAll(permutationGeneratorConversions){ gen: (Int => Seq[Permutation]) =>
+              forAll(degreeConversions) { degree: Int =>
+                __SetUp__
+                val s = "abcdef".substring(0, degree)
+                __Exercise__
+                val sut = gen(degree).map(p => p(s))
+                __Verify__
+                sut should be (sorted)
+              }
+            }
           }
         }
       }
@@ -561,7 +580,7 @@ class PermutationSpec extends ConformalCustomSpec {
           forAll(conversions){ ps: Seq[Permutation] =>
             ps.foreach{ p =>
               __SetUp__
-              val expected = Permutation(p.toSeq:_*).sgn
+              val expected = Permutation(p.properIndices:_*).sgn
               __Verify__
               p.sgn should equal (expected)
             }
@@ -576,14 +595,14 @@ class PermutationSpec extends ConformalCustomSpec {
           "return all even permutations" in {
             val conversions = Table(
               ("degree", "expected"),
-              (1, Seq(Permutation(0))),
-              (2, Seq(Permutation(0, 1))),
-              (3, Seq(Permutation(0, 1, 2), Permutation(1, 2, 0), Permutation(2, 0, 1))),
+              (1, Seq(perm(0))),
+              (2, Seq(perm(0, 1))),
+              (3, Seq(perm(0, 1, 2), perm(1, 2, 0), perm(2, 0, 1))),
               (4, Seq(
-                Permutation(0, 1, 2, 3), Permutation(0, 2, 3, 1), Permutation(0, 3, 1, 2),
-                Permutation(1, 0, 3, 2), Permutation(1, 2, 0, 3), Permutation(1, 3, 2, 0),
-                Permutation(2, 0, 1, 3), Permutation(2, 1, 3, 0), Permutation(2, 3, 0, 1),
-                Permutation(3, 0, 2, 1), Permutation(3, 1, 0, 2), Permutation(3, 2, 1, 0)
+                perm(0, 1, 2, 3), perm(0, 2, 3, 1), perm(0, 3, 1, 2),
+                perm(1, 0, 3, 2), perm(1, 2, 0, 3), perm(1, 3, 2, 0),
+                perm(2, 0, 1, 3), perm(2, 1, 3, 0), perm(2, 3, 0, 1),
+                perm(3, 0, 2, 1), perm(3, 1, 0, 2), perm(3, 2, 1, 0)
               ))
             )
 
@@ -605,13 +624,13 @@ class PermutationSpec extends ConformalCustomSpec {
             val conversions = Table(
               ("degree", "expected"),
               (1, Seq()),
-              (2, Seq(Permutation(1, 0))),
-              (3, Seq(Permutation(0, 2, 1), Permutation(1, 0, 2), Permutation(2, 1, 0))),
+              (2, Seq(perm(1, 0))),
+              (3, Seq(perm(0, 2, 1), perm(1, 0, 2), perm(2, 1, 0))),
               (4, Seq(
-                Permutation(0, 1, 3, 2), Permutation(0, 2, 1, 3), Permutation(0, 3, 2, 1),
-                Permutation(1, 0, 2, 3), Permutation(1, 2, 3, 0), Permutation(1, 3, 0, 2),
-                Permutation(2, 0, 3, 1), Permutation(2, 1, 0, 3), Permutation(2, 3, 1, 0),
-                Permutation(3, 0, 1, 2), Permutation(3, 1, 2, 0), Permutation(3, 2, 0, 1)
+                perm(0, 1, 3, 2), perm(0, 2, 1, 3), perm(0, 3, 2, 1),
+                perm(1, 0, 2, 3), perm(1, 2, 3, 0), perm(1, 3, 0, 2),
+                perm(2, 0, 3, 1), perm(2, 1, 0, 3), perm(2, 3, 1, 0),
+                perm(3, 0, 1, 2), perm(3, 1, 2, 0), perm(3, 2, 0, 1)
               ))
             )
 
@@ -634,12 +653,12 @@ class PermutationSpec extends ConformalCustomSpec {
           val conversions = Table(
             ("degree", "expected"),
             (1, Set[Permutation]()),
-            (2, Set(Permutation(1, 0))),
-            (3, Set(Permutation(1, 2, 0), Permutation(2, 0, 1))),
+            (2, Set(perm(1, 0))),
+            (3, Set(perm(1, 2, 0), perm(2, 0, 1))),
             (4, Set(
-              Permutation(1, 0, 3, 2), Permutation(1, 2, 3, 0), Permutation(1, 3, 0, 2),
-              Permutation(2, 0, 3, 1), Permutation(2, 3, 0, 1), Permutation(2, 3, 1, 0),
-              Permutation(3, 0, 1, 2), Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0)
+              perm(1, 0, 3, 2), perm(1, 2, 3, 0), perm(1, 3, 0, 2),
+              perm(2, 0, 3, 1), perm(2, 3, 0, 1), perm(2, 3, 1, 0),
+              perm(3, 0, 1, 2), perm(3, 2, 0, 1), perm(3, 2, 1, 0)
             ))
           )
 
@@ -660,14 +679,14 @@ class PermutationSpec extends ConformalCustomSpec {
         "return the permutation corresponding to the sequence number in lexicographic order" in {
           val conversions = Table(
             ("n", "degree", "expected"),
-            (0, 3, Permutation(0, 1, 2)),
-            (1, 3, Permutation(0, 2, 1)),
-            (2, 3, Permutation(1, 0, 2)),
-            (3, 3, Permutation(1, 2, 0)),
-            (4, 3, Permutation(2, 0, 1)),
-            (5, 3, Permutation(2, 1, 0)),
+            (0, 3, perm(0, 1, 2)),
+            (1, 3, perm(0, 2, 1)),
+            (2, 3, perm(1, 0, 2)),
+            (3, 3, perm(1, 2, 0)),
+            (4, 3, perm(2, 0, 1)),
+            (5, 3, perm(2, 1, 0)),
 
-            (389, 6, Permutation(3, 1, 0, 5, 4, 2))
+            (389, 6, perm(3, 1, 0, 5, 4, 2))
           )
 
           forAll(conversions) { (n: Int, degree: Int, expected: Permutation) =>
@@ -684,14 +703,14 @@ class PermutationSpec extends ConformalCustomSpec {
         "return the permutation corresponding to the sequence number in lexicographic order" in {
           val conversions = Table(
             ("n", "degree", "expected"),
-            (List(0), 3, Permutation(0, 1, 2)),
-            (List(1), 3, Permutation(0, 2, 1)),
-            (List(1, 0), 3, Permutation(1, 0, 2)),
-            (List(1, 1), 3, Permutation(1, 2, 0)),
-            (List(2, 0), 3, Permutation(2, 0, 1)),
-            (List(2, 1), 3, Permutation(2, 1, 0)),
+            (List(0), 3, perm(0, 1, 2)),
+            (List(1), 3, perm(0, 2, 1)),
+            (List(1, 0), 3, perm(1, 0, 2)),
+            (List(1, 1), 3, perm(1, 2, 0)),
+            (List(2, 0), 3, perm(2, 0, 1)),
+            (List(2, 1), 3, perm(2, 1, 0)),
 
-            (List(3, 1, 0, 2, 1), 6, Permutation(3, 1, 0, 5, 4, 2))
+            (List(3, 1, 0, 2, 1), 6, perm(3, 1, 0, 5, 4, 2))
           )
 
           forAll(conversions) { (n: List[Int], degree: Int, expected: Permutation) =>

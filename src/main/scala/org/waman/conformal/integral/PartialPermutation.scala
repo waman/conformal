@@ -14,7 +14,8 @@ import scala.collection.IndexedSeq
   * / 3 0 1 (2) \ = / 0 1 (2) 3 \    (a, b, c, d) -> (c, a, b)
   * \ 0 1 2 (-) /   \ 1 2 (-) 0 /
   */
-trait PartialPermutation extends PartialFunction[Int, Int]{
+trait PartialPermutation extends PartialFunction[Int, Int]
+    with Ordered[PartialPermutation]{
 
   def degree: Int
   def rank:Int
@@ -40,6 +41,21 @@ trait PartialPermutation extends PartialFunction[Int, Int]{
   def apply(s: String): String = apply(s: Seq[Char]).mkString("")
 
   def indexOf(i: Int): Int
+
+  //***** Order related *****
+  override def compare(that: PartialPermutation): Int = {
+    require(degree == that.degree,
+      s"Two PartialPermutations can be compared when these degrees are the same values: $degree <=> ${that.degree}")
+    require(rank == that.rank,
+      s"Two PartialPermutations can be compared when these ranks are the same values: $rank <=> ${that.rank}")
+
+    indices.map(i => (apply(i), that(i))).find(p => p._1 != p._2) match {
+      case None => 0
+      case Some((x, y)) =>
+        if (x < y) -1
+        else 1
+    }
+  }
 
   //***** Type converters *****
   def toMap: Map[Int, Option[Int]] = indices.map{i => (i, applyOption(i))}.toMap

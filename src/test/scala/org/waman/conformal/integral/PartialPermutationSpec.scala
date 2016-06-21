@@ -107,6 +107,34 @@ class PartialPermutationSpec extends ConformalCustomSpec{
     }
   }
 
+  "Order related methods" - {
+
+    "PartialPermutation implements the Ordered trait" in {
+      val conversions = Table(
+        ("p0", "p1", "expected"),
+        (partialPermutation, PartialPermutation(4, List(0, 1, 2)), true),
+        (partialPermutation, PartialPermutation(4, List(3, 2, 1)), false)
+      )
+
+      forAll(conversions) { (p0: PartialPermutation, p1: PartialPermutation, expected: Boolean) =>
+        __Exercise__
+        val sut = p0 > p1
+        __Verify__
+        sut should equal(expected)
+      }
+    }
+
+    "Two Permutations can not be compared when these degrees do not equal" in {
+      __SetUp__
+      val p0 = Permutation(0, 2, 1)
+      val p1 = Permutation(0, 1, 3, 2)
+      __Verify__
+      an [IllegalArgumentException] should be thrownBy{
+        p0 < p1
+      }
+    }
+  }
+
   "toMap method should" - {
 
     "convert the partial permutation to Map" in {
@@ -124,13 +152,20 @@ class PartialPermutationSpec extends ConformalCustomSpec{
     "== operator should" - {
 
       "evaluate equality of partial permutations" in {
-        __SetUp__
-        val p = PartialPermutation(4, Vector(3, 0, 1))
-        assume(!partialPermutation.eq(p))
-        __Exercise__
-        val sut = partialPermutation == p
-        __Verify__
-        sut should equal (true)
+        val conversions = Table(
+          ("p0", "p1", "expected"),
+          (partialPermutation, partialPermutation, true),
+          (partialPermutation, PartialPermutation(4, List(3, 0, 1)), true),
+          (partialPermutation, PartialPermutation(4, List(3, 0, 2)), false),
+          (partialPermutation, PartialPermutation(5, List(3, 0, 1)), false)
+        )
+
+        forAll(conversions){ (p0: PartialPermutation, p1: PartialPermutation, expected: Boolean) =>
+          __Exercise__
+          val sut = p0 == p1
+          __Verify__
+          sut should equal (expected)
+        }
       }
     }
 
