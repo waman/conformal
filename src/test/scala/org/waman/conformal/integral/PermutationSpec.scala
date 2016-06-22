@@ -450,7 +450,7 @@ class PermutationSpec extends ConformalCustomSpec {
 
         "Lexicographic Order" - {
 
-          val permutationGeneratorConversions = Table(
+          val allPermutationsConversions = Table(
             "allPermutations",
             Permutation.allPermutations(_:Int),
             Permutation.allPermutations1(_:Int),
@@ -460,7 +460,7 @@ class PermutationSpec extends ConformalCustomSpec {
           val degreeConversions = Table("degree", 1, 2, 3, 4, 5)
 
           "allPermutations(Int) like methods return permutations in lexicographic order" in {
-            forAll(permutationGeneratorConversions){ gen: (Int => Seq[Permutation]) =>
+            forAll(allPermutationsConversions){ gen: (Int => Seq[Permutation]) =>
               forAll(degreeConversions) { degree: Int =>
                 __Exercise__
                 val sut = gen(degree)
@@ -471,7 +471,7 @@ class PermutationSpec extends ConformalCustomSpec {
           }
 
           "allPermutations(Int) like methods return permutations which map Seq to those in lexicographic order" in {
-            forAll(permutationGeneratorConversions){ gen: (Int => Seq[Permutation]) =>
+            forAll(allPermutationsConversions){ gen: (Int => Seq[Permutation]) =>
               forAll(degreeConversions) { degree: Int =>
                 __SetUp__
                 val s = "abcdef".substring(0, degree)

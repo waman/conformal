@@ -1,18 +1,32 @@
 package org.waman.conformal.integral
 
 import org.waman.conformal._
-import org.waman.conformal.integral.Permutation.PermutationBuilder
+import spire.implicits._
 import spire.math.Integral
 
 import scala.annotation.tailrec
-import spire.implicits._
-
-import scala.collection.LinearSeq
-import scala.collection.IndexedSeq
+import scala.collection.{IndexedSeq, LinearSeq}
 
 /**
-  * / 3 0 1 (2) \ = / 0 1 (2) 3 \    (a, b, c, d) -> (c, a, b)
-  * \ 0 1 2 (-) /   \ 1 2 (-) 0 /
+  * Example
+  *   degree = 4
+  *   rank = 3
+  *
+  * / 0 1 (2) 3 \  <- indices (including 2 in this case)
+  * \ 1 2 (-) 0 /
+  *
+  *  = / 3 0 1 (2) \  <- properIndices (not containing 2 in this case)
+  *    \ 0 1 2 (-) /
+  *
+  * apply(0) == 1, apply(1) == 2,
+  * apply(2) not defined (maybe return -1 or throws an exception)
+  * apply(100) not defined (maybe throws an exception)
+  *
+  * applyOption(0) == Some(1), applyOption(2) == None
+  *
+  * indexOf(1) == 0, indexOf(2) == 1, indexOf(100) not defined (maybe throws an exception)
+  *
+  * apply(Seq(a, b, c, d)) -> Seq(c, a, b)
   */
 trait PartialPermutation extends PartialFunction[Int, Int]
     with Ordered[PartialPermutation]{
@@ -21,16 +35,9 @@ trait PartialPermutation extends PartialFunction[Int, Int]
   def rank:Int
 
   def indices: Seq[Int] = 0 until degree
-
-  /**
-    * Return Seq(3, 0, 1) for the following partial permutation:
-    *   / 3 0 1 (2) \
-    *   \ 0 1 2 (-) /
-    *
-    */
   def properIndices: Seq[Int]
 
-  override def isDefinedAt(i: Int): Boolean
+  override def isDefinedAt(i: Int): Boolean = properIndices.contains(i)
   override def apply(i: Int): Int
 
   def applyOption(i: Int): Option[Int] =
@@ -38,7 +45,7 @@ trait PartialPermutation extends PartialFunction[Int, Int]
     else               None
 
   def apply[E](seq: Seq[E]): Seq[E] = properIndices.map(seq(_))
-  def apply(s: String): String = apply(s: Seq[Char]).mkString("")
+  def apply(s: String): String = apply(s: Seq[Char]).mkString
 
   def indexOf(i: Int): Int
 
@@ -49,7 +56,7 @@ trait PartialPermutation extends PartialFunction[Int, Int]
     require(rank == that.rank,
       s"Two PartialPermutations can be compared when these ranks are the same values: $rank <=> ${that.rank}")
 
-    indices.map(i => (apply(i), that(i))).find(p => p._1 != p._2) match {
+    properIndices.zip(that.properIndices).find(p => p._1 != p._2) match {
       case None => 0
       case Some((x, y)) =>
         if (x < y) -1
@@ -65,7 +72,7 @@ trait PartialPermutation extends PartialFunction[Int, Int]
     case that: PartialPermutation =>
       that.canEqual(this) &&
         degree == that.degree &&
-        properIndices == that.properIndices
+        properIndices == that.properIndices  // rank must equal
   }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[PartialPermutation]
@@ -90,22 +97,11 @@ object PartialPermutation{
     permutationCount(1, n, r)
   }
 
-  /**
-    * Note that this class has indices (not permuted indices) as a field.
-    *
-    * Example
-    *   degree = 4
-    *   indices = Seq(3, 0, 1)
-    *
-    * / 3 0 1 (2) \ = / 0 1 (2) 3 \    (a, b, c, d) -> (c, a, b)
-    * \ 0 1 2 (-) /   \ 1 2 (-) 0 /
-    */
   private[PartialPermutation]
-  class SeqPartialPermutation(val degree: Int, val properIndices: Seq[Int]) extends PartialPermutation{
+  class SeqPartialPermutation(val degree: Int, override val properIndices: Seq[Int])
+      extends PartialPermutation{
 
     override def rank: Int = properIndices.length
-
-    override def isDefinedAt(i: Int): Boolean = properIndices.contains(i)
 
     override def apply(i: Int): Int = properIndices.indexOf(i) match {
       case -1 => throw new IllegalArgumentException()
@@ -117,7 +113,7 @@ object PartialPermutation{
 
   //***** apply() factory methods *****
   private[PartialPermutation]
-  def validatePartialPermutationArguments(degree: Int, properIndices: Seq[Int]): Unit = {
+  def validateProperIndices(degree: Int, properIndices: Seq[Int]): Unit = {
     require(degree > 0, "The degree of partial permutation must be positive: " + degree)
 
     val range = 0 until degree
@@ -125,17 +121,17 @@ object PartialPermutation{
     range.foreach { i =>
       val c = properIndices.count(_ == i)
       require(c == 0 || c == 1,
-        "The constructor arguments of partial permutation must contain all integers at most once from 0 until " + degree)
+        "The proper indices of partial permutation must contain all integers at most once from 0 until " + degree)
     }
 
     properIndices.foreach{ i =>
       require(range contains i,
-        "The constructor arguments of partial permutation must not contain any integer out of range 0 until " + degree)
+        "The proper indices of partial permutation must not contain any integer out of range 0 until " + degree)
     }
   }
 
   def apply(degree: Int, properIndices: Seq[Int]): PartialPermutation = {
-    validatePartialPermutationArguments(degree, properIndices)
+    validateProperIndices(degree, properIndices)
     new SeqPartialPermutation(degree, properIndices)
   }
 

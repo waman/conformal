@@ -4,7 +4,7 @@ import org.waman.conformal._
 import spire.math.Integral
 
 import scala.annotation.tailrec
-import scala.collection.immutable.LinearSeq
+import scala.collection.immutable.{LinearSeq, IndexedSeq}
 
 /**
   * Example
@@ -15,8 +15,10 @@ import scala.collection.immutable.LinearSeq
   * = / 2 1 3 0 \  <- suffices
   *   \ 0 1 2 3 /
   *
-  *   apply(0) == 3, apply(2) == 0
-  *   indexOf(3) == 0, indexOf(0) == 2
+  *   apply(0) == 3, apply(2) == 0, apply(100) not defined (maybe throws an exception)
+  *   indexOf(3) == 0, indexOf(0) == 2, indexOf(100) not defined (maybe throws an exception)
+  *
+  *   apply(Seq(a, b, c, d)) == Seq(c, b, d, a)
   */
 trait Permutation extends PartialFunction[Int, Int]
     with Ordered[Permutation]{

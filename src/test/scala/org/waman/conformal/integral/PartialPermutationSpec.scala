@@ -262,6 +262,32 @@ class PartialPermutationSpec extends ConformalCustomSpec{
             sut.toSet should equal (expected)
           }
         }
+
+        val degreeConversions = Table("degree", 1, 2, 3, 4, 5)
+
+        "return all partial permutations in lexicographic order" in {
+          forAll(degreeConversions) { degree: Int =>
+            (0 until degree).foreach{ rank: Int =>
+              __Exercise__
+              val sut = PartialPermutation.allPermutations(degree, rank)
+              __Verify__
+              sut should be (sorted)
+            }
+          }
+        }
+
+        "return all permutations which map Seq to those in lexicographic order" in {
+          forAll(degreeConversions) { degree: Int =>
+            (0 until degree).foreach{ rank: Int =>
+              __SetUp__
+              val s = "abcde".substring(0, degree)
+              __Exercise__
+              val sut = PartialPermutation.allPermutations(degree, rank).map(_.apply(s))
+              __Verify__
+              sut should be (sorted)
+            }
+          }
+        }
       }
 
       "allPermutations(Seq[E], Int) method should" - {
@@ -269,15 +295,15 @@ class PartialPermutationSpec extends ConformalCustomSpec{
         "return all partial permutations of arg seq with the specified rank" in {
           val conversions = Table(
             ("seq", "rank", "expected"),
-            (List("a", "b", "c"), 0, Set("")),
-            (List("a", "b", "c"), 2, Set("ab", "ac", "ba", "bc", "ca", "cb"))
+            (List("a", "b", "c"), 0, Seq("")),
+            (List("a", "b", "c"), 2, Seq("ab", "ac", "ba", "bc", "ca", "cb"))
           )
 
-          forAll(conversions){ (seq: Seq[String], rank: Int, expected: Set[String]) =>
+          forAll(conversions){ (seq: Seq[String], rank: Int, expected: Seq[String]) =>
             __Exercise__
             val sut = PartialPermutation.allPermutations(seq, rank)
             __Verify__
-            sut.map(_.mkString).toSet should equal (expected)
+            sut.map(_.mkString) should equal (expected)
           }
         }
       }
@@ -287,15 +313,15 @@ class PartialPermutationSpec extends ConformalCustomSpec{
         "return all partial permutations of arg String with the specified length(rank)" in {
           val conversions = Table(
             ("String", "length", "expected"),
-            ("abc", 0, Set("")),
-            ("abc", 2, Set("ab", "ac", "ba", "bc", "ca", "cb"))
+            ("abc", 0, Seq("")),
+            ("abc", 2, Seq("ab", "ac", "ba", "bc", "ca", "cb"))
           )
 
-          forAll(conversions){ (s: String, length: Int, expected: Set[String]) =>
+          forAll(conversions){ (s: String, length: Int, expected: Seq[String]) =>
             __Exercise__
             val sut = PartialPermutation.allPermutations(s, length)
             __Verify__
-            sut.toSet should equal (expected)
+            sut should equal (expected)
           }
         }
       }
