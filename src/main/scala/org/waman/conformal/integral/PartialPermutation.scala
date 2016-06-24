@@ -13,7 +13,7 @@ import scala.collection.{IndexedSeq, LinearSeq}
   *   rank = 3
   *
   * / 0 1 (2) 3 \  <- indices (including 2 in this case)
-  * \ 1 2 (-) 0 /
+  * \ 1 2 (-) 0 /  <- suffices
   *
   *  = / 3 0 1 (2) \  <- properIndices (not containing 2 in this case)
   *    \ 0 1 2 (-) /
@@ -28,24 +28,19 @@ import scala.collection.{IndexedSeq, LinearSeq}
   *
   * apply(Seq(a, b, c, d)) -> Seq(c, a, b)
   */
-trait PartialPermutation extends PartialFunction[Int, Int]
+trait PartialPermutation extends Combinatorial[Int]
     with Ordered[PartialPermutation]{
 
-  def degree: Int
-  def rank:Int
-
-  def indices: Seq[Int] = 0 until degree
   def properIndices: Seq[Int]
 
-  override def isDefinedAt(i: Int): Boolean = properIndices.contains(i)
+  def suffixIsDefinedAt(i: Int): Boolean = properIndices.contains(i)
+
   override def apply(i: Int): Int
-
   def applyOption(i: Int): Option[Int] =
-    if(isDefinedAt(i)) Some(apply(i))
-    else               None
+    if(suffixIsDefinedAt(i)) Some(apply(i))
+    else                     None
 
-  def apply[E](seq: Seq[E]): Seq[E] = properIndices.map(seq(_))
-  def apply(s: String): String = apply(s: Seq[Char]).mkString
+  override def apply[E](seq: Seq[E]): Seq[E] = properIndices.map(seq(_))
 
   def indexOf(i: Int): Int
 
@@ -97,8 +92,7 @@ object PartialPermutation{
     permutationCount(1, n, r)
   }
 
-  private[PartialPermutation]
-  class SeqPartialPermutation(val degree: Int, override val properIndices: Seq[Int])
+  private class SeqPartialPermutation(val degree: Int, override val properIndices: Seq[Int])
       extends PartialPermutation{
 
     override def rank: Int = properIndices.length
@@ -112,8 +106,7 @@ object PartialPermutation{
   }
 
   //***** apply() factory methods *****
-  private[PartialPermutation]
-  def validateProperIndices(degree: Int, properIndices: Seq[Int]): Unit = {
+  private def validateProperIndices(degree: Int, properIndices: Seq[Int]): Unit = {
     require(degree > 0, "The degree of partial permutation must be positive: " + degree)
 
     val range = 0 until degree
@@ -125,7 +118,7 @@ object PartialPermutation{
     }
 
     properIndices.foreach{ i =>
-      require(range contains i,
+      require(range.contains(i),
         "The proper indices of partial permutation must not contain any integer out of range 0 until " + degree)
     }
   }
@@ -153,8 +146,7 @@ object PartialPermutation{
   }
 
   //***** all (partial) permutations generators *****
-  private[PartialPermutation]
-  trait PermutationBuilder[E, B <: PermutationBuilder[E, B]]
+  private trait PermutationBuilder[E, B <: PermutationBuilder[E, B]]
       extends CombinatorialBuilder[E, B]{
 
     def properIndices: Seq[E]

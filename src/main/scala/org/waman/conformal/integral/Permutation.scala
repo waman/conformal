@@ -20,18 +20,21 @@ import scala.collection.immutable.{LinearSeq, IndexedSeq}
   *
   *   apply(Seq(a, b, c, d)) == Seq(c, b, d, a)
   */
-trait Permutation extends PartialFunction[Int, Int]
-    with Ordered[Permutation]{
+trait Permutation extends Combinatorial[Int]
+    with PartialFunction[Int, Int] with Ordered[Permutation]{
 
-  def degree: Int
-  def rank: Int = degree
+  override def rank: Int = degree
 
-  def indices: Seq[Int] = 0 until degree
   def suffices: Seq[Int] = indices.map(apply(_))
   def properIndices: Seq[Int] = indices.map(indexOf(_))
 
   override def isDefinedAt(i: Int): Boolean = indices.contains(i)
-  override def apply(i: Int): Int
+
+  def applyOption(i: Int): Option[Int] = isDefinedAt(i) match {
+    case true  => Some(apply(i))
+    case false => None
+  }
+
   def indexOf(i: Int): Int
 
   def apply[E](seq: Seq[E]): Seq[E] = {
@@ -39,10 +42,6 @@ trait Permutation extends PartialFunction[Int, Int]
       "The argument Seq must have the same length as the degree of this permutation.")
     properIndices.map(seq(_))
   }
-
-  def apply[E](list: List[E]): List[E] = apply(list: Seq[E]).toList
-
-  def apply(s: String): String = apply(s: Seq[Char]).mkString
 
   def *(p: Permutation): Permutation = {
     require(degree == p.degree)
@@ -165,8 +164,9 @@ object Permutation{
   def permutationCount[I: Integral](n: I, r: I): I = PartialPermutation.permutationCount(n, r)
 
   //***** Concrete class of Permutation *****
-  private[Permutation]
-  abstract class AbstractSeqPermutation(override val properIndices: Seq[Int]) extends Permutation{
+  private abstract
+  class AbstractSeqPermutation(override val properIndices: Seq[Int])
+      extends Permutation{
 
     override def degree: Int = properIndices.length
 
@@ -178,8 +178,8 @@ object Permutation{
     * The constructor of this class is private not to validate argument Seq.
     * The validation is done in apply() factory methods.
     */
-  private[Permutation]
-  class SeqPermutation(properIndices: Seq[Int]) extends AbstractSeqPermutation(properIndices){
+  private class SeqPermutation(properIndices: Seq[Int])
+      extends AbstractSeqPermutation(properIndices){
 
     override lazy val sgn: Int = {  // (024153)
       @tailrec
@@ -332,7 +332,7 @@ object Permutation{
   }
 
   /** Implementation 1.2 (generate Permutation objects in lexicographic order) */
-  private[integral]
+  private[integral]  // package scope for test
   def allPermutations1(degree: Int): Seq[Permutation] =
     allPermutations1(0 until degree).map(new SeqPermutation(_))
 //  {
@@ -364,7 +364,7 @@ object Permutation{
 //  }
 
   /** Implementation 1.3 (generate Permutation objects in lexicographic order with permutation sign pre-calculated) */
-  private[integral]
+  private[integral] // package scope for test
   def allPermutationsWithSign1(degree: Int): Seq[Permutation] = {
     require(degree > 0)
 
@@ -395,7 +395,7 @@ object Permutation{
   }
 
   /** Implementation 2.1 (generate permutations of any seq) */
-  private[integral]
+  private[integral] // package scope for test
   def allPermutations2[E](arg: Seq[E]): Seq[Seq[E]] = {
     require(arg.nonEmpty)
 
@@ -415,7 +415,7 @@ object Permutation{
   }
 
   /** Implementation 2.2 (generate Permutation objects) */
-  private[integral]
+  private[integral] // package scope for test
   def allPermutations2(degree: Int): Seq[Permutation] =
     allPermutations2(0 until degree).map(new SeqPermutation(_))
 //  {
@@ -440,7 +440,7 @@ object Permutation{
 //  }
 
   /** Implementation 2.3 (generate Permutation objects with permutation sign pre-calculated) */
-  private[integral]
+  private[integral] // package scope for test
   def allPermutationsWithSign2(degree: Int): Seq[Permutation] = {
     require(degree > 0)
 
@@ -464,6 +464,7 @@ object Permutation{
   }
 
   /** Implementation 3 (generate all permutation of any seq with swapping elements) */
+  private[integral] // package scope for test
   def allPermutations3[E](arg: Seq[E]): Seq[Seq[E]] = {
     require(arg.nonEmpty)
 
@@ -489,7 +490,7 @@ object Permutation{
   }
 
   //***** other permutation generators *****
-  def parityPermutations[E](arg: Seq[E], parity: Int): Seq[Seq[E]] = {
+  private def parityPermutations[E](arg: Seq[E], parity: Int): Seq[Seq[E]] = {
     require(arg.length > 1)
 
     case class Builder[F](properIndices: Vector[F], available: Vector[F], sign: Int)
