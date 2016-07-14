@@ -1,7 +1,5 @@
 package org.waman
 
-import scala.annotation.unchecked.uncheckedVariance
-import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 
 package object conformal {

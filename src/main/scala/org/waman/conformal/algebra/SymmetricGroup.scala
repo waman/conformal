@@ -1,11 +1,11 @@
 package org.waman.conformal.algebra
 
-import org.waman.conformal.integral.Permutation
+import org.waman.conformal.integral.combinatorial.Permutation
 import spire.algebra.Group
 import spire.implicits._
+import scala.language.postfixOps
 
 class SymmetricGroup(val degree: Int) extends Group[Permutation]{
-  import scala.language.postfixOps
 
   require(degree > 0, "Degree of permutation must be positive: " + degree)
 

@@ -1,8 +1,6 @@
 package org.waman.conformal.algebra
 
-import org.scalatest.LoneElement._
 import org.waman.conformal.ConformalCustomSpec
-import org.waman.conformal.integral.Permutation
 
 class SymmetricGroupSpec extends ConformalCustomSpec{
 

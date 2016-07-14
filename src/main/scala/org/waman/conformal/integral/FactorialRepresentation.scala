@@ -1,7 +1,7 @@
 package org.waman.conformal.integral
 
-import spire.math.Integral
 import spire.implicits._
+import spire.math.Integral
 
 import scala.annotation.tailrec
 import scala.{specialized => spec}

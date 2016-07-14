@@ -1,42 +1,27 @@
-package org.waman.conformal.integral
+package org.waman.conformal.integral.combinatorial
 
 import org.waman.conformal._
 import spire.implicits._
-import spire.math.Integral
+import spire.math.{Integral, Rational}
 
 import scala.annotation.tailrec
+import scala.{specialized => sp}
 
-/**
-  * Example
-  *   degree = 4
-  *   rank = 3
-  *
-  * / 0 1 (2) 3 \  <- indices (including 2 in this case)
-  * \ 1 2 (-) 0 /
-  *
-  *  = / 3 0 1 (2) \  <- elements (not containing 2 in this case)
-  *    \ 0 1 2 (-) /
-  *
-  * apply(0) == 1, apply(1) == 2,
-  * apply(2) not defined (maybe return -1 or throws an exception)
-  * apply(100) not defined (maybe throws an exception)
-  *
-  * applyOption(0) == Some(1), applyOption(2) == None
-  *
-  * indexOf(1) == 0, indexOf(2) == 1, indexOf(100) not defined (maybe throws an exception)
-  *
-  * apply(Seq(a, b, c, d)) -> Seq(c, a, b)
-  */
-trait Combination extends Combinatorial[Boolean]{
+trait Combination{
+
+  def degree: Int
+  def rank: Int
+  def indices: Seq[Int] = 0 until degree
 
   def elements: Set[Int]
+  def sortedElements: Seq[Int]
 
   def contains(i: Int): Boolean = elements.contains(i)
   def apply(i: Int): Boolean = contains(i)
 
   def apply[E](set: Set[E]): Set[E] = apply(set.toSeq).toSet
 
-  override def apply[E](seq: Seq[E]): Seq[E] = elements.map(seq(_)).toSeq
+  def apply[E](seq: Seq[E]): Seq[E] = elements.map(seq(_)).toSeq
 
   //***** Type converters *****
   def toMap: Map[Int, Boolean] = indices.map{i => (i, apply(i))}.toMap
@@ -46,43 +31,101 @@ trait Combination extends Combinatorial[Boolean]{
     case that: Combination =>
       that.canEqual(this) &&
         degree == that.degree &&
-        elements == that.elements  // rank must equal
+        equalElements(that)  // rank must equal
   }
+
+  protected def equalElements(that: Combination): Boolean
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Combination]
 
   override def hashCode: Int = (elements + degree + rank).hashCode
 
   override def toString: String = indices.map{
-    case i: Int if contains(i) => i.toString
+    case i if contains(i) => i.toString
     case i => s"[$i]"
   }.mkString("(", ", ", ")")
 }
 
 object Combination{
 
-  def combinationCount[I: Integral](n: I, r: I): I = {
+  def combinationCount[@sp(Int, Long) I: Integral](n: I, r: I): I = {
+    require(n >= 0, s"n must be non-negative: $n")
+    require(0 <= r && r <= n, s"r must be in 0 <= r <= $n")
+
+    val s = if(2*r > n) n-r else r
+
     @tailrec
-    def combinationCount(prod: I, n: I, r: I): I = r match {
-      case 0 => prod
-      case _ => combinationCount(prod * n, n-1, r-1)
+    def combinationCount[J: Integral](accum: Rational, n: J, r: J): Rational =
+      r match {
+        case 0 => accum
+        case _ =>
+          // This matching is due to bugs of spire 0.10.1, 0.11.0
+          val f = r match {
+            case i: Int    => Rational(n.toInt, i)
+            case i: Long   => Rational(n.toLong, i)
+            case i: BigInt => Rational(n.toBigInt, i)
+            case _         => n.toRational / r.toRational
+          }
+
+          combinationCount(accum * f, n-1, r-1)
+      }
+
+    s match {
+      case 0 => 1
+      case 1 => n
+      case _ =>
+        val result = combinationCount(1, n, s)
+        implicitly[Integral[I]].fromRational(result)
+    }
+  }
+
+//  private[combinatorial]
+//  def combinationCount1(n: Int, r: Int): Int =
+//    if(r == 0 || r == n) 1
+//    else combinationCount1(n-1, r-1) + combinationCount1(n-1, r)
+
+  private[combinatorial]
+  def combinationCount1(n: Int, r: Int): Int = {
+    val s = if(2*r > n) n-r else r
+
+    def add(v0: Vector[Int], v1: Vector[Int]): Vector[Int] =
+      v0.zip(v1).map(p => p._1 + p._2)
+
+    @tailrec
+    def combinationCount(accum: Vector[Int], i: Int): Vector[Int] = i match {
+      case 0 =>
+        accum
+      case _ if i <= s =>
+        combinationCount(add(accum.init, accum.tail), i-1)
+      case _ if i < n-s =>
+        combinationCount(add(0 +: accum.init, accum), i-1)
+      case _ =>
+        combinationCount(add(0 +: accum, accum :+ 0), i-1)
     }
 
-    combinationCount(1, n, r)
+    combinationCount(Vector(1), n).head
   }
 
   private class SetCombination(val degree: Int, override val elements: Set[Int])
       extends Combination{
 
     override def rank: Int = elements.size
+
+    override def sortedElements: Seq[Int] = elements.toSeq.sorted
+
+    override protected def equalElements(that: Combination): Boolean =
+      elements == that.elements
   }
 
-  private class SeqCombination(val degree: Int, es: Seq[Int])
+  private class SeqCombination(val degree: Int, val sortedElements: Seq[Int])
       extends Combination{
 
-    override def rank: Int = es.length
-    override def contains(i: Int): Boolean = es.contains(i)
-    override def elements: Set[Int] = es.toSet
+    override def rank: Int = sortedElements.length
+    override def contains(i: Int): Boolean = sortedElements.contains(i)
+    override def elements: Set[Int] = sortedElements.toSet
+
+    override protected def equalElements(that: Combination): Boolean =
+      sortedElements == that.sortedElements
   }
 
   //***** apply() factory methods *****
@@ -109,7 +152,7 @@ object Combination{
     allCombinations(seq.length, rank).map(_(seq))
 
   def allCombinations(s: String, rank: Int): Seq[String] =
-    allCombinations(s.length, rank).map(_(s))
+    allCombinations(s.length, rank).map(_(s)).map(_.toString)
 
   def allCombinations[E](arg: Set[E], rank: Int): Seq[Set[E]] =
     allCombinations(arg.toSeq, rank).map(_.toSet)

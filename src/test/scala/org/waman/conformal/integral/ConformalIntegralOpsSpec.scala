@@ -1,7 +1,8 @@
 package org.waman.conformal.integral
 
-import org.waman.conformal.integral.ConformalIntegralOps._
 import org.waman.conformal.ConformalCustomSpec
+
+import org.waman.conformal.integral.ConformalIntegralOps._
 
 import scala.language.postfixOps
 
@@ -36,10 +37,16 @@ class ConformalIntegralOpsSpec extends ConformalCustomSpec{
     "return nPr (permutation count)" - {
       val conversions = Table(
         ("n", "r", "expected"),
+        (0, 0, 1),
+
+        (1, 0, 1),
+        (1, 1, 1),
+
         (3, 0, 1),
         (3, 1, 3),
         (3, 2, 6),
         (3, 3, 6),
+
         (5, 0, 1),
         (5, 1, 5),
         (5, 2, 20),
@@ -51,6 +58,38 @@ class ConformalIntegralOpsSpec extends ConformalCustomSpec{
       forAll(conversions){ (n: Int, r: Int, expected: Int) =>
         __Exercise__
         val sut = n P r
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+  }
+
+  "C(Int) method should" - {
+
+    "return nCr (combination count)" - {
+      val conversions = Table(
+        ("n", "r", "expected"),
+        (0, 0, 1),
+
+        (1, 0, 1),
+        (1, 1, 1),
+
+        (3, 0, 1),
+        (3, 1, 3),
+        (3, 2, 3),
+        (3, 3, 1),
+
+        (5, 0, 1),
+        (5, 1, 5),
+        (5, 2, 10),
+        (5, 3, 10),
+        (5, 4, 5),
+        (5, 5, 1)
+      )
+
+      forAll(conversions){ (n: Int, r: Int, expected: Int) =>
+        __Exercise__
+        val sut = n C r
         __Verify__
         sut should equal (expected)
       }

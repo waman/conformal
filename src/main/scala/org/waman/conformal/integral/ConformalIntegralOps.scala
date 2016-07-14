@@ -1,5 +1,6 @@
 package org.waman.conformal.integral
 
+import org.waman.conformal.integral.combinatorial.{Combination, Permutation}
 import spire.math.Integral
 
 import scala.language.implicitConversions
@@ -12,7 +13,8 @@ trait ConformalIntegralOps{
 
 object ConformalIntegralOps extends ConformalIntegralOps
 
-class ConformalIntegral[I: Integral](i: I){
-  val ! : I = factorial(i)
-  def P(r: I): I = PartialPermutation.permutationCount(i, r)
+class ConformalIntegral[I: Integral](n: I){
+  val ! : I = factorial(n)
+  def P(r: I): I = Permutation.permutationCount(n, r)
+  def C(r: I): I = Combination.combinationCount(n, r)
 }
