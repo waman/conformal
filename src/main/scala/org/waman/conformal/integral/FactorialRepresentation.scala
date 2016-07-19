@@ -4,6 +4,7 @@ import spire.implicits._
 import spire.math.Integral
 
 import scala.annotation.tailrec
+import scala.collection.LinearSeq
 import scala.{specialized => spec}
 
 class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
@@ -77,7 +78,12 @@ object FactorialRepresentation{
     * descendant
     * arg type is List (not Seq) to distinguish apply(Int*)
     */
-  def apply(coefficients: List[Int]): FactorialRepresentation = {
+  def apply(coefficients: LinearSeq[Int]): FactorialRepresentation = {
+    val canonical = coefficients.dropWhile(_ == 0)
+    new FactorialRepresentation(canonical)
+  }
+
+  def apply(coefficients: IndexedSeq[Int]): FactorialRepresentation = {
     val canonical = coefficients.dropWhile(_ == 0)
     new FactorialRepresentation(canonical)
   }

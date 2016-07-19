@@ -127,16 +127,14 @@ object Permutation{
     permutationCount(1, n, r)
   }
 
-  /**
-    * The constructor of this class is private not to validate argument Seq.
-    * The validation is done in apply() factory methods.
-    */
-  def factory[E](indices: Seq[E]): PassivePermutationFactory[E] = {
-    // TODO validation
+  def factory[E](indices: Seq[E]): PassivePermutationFactory[E] =
     new PassivePermutationFactory(indices)
-  }
 
-  def passive[E](indices: E*): PassivePermutationFactory[E] = factory(indices.toVector)
+  def factory(indices: String): PassivePermutationFactory[Char] =
+    factory(indices: Seq[Char])
+
+  def passive[E](indices: E*): PassivePermutationFactory[E] =
+    factory(indices.toVector)
 
   //***** Subclasses of IntPermutation *****
   private[integral]

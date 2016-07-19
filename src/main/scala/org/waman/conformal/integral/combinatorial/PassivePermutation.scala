@@ -1,27 +1,21 @@
 package org.waman.conformal.integral.combinatorial
 
-import scala.annotation.tailrec
 import org.waman.conformal.integral.FactorialRepresentation
-import org.waman.conformal._
 
 /**
   * Permutation[E] trait represents (passive) permutations.
   *
   * Example
   *   degree: 4
-  *   E (type parameter): Int
+  *   E (type parameter): String
   *
-  * / 0 1 2 3 \  <- indices (in this order)
-  * \ 3 1 0 2 /  <- suffices (in this order)
+  * / "a", "b", "c", "d" \  <- indices (in this order)
+  * \ "d", "b", "a", "c" /  <- suffices (in this order)
   *
-  *   apply(0) == 3, apply(2) == 0, apply(100) is not defined (maybe throws an exception)
-  *   indexOf(3) == 0, indexOf(0) == 2, indexOf(100) is not defined (maybe throws an exception)
+  *   apply("a") == "d", apply("c") == "a", apply("z") is not defined (maybe throws an exception)
+  *   indexOf("d") == "a", indexOf("a") == "c", indexOf("z") is not defined (maybe throws an exception)
   *
-  *   apply(Seq(a, b, c, d)) == Seq(d, b, a, c)
-  *   apply(Seq(x0, x1, x2, x3)) == Seq(x3, x1, x0, x2)
-  *
-  *   val x: Seq[E] = ...
-  *   apply(x) == Seq(x(3), x(1), x(0), x(2))
+  *   apply(Seq("a", "b", "c", "d")) == Seq("d", "b", "a", "c")
   */
 trait PassivePermutation[E] extends Combinatorial[E, E]
     with PartialFunction[E, E]
@@ -37,6 +31,7 @@ trait PassivePermutation[E] extends Combinatorial[E, E]
   override def isDefinedAt(e: E): Boolean = indices.contains(e)
 
   override def apply(e: E): E
+  def indexOf(e: E): E
 
   def apply(seq: Seq[E]): Seq[E] = {
     require(seq.length == degree,
@@ -49,8 +44,6 @@ trait PassivePermutation[E] extends Combinatorial[E, E]
     case true  => Some(apply(e))
     case false => None
   }
-
-  def indexOf(e: E): E
 
   def *(that: PassivePermutation[E]): PassivePermutation[E]
   def andThen(that: PassivePermutation[E]): PassivePermutation[E] = that * this
@@ -146,24 +139,33 @@ class PassivePermutationFactory[E](val indices: Seq[E]){
     override def sign = 1
   }
 
-  abstract class AbstractMapPassivePermutation(map: Map[E, E]) extends PassivePermutationAdapter {
-    override def apply(e: E) = map(e)
-    override def indexOf(e: E) = map.find(_._2 == e).get._1
-    override def toMap = map
-  }
-
+  /**
+    * This class is private to avoid validation of argument Seq.
+    * The validation is done in apply() factory methods.
+    */
   private[integral]
-  class MapPassivePermutation(map: Map[E, E]) extends AbstractMapPassivePermutation(map) {
+  class SeqPassivePermutation(suffices: Seq[E])
+      extends PassivePermutationAdapter {
 
-    def apply(suffices: E*): PassivePermutation[E] = {
-      val map = indices.zip(suffices).toMap
-      new MapPassivePermutation(map)
-    }
+    override def apply(e: E) = suffices(indices.indexOf(e))
+    override def indexOf(e: E) = indices(suffices.indexOf(e))
+    override def toMap = indices.zip(suffices).toMap
   }
 
-  def apply(e: E*): PassivePermutation[E] = ???
+  def apply(suffices: E*): PassivePermutation[E] = {
+    require(suffices.length == degree,
+      s"The suffices of the permutation must have $degree elements: only ${suffices.length} elements appear.")
 
-  def fromPermutation(p: Permutation): PassivePermutation[E] = ???
+    suffices.foreach{ e =>
+      require(indices.contains(e),
+        s"The suffices of the permutation must contain the element $e")
+    }
+
+    new SeqPassivePermutation(suffices.toVector)
+  }
+
+  def fromPermutation(p: Permutation): PassivePermutation[E] =
+    apply(p.suffices.map(indices):_*)
 
   //***** Sequence number in lexicographic order *****
   def nthPermutation(n: Int, degree: Int): PassivePermutation[E] =
@@ -173,69 +175,32 @@ class PassivePermutationFactory[E](val indices: Seq[E]){
     fromPermutation(Permutation.nthPermutation(n, degree))
 
   //***** Permutation Generators *****
-  protected trait PermutationBuilder[B <: PermutationBuilder[B]]
-    extends CombinatorialBuilder[E, B]{
-
-    def suffices: Seq[E]
-  }
+  def allPermutations: Seq[PassivePermutation[E]] = allPermuted.map(apply)
 
   def allPermuted: Seq[Seq[E]] = Permutation.generatePermutations(indices.toVector)
+
   def allPartialPermuted(rank: Int): Seq[Seq[E]] =
     Permutation.generatePermutations(indices.toVector, rank)
 
-  def allPermutations: Seq[PassivePermutation[E]] = allPermuted.map(apply)
-
   def allPermutedStrings: Seq[String] = allPermuted.map(_.mkString)
+
   def allPartialPermutedStrings(rank: Int): Seq[String] = allPartialPermuted(rank).map(_.mkString)
 
   //**** Other permutation generators *****
-  private def parityPermutations(arg: Seq[E], parity: Int): Seq[Seq[E]] = {
-    require(arg.length > 1)
+  def evenPermutations: Seq[PassivePermutation[E]] =
+    Permutation.evenPermutations(degree).map(fromPermutation)
 
-    case class Builder(suffices: Vector[E], available: Vector[E], sign: Int)
-      extends PermutationBuilder[Builder]{
+  def evenPermuted: Seq[Seq[E]] = evenPermutations.map(_.suffices)
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val newSuffices = suffices :+ available(i)
-              val newAvailable = removeAt(available, i)
-              val newSign = if(i % 2 == 0) sign else -sign
-              val newBuilder = Builder(newSuffices, newAvailable, newSign)
-              nextGeneration(newBuilder +: accum, i-1)
-          }
 
-        nextGeneration(Nil, available.length-1)
-      }
-    }
+  def oddPermutations: Seq[PassivePermutation[E]] =
+    Permutation.oddPermutations(degree).map(fromPermutation)
 
-    val init = Builder(Vector(), arg.toVector, 1)
+  def oddPermuted: Seq[Seq[E]] = oddPermutations.map(_.suffices)
 
-    generateCombinatorial(init, arg.length-2).map{
-      case b if b.sign == parity =>
-        b.suffices ++: b.available
-      case b =>
-        b.suffices ++: b.available.reverse
-    }
-  }
 
-  def evenPermuted: Seq[Seq[E]] = degree match {
-    case 1 => Seq(indices)
-    case _ => parityPermutations(indices, 1)
-  }
+  def derangementPermutations: Seq[PassivePermutation[E]] =
+    Permutation.derangements(degree).map(fromPermutation)
 
-  def evenPermutations: Seq[PassivePermutation[E]] = evenPermuted.map(apply)
-
-  def oddPermuted: Seq[Seq[E]] = degree match {
-    case 1 => Nil
-    case _ => parityPermutations (indices, -1)
-  }
-
-  def oddPermutations: Seq[PassivePermutation[E]] = oddPermuted.map(apply)
-
-  def derangements: Seq[Seq[E]] = ???
-  def derangementPermutations: Seq[PassivePermutation[E]] = Permutation.derangements(degree).map(fromPermutation)
+  def derangements: Seq[Seq[E]] = derangementPermutations.map(_.suffices)
 }
