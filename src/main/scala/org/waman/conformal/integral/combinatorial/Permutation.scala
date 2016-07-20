@@ -56,6 +56,7 @@ trait Permutation extends PassivePermutation[Int]
         else 1
     }
   }
+
   /**
     * Return the sequence number in the lexicographic order.
     *
@@ -205,7 +206,7 @@ object Permutation{
     require(degree > 0, s"The degree of permutation must be positive: $degree")
     suffices.indices.foreach { i =>
       require(suffices.count(_ == i) == 1,
-        s"Suffices of permutation must contain all integers once from 0 until $degree")
+        s"Suffices of permutation must contain all integers of [0, $degree) once")
     }
   }
 
@@ -295,6 +296,10 @@ object Permutation{
     generateCombinatorial(init, rank).map(_.suffices)
   }
 
+  /**
+    * generatePermutations() methods are of private[integral] scope
+    * due to being used in other than the Permutation object (e.g. PartialPermutation object)
+    */
   private[integral]
   def generatePermutations(degree: Int, rank: Int): Seq[Seq[Int]] =
     generatePermutations((0 until degree).toVector, rank)

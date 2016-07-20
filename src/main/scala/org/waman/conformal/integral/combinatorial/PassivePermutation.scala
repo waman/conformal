@@ -21,16 +21,11 @@ trait PassivePermutation[E] extends Combinatorial[E, E]
     with PartialFunction[E, E]
     with Ordered[PassivePermutation[E]] {
 
-  def degree: Int
-  def rank: Int = degree
-
-  def indices: Seq[E]
   def suffices: Seq[E] = indices.map(apply)
   def sufficesToIntSeq: Seq[Int] = suffices.map(indices.indexOf)
 
   override def isDefinedAt(e: E): Boolean = indices.contains(e)
 
-  override def apply(e: E): E
   def indexOf(e: E): E
 
   def apply(seq: Seq[E]): Seq[E] = {
@@ -38,11 +33,6 @@ trait PassivePermutation[E] extends Combinatorial[E, E]
       "The argument Seq must have the same length as the degree of this permutation.")
 
     seq.map(apply)
-  }
-
-  def applyOption(e: E): Option[E] = isDefinedAt(e) match {
-    case true  => Some(apply(e))
-    case false => None
   }
 
   def *(that: PassivePermutation[E]): PassivePermutation[E]
@@ -55,10 +45,6 @@ trait PassivePermutation[E] extends Combinatorial[E, E]
     */
   def sign: Int = toPermutation.sign
   final def sgn = sign
-
-  //***** Order related *****
-  override def compare(that: PassivePermutation[E]): Int =
-    toPermutation.compare(that.toPermutation)
 
   def next: Option[PassivePermutation[E]]
 
@@ -82,7 +68,7 @@ trait PassivePermutation[E] extends Combinatorial[E, E]
     case that: PassivePermutation[E] =>
       that.canEqual(this) &&
         degree == that.degree &&
-          indices.forall(i => apply(i) == that.apply(i))
+        indices.forall(i => apply(i) == that.apply(i))
   }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[PassivePermutation[_]]
@@ -129,6 +115,10 @@ class PassivePermutationFactory[E](val indices: Seq[E]){
       case Some(p) => Some(fromPermutation(p))
       case _ => None
     }
+
+    //***** Order related *****
+    override def compare(that: PassivePermutation[E]): Int =
+      toPermutation.compare(that.toPermutation)
   }
 
   lazy val identity: PassivePermutation[E] = new PassivePermutationAdapter {
@@ -175,16 +165,11 @@ class PassivePermutationFactory[E](val indices: Seq[E]){
     fromPermutation(Permutation.nthPermutation(n, degree))
 
   //***** Permutation Generators *****
-  def allPermutations: Seq[PassivePermutation[E]] = allPermuted.map(apply)
-
   def allPermuted: Seq[Seq[E]] = Permutation.generatePermutations(indices.toVector)
 
-  def allPartialPermuted(rank: Int): Seq[Seq[E]] =
-    Permutation.generatePermutations(indices.toVector, rank)
+  def allPermutations: Seq[PassivePermutation[E]] = allPermuted.map(apply)
 
   def allPermutedStrings: Seq[String] = allPermuted.map(_.mkString)
-
-  def allPartialPermutedStrings(rank: Int): Seq[String] = allPartialPermuted(rank).map(_.mkString)
 
   //**** Other permutation generators *****
   def evenPermutations: Seq[PassivePermutation[E]] =

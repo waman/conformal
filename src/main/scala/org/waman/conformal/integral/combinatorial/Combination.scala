@@ -5,13 +5,8 @@ import spire.implicits._
 import spire.math.{Integral, Rational}
 
 import scala.annotation.tailrec
-import scala.{specialized => sp}
 
-trait Combination{
-
-  def degree: Int
-  def rank: Int
-  def indices: Seq[Int] = 0 until degree
+trait Combination extends PartialIntCombinatorial[Boolean]{
 
   def elements: Set[Int]
   def sortedElements: Seq[Int]
@@ -19,9 +14,8 @@ trait Combination{
   def contains(i: Int): Boolean = elements.contains(i)
   def apply(i: Int): Boolean = contains(i)
 
+  def apply[E](seq: Seq[E]): Seq[E] = sortedElements.map(seq)
   def apply[E](set: Set[E]): Set[E] = apply(set.toSeq).toSet
-
-  def apply[E](seq: Seq[E]): Seq[E] = elements.map(seq(_)).toSeq
 
   //***** Type converters *****
   def toMap: Map[Int, Boolean] = indices.map{i => (i, apply(i))}.toMap
@@ -48,7 +42,7 @@ trait Combination{
 
 object Combination{
 
-  def combinationCount[@sp(Int, Long) I: Integral](n: I, r: I): I = {
+  def combinationCount[I: Integral](n: I, r: I): I = {
     require(n >= 0, s"n must be non-negative: $n")
     require(0 <= r && r <= n, s"r must be in 0 <= r <= $n")
 
@@ -79,13 +73,15 @@ object Combination{
     }
   }
 
-//  private[combinatorial]
-//  def combinationCount1(n: Int, r: Int): Int =
-//    if(r == 0 || r == n) 1
-//    else combinationCount1(n-1, r-1) + combinationCount1(n-1, r)
-
+  // For implementation interest
   private[combinatorial]
-  def combinationCount1(n: Int, r: Int): Int = {
+  def combinationCount1(n: Int, r: Int): Int =
+    if(r == 0 || r == n) 1
+    else combinationCount1(n-1, r-1) + combinationCount1(n-1, r)
+
+  // For implementation interest
+  private[combinatorial]
+  def combinationCount2(n: Int, r: Int): Int = {
     val s = if(2*r > n) n-r else r
 
     def add(v0: Vector[Int], v1: Vector[Int]): Vector[Int] =

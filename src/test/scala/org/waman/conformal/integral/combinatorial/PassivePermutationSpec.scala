@@ -602,28 +602,6 @@ class PassivePermutationSpec extends ConformalCustomSpec {
         }
       }
 
-      "allPartialPermuted(Int) method should" - {
-
-        "return all partial permutations of the indices of factory with the specified rank" in {
-          val conversions = Table(
-            ("rank", "expected"),
-            (0, Set(Seq[String]())),
-            (1, Set(Seq("a"), Seq("b"), Seq("c"))),
-            (2, Set(Seq("a", "b"), Seq("a", "c"), Seq("b", "a"),
-              Seq("b", "c"), Seq("c", "a"), Seq("c", "b"))),
-            (3, Set(Seq("a", "b", "c"), Seq("a", "c", "b"), Seq("b", "a", "c"),
-              Seq("b", "c", "a"), Seq("c", "a", "b"), Seq("c", "b", "a")))
-          )
-
-          forAll(conversions) { (rank: Int, expected: Set[Seq[String]]) =>
-            __Exercise__
-            val sut = f3.allPartialPermuted(rank)
-            __Verify__
-            sut.toSet should equal(expected)
-          }
-        }
-      }
-
       "allPermutedStrings method should" - {
 
         "return all permutations of the indices of the factory as Seq[String]" in {
@@ -636,105 +614,85 @@ class PassivePermutationSpec extends ConformalCustomSpec {
         }
       }
 
-      "allPartialPermutedStrings(Int) method should" - {
+      "parity" - {
 
-        "return all partial permutations of the indices of the factory with the specified length (rank) as Seq[String]" in {
-          val conversions = Table(
-            ("length", "expected"),
-            (0, Set("")),
-            (1, Set("a", "b", "c")),
-            (2, Set("ab", "ac", "ba", "bc", "ca", "cb")),
-            (3, Set("abc", "acb", "bac", "bca", "cab", "cba"))
-          )
+        "evenPermutations method should" - {
 
-          forAll(conversions) { (length: Int, expected: Set[String]) =>
-            __Exercise__
-            val sut = f3.allPartialPermutedStrings(length)
-            __Verify__
-            sut.toSet should equal(expected)
-          }
-        }
-
-        "parity" - {
-
-          "evenPermutations method should" - {
-
-            "return all even permutations" in {
-              val conversions = Table(
-                ("factory", "expected"),
-                (f1, Seq(f1("a"))),
-                (f2, Seq(f2("a", "b"))),
-                (f3, Seq(f3("a", "b", "c"), f3("b", "c", "a"), f3("c", "a", "b"))),
-                (f4, Seq(
-                  f4("a", "b", "c", "d"), f4("a", "c", "d", "b"), f4("a", "d", "b", "c"),
-                  f4("b", "a", "d", "c"), f4("b", "c", "a", "d"), f4("b", "d", "c", "a"),
-                  f4("c", "a", "b", "d"), f4("c", "b", "d", "a"), f4("c", "d", "a", "b"),
-                  f4("d", "a", "c", "b"), f4("d", "b", "a", "c"), f4("d", "c", "b", "a")
-                ))
-              )
-
-              forAll(conversions) { (f: PassivePermutationFactory[String], expected: Seq[PassivePermutation[String]]) =>
-                __Exercise__
-                val sut = f.evenPermutations
-                __Verify__
-                sut should equal(expected)
-                sut.foreach { p =>
-                  p.sign should equal(1)
-                }
-              }
-            }
-          }
-
-          "oddPermutations method should" - {
-
-            "return all even permutations" in {
-              val conversions = Table(
-                ("factory", "expected"),
-                (f1, Seq[PassivePermutation[String]]()),
-                (f2, Seq(f2("b", "a"))),
-                (f3, Seq(f3("a", "c", "b"), f3("b", "a", "c"), f3("c", "b", "a"))),
-                (f4, Seq(
-                  f4("a", "b", "d", "c"), f4("a", "c", "b", "d"), f4("a", "d", "c", "b"),
-                  f4("b", "a", "c", "d"), f4("b", "c", "d", "a"), f4("b", "d", "a", "c"),
-                  f4("c", "a", "d", "b"), f4("c", "b", "a", "d"), f4("c", "d", "b", "a"),
-                  f4("d", "a", "b", "c"), f4("d", "b", "c", "a"), f4("d", "c", "a", "b")
-                ))
-              )
-
-              forAll(conversions) { (f: PassivePermutationFactory[String], expected: Seq[PassivePermutation[String]]) =>
-                __Exercise__
-                val sut = f.oddPermutations
-                __Verify__
-                sut should equal(expected)
-                sut.foreach { p =>
-                  p.sign should equal(-1)
-                }
-              }
-            }
-          }
-        }
-
-        "derangements method should" - {
-
-          "return all derangements" in {
+          "return all even permutations" in {
             val conversions = Table(
               ("factory", "expected"),
-              (f1, Set[PassivePermutation[String]]()),
-              (f2, Set(f2("b", "a"))),
-              (f3, Set(f3("b", "c", "a"), f3("c", "a", "b"))),
-              (f4, Set(
-                f4("b", "a", "d", "c"), f4("b", "c", "d", "a"), f4("b", "d", "a", "c"),
-                f4("c", "a", "d", "b"), f4("c", "d", "a", "b"), f4("c", "d", "b", "a"),
-                f4("d", "a", "b", "c"), f4("d", "c", "a", "b"), f4("d", "c", "b", "a")
+              (f1, Seq(f1("a"))),
+              (f2, Seq(f2("a", "b"))),
+              (f3, Seq(f3("a", "b", "c"), f3("b", "c", "a"), f3("c", "a", "b"))),
+              (f4, Seq(
+                f4("a", "b", "c", "d"), f4("a", "c", "d", "b"), f4("a", "d", "b", "c"),
+                f4("b", "a", "d", "c"), f4("b", "c", "a", "d"), f4("b", "d", "c", "a"),
+                f4("c", "a", "b", "d"), f4("c", "b", "d", "a"), f4("c", "d", "a", "b"),
+                f4("d", "a", "c", "b"), f4("d", "b", "a", "c"), f4("d", "c", "b", "a")
               ))
             )
 
-            forAll(conversions) { (f: PassivePermutationFactory[String], expected: Set[PassivePermutation[String]]) =>
+            forAll(conversions) { (f: PassivePermutationFactory[String], expected: Seq[PassivePermutation[String]]) =>
               __Exercise__
-              val sut = f.derangementPermutations
+              val sut = f.evenPermutations
               __Verify__
-              sut.toSet should equal(expected)
+              sut should equal(expected)
+              sut.foreach { p =>
+                p.sign should equal(1)
+              }
             }
+          }
+        }
+
+        "oddPermutations method should" - {
+
+          "return all even permutations" in {
+            val conversions = Table(
+              ("factory", "expected"),
+              (f1, Seq[PassivePermutation[String]]()),
+              (f2, Seq(f2("b", "a"))),
+              (f3, Seq(f3("a", "c", "b"), f3("b", "a", "c"), f3("c", "b", "a"))),
+              (f4, Seq(
+                f4("a", "b", "d", "c"), f4("a", "c", "b", "d"), f4("a", "d", "c", "b"),
+                f4("b", "a", "c", "d"), f4("b", "c", "d", "a"), f4("b", "d", "a", "c"),
+                f4("c", "a", "d", "b"), f4("c", "b", "a", "d"), f4("c", "d", "b", "a"),
+                f4("d", "a", "b", "c"), f4("d", "b", "c", "a"), f4("d", "c", "a", "b")
+              ))
+            )
+
+            forAll(conversions) { (f: PassivePermutationFactory[String], expected: Seq[PassivePermutation[String]]) =>
+              __Exercise__
+              val sut = f.oddPermutations
+              __Verify__
+              sut should equal(expected)
+              sut.foreach { p =>
+                p.sign should equal(-1)
+              }
+            }
+          }
+        }
+      }
+
+      "derangements method should" - {
+
+        "return all derangements" in {
+          val conversions = Table(
+            ("factory", "expected"),
+            (f1, Set[PassivePermutation[String]]()),
+            (f2, Set(f2("b", "a"))),
+            (f3, Set(f3("b", "c", "a"), f3("c", "a", "b"))),
+            (f4, Set(
+              f4("b", "a", "d", "c"), f4("b", "c", "d", "a"), f4("b", "d", "a", "c"),
+              f4("c", "a", "d", "b"), f4("c", "d", "a", "b"), f4("c", "d", "b", "a"),
+              f4("d", "a", "b", "c"), f4("d", "c", "a", "b"), f4("d", "c", "b", "a")
+            ))
+          )
+
+          forAll(conversions) { (f: PassivePermutationFactory[String], expected: Set[PassivePermutation[String]]) =>
+            __Exercise__
+            val sut = f.derangementPermutations
+            __Verify__
+            sut.toSet should equal(expected)
           }
         }
       }

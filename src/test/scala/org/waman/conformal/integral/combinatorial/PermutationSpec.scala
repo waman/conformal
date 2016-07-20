@@ -632,49 +632,6 @@ class PermutationSpec extends ConformalCustomSpec{
         }
       }
 
-      "allPartialPermutations(Int, Int) method should" - {
-
-        "generate all partial permutations" in {
-
-          val conversions = Table(
-            ("degree", "rank", "properIndicesOfExpected"),
-            (3, 0, Set(Seq[Int]())),
-            (3, 1, Set(
-              Seq(0),
-              Seq(1),
-              Seq(2))),
-            (3, 2, Set(
-              Seq(0, 1), Seq(0, 2),
-              Seq(1, 0), Seq(1, 2),
-              Seq(2, 0), Seq(2, 1))),
-            (3, 3, Set(
-              Seq(0, 1, 2), Seq(0, 2, 1),
-              Seq(1, 0, 2), Seq(1, 2, 0),
-              Seq(2, 0, 1), Seq(2, 1, 0)))
-          )
-
-          forAll(conversions) { (degree: Int, rank: Int, expected: Set[Seq[Int]]) =>
-            __Exercise__
-            val sut = Permutation.allPartialPermutations(degree, rank)
-            __Verify__
-            sut.toSet should equal(expected)
-          }
-        }
-
-        "generate all partial permutations in lexicographic order" in {
-          val conversions = Table("degree", 1, 2, 3, 4, 5)
-
-          forAll(conversions) { degree: Int =>
-            (0 to degree).foreach{ rank: Int =>
-              __Exercise__
-              val sut = Permutation.allPartialPermutations(degree, rank).map(_.mkString)
-              __Verify__
-              sut should be (sorted)
-            }
-          }
-        }
-      }
-
       "allPermutationsWithSign(Int) methods should" - {
 
         "return permutations with correct sign" in {
