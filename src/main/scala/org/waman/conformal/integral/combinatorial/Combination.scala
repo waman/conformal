@@ -5,20 +5,35 @@ import spire.implicits._
 import spire.math.{Integral, Rational}
 
 import scala.annotation.tailrec
+import scala.collection.SortedSet
 
-trait Combination extends PartialIntCombinatorial[Boolean]{
+trait Combination
+    extends PartialIntCombinatorial[Boolean]
+    with Ordered[Combination]{
 
   def elements: Set[Int]
   def sortedElements: Seq[Int]
 
   def contains(i: Int): Boolean = elements.contains(i)
-  def apply(i: Int): Boolean = contains(i)
+  override def apply(i: Int): Boolean = contains(i)
 
   def apply[E](seq: Seq[E]): Seq[E] = sortedElements.map(seq)
-  def apply[E](set: Set[E]): Set[E] = apply(set.toSeq).toSet
+  def apply[E](set: SortedSet[E]): Set[E] = apply(set.toSeq).toSet
 
   //***** Type converters *****
   def toMap: Map[Int, Boolean] = indices.map{i => (i, apply(i))}.toMap
+
+  //***** Order related *****
+  override def compare(that: Combination): Int = {
+    PartialIntCombinatorial.validateComparablity(this, that)
+
+    sortedElements.zip(that.sortedElements).find(p => p._1 != p._2) match {
+      case None => 0
+      case Some((x, y)) =>
+        if (x < y) -1
+        else 1
+    }
+  }
 
   //***** Methods of Any *****
   override def equals(other: Any): Boolean = other match {
@@ -125,15 +140,12 @@ object Combination{
   }
 
   //***** apply() factory methods *****
-  private def validateElements(degree: Int, elements: Set[Int]): Unit = {
-    require(degree > 0, "The degree of combination must be positive: " + degree)
+  private def validateElements(degree: Int, elements: Traversable[Int]): Unit =
+    PartialIntCombinatorial.validateArgument(degree, elements, "elements")
 
-    val range = 0 until degree
-
-    elements.foreach{ i =>
-      require(range.contains(i),
-        "The elements of combination must not contain any integer out of range 0 until " + degree)
-    }
+  def apply(degree: Int, elements: Seq[Int]): Combination = {
+    validateElements(degree, elements)
+    new SeqCombination(degree, elements.sorted)
   }
 
   def apply(degree: Int, elements: Set[Int]): Combination = {
@@ -141,14 +153,18 @@ object Combination{
     new SetCombination(degree, elements)
   }
 
-  def apply(degree: Int)(elements: Int*): Combination = apply(degree, elements.toSet)
+  class CombinationFactory(degree: Int){
+    def apply(elements: Int*): Combination = Combination.this.apply(degree, elements.toVector)
+  }
+
+  def apply(degree: Int): CombinationFactory = new CombinationFactory(degree)
 
   //***** all combinations generators *****
   def allCombinations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] =
     allCombinations(seq.length, rank).map(_(seq))
 
   def allCombinations(s: String, rank: Int): Seq[String] =
-    allCombinations(s.length, rank).map(_(s)).map(_.toString)
+    allCombinations(s: Seq[Char], rank).map(_.mkString)
 
   def allCombinations[E](arg: Set[E], rank: Int): Seq[Set[E]] =
     allCombinations(arg.toSeq, rank).map(_.toSet)

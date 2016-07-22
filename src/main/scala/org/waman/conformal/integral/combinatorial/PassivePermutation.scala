@@ -133,7 +133,7 @@ class PassivePermutationFactory[E](val indices: Seq[E]){
     * This class is private to avoid validation of argument Seq.
     * The validation is done in apply() factory methods.
     */
-  private[integral]
+  private[combinatorial]
   class SeqPassivePermutation(suffices: Seq[E])
       extends PassivePermutationAdapter {
 

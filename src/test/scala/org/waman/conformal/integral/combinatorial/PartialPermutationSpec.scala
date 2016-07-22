@@ -4,6 +4,134 @@ import org.waman.conformal.ConformalCustomSpec
 
 class PartialPermutationSpec extends ConformalCustomSpec{
 
+  val perm = PartialPermutation(4)(3, 0, 1)
+
+  "apply(Int) method should" - {
+
+    "return the suffix corresponding to the argument index" in {
+      val conversions =
+        Table(
+          ("p", "index", "expected"),
+          (perm, 0, 1),
+          (perm, 1, 2),
+//          (perm, 2, -),
+          (perm, 3, 0)
+        )
+
+      forAll(conversions) { (p: PartialPermutation, index: Int, expected: Int) =>
+        __Exercise__
+        val sut = p(index)
+        __Verify__
+        sut should equal(expected)
+      }
+    }
+
+    "throw an IllegalArgumentException if the corresponding suffix is not defined" in {
+      __Verify__
+      an [Exception] should be thrownBy{
+        perm(2)
+      }
+    }
+  }
+
+  "apply(Seq[E]) method should" - {
+
+    "execute place-base partial permutation of Seq" in {
+      val conversions =
+        Table(
+          ("p", "degree", "expected"),
+          (perm, 4, Seq(3, 0, 1))
+        )
+
+      forAll(conversions) { (p: PartialPermutation, degree: Int, expected: Seq[Int]) =>
+        __SetUp__
+        val args = 0 until degree
+        __Exercise__
+        val sut = p(args)
+        __Verify__
+        sut should equal(expected)
+      }
+    }
+  }
+
+  "Order related methods" - {
+
+    "PartialPermutation implements Ordered trait" in {
+      __SetUp__
+      val p0 = PartialPermutation(4)(0, 1, 2)
+      val p1 = PartialPermutation(4)(2, 0, 1)
+      __Exercise__
+      val sut = p0 < p1
+      __Verify__
+      sut should be (true)
+    }
+
+    "Two partial permutations can not be compared when these degrees do not equal" in {
+      __SetUp__
+      val p0 = PartialPermutation(4)(0, 2, 1)
+      val p1 = PartialPermutation(4)(0, 1, 3, 2)
+      __Verify__
+      an [IllegalArgumentException] should be thrownBy{
+        p0 < p1
+      }
+    }
+  }
+
+  "The methods of Any class" - {
+
+    "toString method should" - {
+
+      "create a String representation of permutation like [3 0 1 -]" in {
+        val conversions =
+          Table(
+            ("p", "expected"),
+            (PartialPermutation(4)(3, 0, 1), "[[3 0 1 -]]")
+          )
+
+        forAll(conversions) { (p: PartialPermutation, expected: String) =>
+          __Exercise__
+          val sut = p.toString
+          __Verify__
+          sut should equal(expected)
+        }
+      }
+    }
+
+    "equals() method should" - {
+
+      "return true when the two partial permutation are equivalent even if not the same objects" in {
+        val conversions =
+          Table(
+            ("p0", "p1"),
+            (perm, perm),
+            (perm, PartialPermutation(4)(3, 0, 1))
+          )
+
+        forAll(conversions) { (p0: PartialPermutation, p1: PartialPermutation) =>
+          __Verify__
+          p0 should equal(p1)
+        }
+      }
+    }
+
+    "hashCode property should" - {
+
+      "return the same value if two partial permutations are equivalent" in {
+        val conversions =
+          Table(
+            ("p0", "p1"),
+            (perm, perm),
+            (perm, PartialPermutation(4)(3, 0, 1))
+          )
+
+        forAll(conversions) { (p0: PartialPermutation, p1: PartialPermutation) =>
+          __Verify__
+          p0.hashCode should equal(p1.hashCode)
+        }
+      }
+    }
+  }
+
   "companion object" - {
 
     "Partial permutation generation" - {

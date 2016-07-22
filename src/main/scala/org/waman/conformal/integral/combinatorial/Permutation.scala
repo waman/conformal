@@ -138,7 +138,7 @@ object Permutation{
     factory(indices.toVector)
 
   //***** Subclasses of IntPermutation *****
-  private[integral]
+  private[combinatorial]
   abstract class PermutationAdapter extends Permutation{
 
     override def indices = 0 until degree
@@ -162,7 +162,7 @@ object Permutation{
     }
   }
 
-  private[integral]
+  private[combinatorial]
   abstract class AbstractSeqPermutation(override val suffices: Seq[Int])
     extends PermutationAdapter{
 
@@ -175,7 +175,7 @@ object Permutation{
     * The constructor of this class is private not to validate argument Seq.
     * The validation is done in apply() factory methods.
     */
-  private[integral]
+  private[combinatorial]
   class SeqPermutation(suffices: Seq[Int])
     extends AbstractSeqPermutation(suffices) {
 
@@ -270,7 +270,7 @@ object Permutation{
     * Generate all (partial) permutations of any seq in lexicographic order
     * (if the input seq is ascendant).
     */
-  private[integral]
+  private[combinatorial]
   def generatePermutations[E](suffices: Vector[E], rank: Int): Seq[Vector[E]] = {
 
     case class Builder(suffices: Vector[E], available: Vector[E])
@@ -297,25 +297,25 @@ object Permutation{
   }
 
   /**
-    * generatePermutations() methods are of private[integral] scope
+    * generatePermutations() methods are of private[combinatorial] scope
     * due to being used in other than the Permutation object (e.g. PartialPermutation object)
     */
-  private[integral]
+  private[combinatorial]
   def generatePermutations(degree: Int, rank: Int): Seq[Seq[Int]] =
     generatePermutations((0 until degree).toVector, rank)
 
-  private[integral]
+  private[combinatorial]
   def generatePermutations[E](suffices: Vector[E]): Seq[Vector[E]] =
     generatePermutations(suffices, suffices.length)
 
-  private[integral]
+  private[combinatorial]
   def generatePermutations(degree: Int): Seq[Permutation] =
     generatePermutations((0 until degree).toVector).map(new SeqPermutation(_))
 
   /**
     * Generate IntPermutation objects in lexicographic order with permutation sign pre-calculated
     */
-  private[integral]
+  private[combinatorial]
   def generatePermutationsWithSign(degree: Int): Seq[Permutation] = {
     require(degree > 0)
 

@@ -4,13 +4,13 @@ import org.waman.conformal.ConformalCustomSpec
 
 class CombinationSpec extends ConformalCustomSpec{
   
-  val combination = Combination(4, Set(0, 1, 3))
+  val combination = Combination(4)(0, 1, 3)
 
   "apply() method" - {
 
     "apply(Int) method should" - {
 
-      "return the Boolean value which the argument Int value is containd or not" in {
+      "return the Boolean value which the argument Int value is contained or not" in {
         val conversions = Table(
           ("i", "expected"),
           (0, true),
@@ -43,7 +43,7 @@ class CombinationSpec extends ConformalCustomSpec{
 
     "apply(String) method should" - {
 
-      "return the charcter combination of the argument String" in {
+      "return the character combination of the argument String" in {
         __SetUp__
         val arg = "abcd"
         val expected = "abd"
@@ -55,33 +55,33 @@ class CombinationSpec extends ConformalCustomSpec{
     }
   }
 
-//  "Order related methods" - {
-//
-//    "Combination implements the Ordered trait" in {
-//      val conversions = Table(
-//        ("p0", "p1", "expected"),
-//        (combination, Combination(4, Set(0, 1, 2)), true),
-//        (combination, Combination(4, Set(3, 2, 1)), false)
-//      )
-//
-//      forAll(conversions) { (p0: Combination, p1: Combination, expected: Boolean) =>
-//        __Exercise__
-//        val sut = p0 > p1
-//        __Verify__
-//        sut should equal(expected)
-//      }
-//    }
-//
-//    "Two Permutations can not be compared when these degrees do not equal" in {
-//      __SetUp__
-//      val p0 = Permutation(0, 2, 1)
-//      val p1 = Permutation(0, 1, 3, 2)
-//      __Verify__
-//      an [IllegalArgumentException] should be thrownBy{
-//        p0 < p1
-//      }
-//    }
-//  }
+  "Order related methods" - {
+
+    "Combination implements the Ordered trait" in {
+      val conversions = Table(
+        ("p0", "p1", "expected"),
+        (combination, Combination(4, Set(0, 1, 2)), true),
+        (combination, Combination(4, Set(3, 2, 1)), false)
+      )
+
+      forAll(conversions) { (c0: Combination, c1: Combination, expected: Boolean) =>
+        __Exercise__
+        val sut = c0 > c1
+        __Verify__
+        sut should equal(expected)
+      }
+    }
+
+    "Two Permutations can not be compared when these degrees do not equal" in {
+      __SetUp__
+      val c0 = Permutation(0, 2, 1)
+      val c1 = Permutation(0, 1, 3, 2)
+      __Verify__
+      an [IllegalArgumentException] should be thrownBy{
+        c0 < c1
+      }
+    }
+  }
 
   "toMap method should" - {
 
