@@ -117,25 +117,16 @@ trait Permutation extends PassivePermutation[Int]
 object Permutation{
 
   //***** n! and nPr *****
-  def permutationCount[I: Integral](n: I): I = factorial(n)
-  def permutationCount[I: Integral](n: I, r: I): I = {
+  def permutationCount[I: Integral](degree: I): I = factorial(degree)
+  def permutationCount[I: Integral](degree: I, rank: I): I = {
     @tailrec
     def permutationCount(prod: I, n: I, r: I): I = r match {
       case 0 => prod
       case _ => permutationCount(prod * n, n-1, r-1)
     }
 
-    permutationCount(1, n, r)
+    permutationCount(1, degree, rank)
   }
-
-  def factory[E](indices: Seq[E]): PassivePermutationFactory[E] =
-    new PassivePermutationFactory(indices)
-
-  def factory(indices: String): PassivePermutationFactory[Char] =
-    factory(indices: Seq[Char])
-
-  def passive[E](indices: E*): PassivePermutationFactory[E] =
-    factory(indices.toVector)
 
   //***** Subclasses of IntPermutation *****
   private[combinatorial]
@@ -229,6 +220,50 @@ object Permutation{
     new SeqPermutation(suffices)
   }
 
+  //***** Passive permutation factory *****
+  def factory[E](indices: Seq[E]): PassivePermutationFactory[E] =
+  new PassivePermutationFactory(indices)
+
+  def factory(indices: String): PassivePermutationFactory[Char] =
+    factory(indices: Seq[Char])
+
+  def passive[E](indices: E*): PassivePermutationFactory[E] =
+    factory(indices.toVector)
+
+  //***** Sequence number in lexicographic order *****
+  def nthPermutation(n: Int, degree: Int): Permutation =
+    nthPermutation(FactorialRepresentation.fromInt(n), degree)
+
+  def nthPermutation(n: FactorialRepresentation, degree: Int): Permutation = {
+    @tailrec
+    def nthPermutation(suffices: Vector[Int], rest: Seq[Int], fact: Seq[Int]): Vector[Int] =
+      fact match {
+        case Nil => suffices :+ rest.head
+        case 0 +: tail =>
+          nthPermutation(suffices :+ rest.head, rest.tail, tail)
+        case head +: tail =>
+          // case for suffices = Vector(), rest = Seq(0, 1, 2, 3, 4, 5), fact = Seq(3, 1, 0, 2, 1)
+          nthPermutation(suffices :+ rest(head), removeAt(rest, head), tail)
+        // next call arg: suffices = Vector(3), rest = Seq(0, 1, 2, 4, 5), fact = Seq(1, 0, 2, 1)
+      }
+
+    val cs = n.coefficientsAsNthOrderInDescendant(degree-1)
+    val suffices = nthPermutation(Vector(), 0 until degree, cs)
+
+    //    @tailrec
+    //    def nthPermutation(suffices: List[Int], fact: Vector[Int]): List[Int] = fact.isEmpty match {
+    //      case true  => suffices
+    //      case false =>
+    //        val a = fact.last
+    //        val newSuffices = a :: suffices.map(i => if(i >= a) i+1 else i)
+    //        nthPermutation(newSuffices, fact.init)
+    //    }
+    //
+    //    val suffices = nthPermutation(Nil, n.coefficientsAsNthOrderInDescendant(degree-1).toVector :+ 0)
+
+    new SeqPermutation(suffices)
+  }
+
   //***** Some implementations of generating all permutations *****
   private def signed(suffices: Seq[Int], signOfPermutation: Int): Permutation =
     new AbstractSeqPermutation(suffices){
@@ -257,60 +292,9 @@ object Permutation{
           generatePermutations(degree)
     }
 
-  def allPartialPermutations(degree: Int, rank: Int): Seq[Seq[Int]] =
-    generatePermutations(degree, rank)
-
-  trait PermutationBuilder[E, B <: PermutationBuilder[E, B]]
-      extends CombinatorialBuilder[E, B]{
-
-    def suffices: Seq[E]
-  }
-
-  /**
-    * Generate all (partial) permutations of any seq in lexicographic order
-    * (if the input seq is ascendant).
-    */
-  private[combinatorial]
-  def generatePermutations[E](suffices: Vector[E], rank: Int): Seq[Vector[E]] = {
-
-    case class Builder(suffices: Vector[E], available: Vector[E])
-      extends PermutationBuilder[E, Builder]{
-
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val newProperIndices = suffices :+ available(i)
-              val newAvailable = removeAt(available, i)
-              val newBuilder = Builder(newProperIndices, newAvailable)
-              nextGeneration(newBuilder +: accum, i-1)
-          }
-
-        nextGeneration(Nil, available.length-1)
-      }
-    }
-
-    val init = Builder(Vector(), suffices)
-    generateCombinatorial(init, rank).map(_.suffices)
-  }
-
-  /**
-    * generatePermutations() methods are of private[combinatorial] scope
-    * due to being used in other than the Permutation object (e.g. PartialPermutation object)
-    */
-  private[combinatorial]
-  def generatePermutations(degree: Int, rank: Int): Seq[Seq[Int]] =
-    generatePermutations((0 until degree).toVector, rank)
-
-  private[combinatorial]
-  def generatePermutations[E](suffices: Vector[E]): Seq[Vector[E]] =
-    generatePermutations(suffices, suffices.length)
-
   private[combinatorial]
   def generatePermutations(degree: Int): Seq[Permutation] =
-    generatePermutations((0 until degree).toVector).map(new SeqPermutation(_))
+    PartialPermutation.allPermutations(0 until degree, degree).map(new SeqPermutation(_))
 
   /**
     * Generate IntPermutation objects in lexicographic order with permutation sign pre-calculated
@@ -320,7 +304,7 @@ object Permutation{
     require(degree > 0)
 
     case class Builder(suffices: Vector[Int], available: Vector[Int], sign: Int)
-      extends PermutationBuilder[Int, Builder]{
+      extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] = {
         @tailrec
@@ -350,7 +334,7 @@ object Permutation{
     require(degree > 1)
 
     case class Builder(suffices: Vector[Int], available: Vector[Int], sign: Int)
-      extends PermutationBuilder[Int, Builder]{
+      extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] = {
         @tailrec
@@ -394,7 +378,7 @@ object Permutation{
     require(degree > 0)
 
     case class Builder(suffices: Vector[Int], available: Vector[Int], n: Int)
-      extends PermutationBuilder[Int, Builder]{
+      extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] = {
         @tailrec
@@ -424,39 +408,5 @@ object Permutation{
         val init = Builder(Vector(), (0 until degree).toVector, 0)
         generateCombinatorial(init, degree).map(b => new SeqPermutation(b.suffices))
     }
-  }
-
-  //***** Sequence number in lexicographic order *****
-  def nthPermutation(n: Int, degree: Int): Permutation =
-    nthPermutation(FactorialRepresentation.fromInt(n), degree)
-
-  def nthPermutation(n: FactorialRepresentation, degree: Int): Permutation = {
-    @tailrec
-    def nthPermutation(suffices: Vector[Int], rest: Seq[Int], fact: Seq[Int]): Vector[Int] =
-      fact match {
-        case Nil => suffices :+ rest.head
-        case 0 +: tail =>
-          nthPermutation(suffices :+ rest.head, rest.tail, tail)
-        case head +: tail =>
-          // case for suffices = Vector(), rest = Seq(0, 1, 2, 3, 4, 5), fact = Seq(3, 1, 0, 2, 1)
-          nthPermutation(suffices :+ rest(head), removeAt(rest, head), tail)
-        // next call arg: suffices = Vector(3), rest = Seq(0, 1, 2, 4, 5), fact = Seq(1, 0, 2, 1)
-      }
-
-    val cs = n.coefficientsAsNthOrderInDescendant(degree-1)
-    val suffices = nthPermutation(Vector(), 0 until degree, cs)
-
-    //    @tailrec
-    //    def nthPermutation(suffices: List[Int], fact: Vector[Int]): List[Int] = fact.isEmpty match {
-    //      case true  => suffices
-    //      case false =>
-    //        val a = fact.last
-    //        val newSuffices = a :: suffices.map(i => if(i >= a) i+1 else i)
-    //        nthPermutation(newSuffices, fact.init)
-    //    }
-    //
-    //    val suffices = nthPermutation(Nil, n.coefficientsAsNthOrderInDescendant(degree-1).toVector :+ 0)
-
-    new SeqPermutation(suffices)
   }
 }

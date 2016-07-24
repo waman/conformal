@@ -528,7 +528,6 @@ class PermutationSpec extends ConformalCustomSpec{
           val conversions = Table(
             "permutations",
             Permutation.generatePermutations(1),
-            Permutation.generatePermutations(1),
             Permutation.generatePermutationsWithSign(1)
           )
 
@@ -545,7 +544,6 @@ class PermutationSpec extends ConformalCustomSpec{
           val conversions = Table(
             "permutations",
             Permutation.generatePermutations(2),
-            Permutation.generatePermutations(2),
             Permutation.generatePermutationsWithSign(2)
           )
 
@@ -560,7 +558,6 @@ class PermutationSpec extends ConformalCustomSpec{
         "generate all permutations of degree 3" in {
           val conversions = Table(
             "permutations",
-            Permutation.generatePermutations(3),
             Permutation.generatePermutations(3),
             Permutation.generatePermutationsWithSign(3)
           )
@@ -579,7 +576,6 @@ class PermutationSpec extends ConformalCustomSpec{
         "generate all permutations of degree 4" in {
           val conversions = Table(
             "permutations",
-            Permutation.generatePermutations(4),
             Permutation.generatePermutations(4),
             Permutation.generatePermutationsWithSign(4)
           )
@@ -635,17 +631,10 @@ class PermutationSpec extends ConformalCustomSpec{
       "allPermutationsWithSign(Int) methods should" - {
 
         "return permutations with correct sign" in {
-          val conversions = Table(
-            "permutations",
-            Permutation.generatePermutationsWithSign(1),
-            Permutation.generatePermutationsWithSign(2),
-            Permutation.generatePermutationsWithSign(3),
-            Permutation.generatePermutationsWithSign(4),
-            Permutation.generatePermutationsWithSign(5)
-          )
+          val conversions = Table("degree", 1, 2, 3, 4, 5)
 
-          forAll(conversions){ ps: Seq[Permutation] =>
-            ps.foreach{ p =>
+          forAll(conversions){ degree: Int =>
+            Permutation.generatePermutationsWithSign(degree).foreach{ p =>
               __SetUp__
               val expected = Permutation(p.suffices:_*).sign
               __Verify__

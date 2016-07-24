@@ -1,5 +1,10 @@
 package org.waman.conformal.integral.combinatorial
 
+import org.waman.conformal._
+import spire.math.Integral
+
+import scala.annotation.tailrec
+
 /**
   * Note that apply(Seq[E]) method work in a different way
   * from Permutation and PassivePermutation trait.
@@ -58,7 +63,7 @@ trait PartialPermutation
 object PartialPermutation{
 
   //***** Partial permutation count *****
-  def permutationCount(degree: Int, rank: Int): Int =
+  def permutationCount[I: Integral](degree: I, rank: I): I =
     Permutation.permutationCount(degree, rank)
 
   //***** apply() factory method *****
@@ -88,11 +93,33 @@ object PartialPermutation{
     }
   }
 
-  def allPermutations(degree: Int, rank: Int): Seq[PartialPermutation] =
-    Permutation.generatePermutations(degree, rank).map(new SeqPartialPermutation(degree, _))
+  def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] ={
 
-  def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] =
-    Permutation.generatePermutations(seq.toVector, rank)
+    case class Builder(suffices: Vector[E], available: Vector[E])
+      extends CombinatorialBuilder[E, Builder]{
+
+      override def nextGeneration: Seq[Builder] = {
+        @tailrec
+        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
+          i match {
+            case -1 => accum
+            case _  =>
+              val newSuffices = suffices :+ available(i)
+              val newAvailable = removeAt(available, i)
+              val newBuilder = Builder(newSuffices, newAvailable)
+              nextGeneration(newBuilder +: accum, i-1)
+          }
+
+        nextGeneration(Nil, available.length-1)
+      }
+    }
+
+    val init = Builder(Vector(), seq.toVector)
+    generateCombinatorial(init, rank).map(_.suffices)
+  }
+
+  def allPermutations(degree: Int, rank: Int): Seq[PartialPermutation] =
+    allPermutations(0 until degree, rank).map(new SeqPartialPermutation(degree, _))
 
   def allPermutations(s: String, rank: Int): Seq[String] =
     allPermutations(s: Seq[Char], rank).map(_.mkString)

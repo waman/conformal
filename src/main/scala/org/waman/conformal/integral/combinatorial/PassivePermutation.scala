@@ -165,7 +165,7 @@ class PassivePermutationFactory[E](val indices: Seq[E]){
     fromPermutation(Permutation.nthPermutation(n, degree))
 
   //***** Permutation Generators *****
-  def allPermuted: Seq[Seq[E]] = Permutation.generatePermutations(indices.toVector)
+  def allPermuted: Seq[Seq[E]] = PartialPermutation.allPermutations(indices.toVector, degree)
 
   def allPermutations: Seq[PassivePermutation[E]] = allPermuted.map(apply)
 
