@@ -146,12 +146,6 @@ class CombinationSpec extends ConformalCustomSpec{
 
     "combinationCount(Int, Int) method should" - {
 
-      val implConversions = Table(
-        "c",
-//        Combination.combinationCount[Int](_, _),
-        Combination.combinationCount1(_, _)
-      )
-
       "return the value nCr" in {
         val conversions = Table(
           ("n", "r", "expected"),
@@ -165,13 +159,11 @@ class CombinationSpec extends ConformalCustomSpec{
           (5, 3, 10), (5, 4, 5), (5, 5, 1)
         )
 
-        forAll(implConversions){ c: ((Int, Int) => Int) =>
-          forAll(conversions){ (n: Int, r: Int, expected: Int) =>
-            __Exercise__
-            val sut = c(n, r)
-            __Verify__
-            sut should equal (expected)
-          }
+        forAll(conversions){ (n: Int, r: Int, expected: Int) =>
+          __Exercise__
+          val sut = Combination.combinationCount(n, r)
+          __Verify__
+          sut should equal (expected)
         }
       }
     }

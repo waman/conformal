@@ -5,7 +5,7 @@ import spire.math.Rational
 
 import scala.annotation.tailrec
 
-object Multiset {
+object Multiset extends CombinatorialGenerator{
 
   private[combinatorial]
   def calculateMultiplicity[E](seq: Seq[E]): Map[E, Int] =
@@ -21,13 +21,13 @@ object Multiset {
       .toInt
   }
 
-  def allPermutations[E](seq: Seq[E]): Seq[Seq[E]] =
-    allPermutations(calculateMultiplicity(seq), seq.length)
+  override def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] =
+    allPartialPermutations(calculateMultiplicity(seq), rank)
 
   def allPermutations[E](map: Map[E, Int]): Seq[Seq[E]] =
-    allPermutations(map, map.values.sum)
+    allPartialPermutations(map, map.values.sum)
 
-  private def allPermutations[E](map: Map[E, Int], n: Int): Seq[Seq[E]] = {
+  def allPartialPermutations[E](map: Map[E, Int], rank: Int): Seq[Seq[E]] = {
 
     case class Builder(suffices: Vector[E], available: Map[E, Int])
       extends CombinatorialBuilder[E, Builder]{
@@ -53,6 +53,6 @@ object Multiset {
     }
 
     val init = Builder(Vector(), map)
-    generateCombinatorial(init, n).map(_.suffices)
+    generateCombinatorial(init, rank).map(_.suffices)
   }
 }

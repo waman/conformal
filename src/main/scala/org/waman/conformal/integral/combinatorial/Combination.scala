@@ -1,6 +1,7 @@
 package org.waman.conformal.integral.combinatorial
 
 import org.waman.conformal._
+import org.waman.conformal.integral.BinomialCoefficient
 import spire.implicits._
 import spire.math.{Integral, Rational}
 
@@ -57,65 +58,7 @@ trait Combination
 
 object Combination{
 
-  def combinationCount[I: Integral](n: I, r: I): I = {
-    require(n >= 0, s"n must be non-negative: $n")
-    require(0 <= r && r <= n, s"r must be in 0 <= r <= $n")
-
-    val s = if(2*r > n) n-r else r
-
-    @tailrec
-    def combinationCount[J: Integral](accum: Rational, n: J, r: J): Rational =
-      r match {
-        case 0 => accum
-        case _ =>
-          // This matching is due to bugs of spire 0.10.1, 0.11.0
-          val f = r match {
-            case i: Int    => Rational(n.toInt, i)
-            case i: Long   => Rational(n.toLong, i)
-            case i: BigInt => Rational(n.toBigInt, i)
-            case _         => n.toRational / r.toRational
-          }
-
-          combinationCount(accum * f, n-1, r-1)
-      }
-
-    s match {
-      case 0 => 1
-      case 1 => n
-      case _ =>
-        val result = combinationCount(1, n, s)
-        implicitly[Integral[I]].fromRational(result)
-    }
-  }
-
-  // For implementation interest
-  private[combinatorial]
-  def combinationCount1(n: Int, r: Int): Int =
-    if(r == 0 || r == n) 1
-    else combinationCount1(n-1, r-1) + combinationCount1(n-1, r)
-
-  // For implementation interest
-  private[combinatorial]
-  def combinationCount2(n: Int, r: Int): Int = {
-    val s = if(2*r > n) n-r else r
-
-    def add(v0: Vector[Int], v1: Vector[Int]): Vector[Int] =
-      v0.zip(v1).map(p => p._1 + p._2)
-
-    @tailrec
-    def combinationCount(accum: Vector[Int], i: Int): Vector[Int] = i match {
-      case 0 =>
-        accum
-      case _ if i <= s =>
-        combinationCount(add(accum.init, accum.tail), i-1)
-      case _ if i < n-s =>
-        combinationCount(add(0 +: accum.init, accum), i-1)
-      case _ =>
-        combinationCount(add(0 +: accum, accum :+ 0), i-1)
-    }
-
-    combinationCount(Vector(1), n).head
-  }
+  def combinationCount[I: Integral](n: I, r: I): I = BinomialCoefficient(n, r)
 
   private class SetCombination(val degree: Int, override val elements: Set[Int])
       extends Combination{
@@ -161,7 +104,7 @@ object Combination{
 
   //***** all combinations generators *****
   def allCombinations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] =
-    allCombinations(seq.length, rank).map(_(seq))
+    generateCombinations(seq.length, rank).map(_.map(seq))
 
   def allCombinations(s: String, rank: Int): Seq[String] =
     allCombinations(s: Seq[Char], rank).map(_.mkString)
@@ -169,7 +112,11 @@ object Combination{
   def allCombinations[E](arg: Set[E], rank: Int): Seq[Set[E]] =
     allCombinations(arg.toSeq, rank).map(_.toSet)
 
-  def allCombinations(degree: Int, rank: Int): Seq[Combination] = {
+  def allCombinations(degree: Int, rank: Int): Seq[Combination] =
+    generateCombinations(degree, rank).map(new SeqCombination(degree, _))
+
+  private[combinatorial]
+  def generateCombinations(degree: Int, rank: Int): Seq[Seq[Int]] = {
 
     case class Builder(elements: Vector[Int], available: Vector[Int])
         extends CombinatorialBuilder[Int, Builder]{
@@ -193,11 +140,9 @@ object Combination{
 
         nextGeneration(Nil, available.length-1)
       }
-
-      def toCombination = new SeqCombination(degree, elements)
     }
 
     val init = Builder(Vector(), (0 until degree).toVector)
-    generateCombinatorial(init, rank).map(_.toCombination)
+    generateCombinatorial(init, rank).map(_.elements)
   }
 }

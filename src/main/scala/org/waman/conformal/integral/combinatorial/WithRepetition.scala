@@ -1,15 +1,20 @@
 package org.waman.conformal.integral.combinatorial
 
+import org.waman.conformal.integral.GeneralizedBinomialCoefficient
 import spire.math.Integral
 import spire.implicits._
+
 import scala.annotation.tailrec
 
-object WithRepetition {
+object WithRepetition extends CombinatorialGenerator{
 
   //***** Permutation *****
-  def permutationCount[I: Integral](degree: I, rank: Int): I = degree ** rank
+  def permutationCount[I: Integral](degree: I): I = permutationCount(degree, degree)
 
-  def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] = {
+  //***** Partial Permutation *****
+  def permutationCount[I: Integral](degree: I, rank: I): I = degree ** rank.toInt
+
+  override def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] = {
     val entries = seq.toVector
 
     case class Builder(suffices: Vector[E])
@@ -33,14 +38,11 @@ object WithRepetition {
     generateCombinatorial(Builder(Vector()), rank).map(_.suffices)
   }
 
-  def allPermutations(degree: Int, rank: Int): Seq[Seq[Int]] =
-    allPermutations(0 until degree, rank)
-
   //***** Combination *****
-  def allCombinations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] =
-    allCombinations(seq.length, rank).map(s => s.map(seq))
+  def combinationCount[I: Integral](degree: I, rank: I): I =
+    GeneralizedBinomialCoefficient(degree+rank-1, rank)
 
-  def allCombinations(degree: Int, rank: Int): Seq[Seq[Int]] = {
+  override def allCombinations(degree: Int, rank: Int): Seq[Seq[Int]] = {
     val entries = (0 until degree).toVector
 
     case class Builder(elements: Vector[Int])
