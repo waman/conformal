@@ -2,8 +2,7 @@ package org.waman.conformal.integral.combinatorial
 
 import org.waman.conformal._
 import org.waman.conformal.integral.BinomialCoefficient
-import spire.implicits._
-import spire.math.{Integral, Rational}
+import spire.math.Integral
 
 import scala.annotation.tailrec
 import scala.collection.SortedSet
@@ -142,7 +141,7 @@ object Combination{
       }
     }
 
-    val init = Builder(Vector(), (0 until degree).toVector)
-    generateCombinatorial(init, rank).map(_.elements)
+    val start = Builder(Vector(), (0 until degree).toVector)
+    generateCombinatorial(start, rank).map(_.elements)
   }
 }

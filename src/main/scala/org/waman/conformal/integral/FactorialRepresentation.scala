@@ -26,11 +26,11 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
   }
 
   //***** Algebraic Operation *****
-  def +(other: FactorialRepresentation): FactorialRepresentation = ???
-  def -(other: FactorialRepresentation): FactorialRepresentation = ???
-
-  def next: FactorialRepresentation = this + FactorialRepresentation.One
-  def previous: FactorialRepresentation = this - FactorialRepresentation.One
+//  def +(other: FactorialRepresentation): FactorialRepresentation = ???
+//  def -(other: FactorialRepresentation): FactorialRepresentation = ???
+//
+//  def next: FactorialRepresentation = this + FactorialRepresentation.One
+//  def previous: FactorialRepresentation = this - FactorialRepresentation.One
 
   //***** Conversions to other types *****
   def toVal[@spec(Int, Long) I: Integral]: I = {

@@ -288,7 +288,7 @@ class PermutationSpec extends ConformalCustomSpec{
 
     "sequenceNumber method should" - {
 
-      "return the sequence number in lexicographic number" in {
+      "return the sequence number in lexicographic order as factorial representation" in {
         val conversions = Table(
           ("p", "expected"),
           (Permutation(0), 0),
@@ -640,6 +640,114 @@ class PermutationSpec extends ConformalCustomSpec{
               __Verify__
               p.sign should equal (expected)
             }
+          }
+        }
+      }
+
+      // For implementation interest
+      "allPermutations2(Int) method" in {
+        val conversions = Table(
+          ("degree", "expected"),
+          (0, Seq(Nil)),
+          (1, Seq(Seq(0))),
+          (2, Seq(Seq(0, 1), Seq(1, 0))),
+          (3, Seq(
+            Seq(0, 1, 2), Seq(0, 2, 1), Seq(2, 0, 1),
+            Seq(1, 0, 2), Seq(1, 2, 0), Seq(2, 1, 0))),
+          (4, Seq(
+            Seq(0, 1, 2, 3), Seq(0, 1, 3, 2), Seq(0, 3, 1, 2), Seq(3, 0, 1, 2),
+            Seq(0, 2, 1, 3), Seq(0, 2, 3, 1), Seq(0, 3, 2, 1), Seq(3, 0, 2, 1),
+            Seq(2, 0, 1, 3), Seq(2, 0, 3, 1), Seq(2, 3, 0, 1), Seq(3, 2, 0, 1),
+            Seq(1, 0, 2, 3), Seq(1, 0, 3, 2), Seq(1, 3, 0, 2), Seq(3, 1, 0, 2),
+            Seq(1, 2, 0, 3), Seq(1, 2, 3, 0), Seq(1, 3, 2, 0), Seq(3, 1, 2, 0),
+            Seq(2, 1, 0, 3), Seq(2, 1, 3, 0), Seq(2, 3, 1, 0), Seq(3, 2, 1, 0)))
+        )
+
+        forAll(conversions){ (degree: Int, expected: Seq[Seq[Int]]) =>
+          __Exercise__
+          val sut = Permutation.allPermutations2(degree)
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+
+      // For implementation interest
+      "allPermutations3(Seq[E]) method" in {
+        val conversions = Table(
+          ("degree", "expected"),
+          (0, Seq(Nil)),
+          (1, Seq(Seq(0))),
+          (2, Seq(Seq(0, 1), Seq(1, 0))),
+          (3, Seq(
+            Seq(0, 1, 2), Seq(1, 0, 2),
+            Seq(0, 2, 1), Seq(2, 0, 1),
+            Seq(2, 1, 0), Seq(1, 2, 0))),
+          (4, Seq(
+            Seq(0, 1, 2, 3), Seq(1, 0, 2, 3), Seq(0, 2, 1, 3), Seq(2, 0, 1, 3), Seq(2, 1, 0, 3), Seq(1, 2, 0, 3),
+            Seq(0, 1, 3, 2), Seq(1, 0, 3, 2), Seq(0, 3, 1, 2), Seq(3, 0, 1, 2), Seq(3, 1, 0, 2), Seq(1, 3, 0, 2),
+            Seq(0, 3, 2, 1), Seq(3, 0, 2, 1), Seq(0, 2, 3, 1), Seq(2, 0, 3, 1), Seq(2, 3, 0, 1), Seq(3, 2, 0, 1),
+            Seq(3, 1, 2, 0), Seq(1, 3, 2, 0), Seq(3, 2, 1, 0), Seq(2, 3, 1, 0), Seq(2, 1, 3, 0), Seq(1, 2, 3, 0)))
+        )
+
+        forAll(conversions){ (degree: Int, expected: Seq[Seq[Int]]) =>
+          __Exercise__
+          val sut = Permutation.allPermutations3(0 until degree)
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+
+      // For implementation interest
+      "allPermutations4(Seq[E])" - {
+
+        "factorialCounters(Int)" in {
+          val conversions = Table(
+            ("degree", "expected"),
+            (1, Seq(Seq(0))),
+            (2, Seq(Seq(0, 1), Seq(0, 0))),
+            (3, Seq(
+              Seq(0, 1, 2),
+              Seq(0, 0, 2),
+              Seq(0, 1, 1),
+              Seq(0, 0, 1),
+              Seq(0, 1, 0),
+              Seq(0, 0, 0)
+            ))
+          )
+
+          forAll(conversions){ (degree: Int, expected: Seq[Seq[Int]]) =>
+            __Exercise__
+            val sut = Permutation.factorialCounters(degree).map(_.c)
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+
+        "allPermutations4(Seq[E])" in {
+          val conversions = Table(
+            ("degree", "expected"),
+//            (0, Seq(Nil)),
+//            (1, Seq(Seq(0))),
+            (2, Seq(Seq(0, 1), Seq(1, 0))),
+            (3, Seq(
+              Seq(0, 1, 2),
+              Seq(1, 0, 2),
+              Seq(2, 0, 1),
+              Seq(0, 2, 1),
+              Seq(1, 2, 0),
+              Seq(2, 1, 0))),
+            (4, Seq(
+              Seq(0, 1, 2, 3), Seq(1, 0, 2, 3), Seq(2, 0, 1, 3), Seq(0, 2, 1, 3), Seq(1, 2, 0, 3), Seq(2, 1, 0, 3),
+              Seq(2, 1, 3, 0), Seq(1, 2, 3, 0), Seq(3, 2, 1, 0), Seq(2, 3, 1, 0), Seq(1, 3, 2, 0), Seq(3, 1, 2, 0),
+              Seq(3, 0, 2, 1), Seq(0, 3, 2, 1), Seq(2, 3, 0, 1), Seq(3, 2, 0, 1), Seq(0, 2, 3, 1), Seq(2, 0, 3, 1),
+              Seq(1, 0, 3, 2), Seq(0, 1, 3, 2), Seq(3, 1, 0, 2), Seq(1, 3, 0, 2), Seq(0, 3, 1, 2), Seq(3, 0, 1, 2)))
+          )
+
+          forAll(conversions){ (degree: Int, expected: Seq[Seq[Int]]) =>
+            __Exercise__
+            val sut = Permutation.allPermutations4(0 until degree)
+            __Verify__
+            sut should equal (expected)
           }
         }
       }

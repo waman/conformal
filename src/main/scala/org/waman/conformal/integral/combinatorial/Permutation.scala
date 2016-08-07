@@ -31,8 +31,8 @@ trait Permutation extends PassivePermutation[Int]
       case _ =>  // case for args: suffices = Seq(2, 4, 1, 5, 3), n = 1
         val i = suffices.indexOf(n)  // i = 2
 
-        //          val swapped = swap(suffices, 0, i) // swapped = Seq(1, 4, 2, 5, 3)
-        //          val newSuffices = swapped.tail
+        // val swapped = swap(suffices, 0, i) // swapped = Seq(1, 4, 2, 5, 3)
+        // val newSuffices = swapped.tail
         val newSuffices = suffices.updated(i, suffices.head).tail
         // newSuffices = Seq(4, 2, 5, 3)
 
@@ -101,12 +101,12 @@ trait Permutation extends PassivePermutation[Int]
         case -1 => None
         case i =>  //  case for args: suf = Seq(0, 2, 4, 1, 5, 3), i = 3 (1 < 5)
           val a = suf(i)  // a = 1
-        val j = suf.lastIndexWhere(p => a < p)  // j = 5 (1 < 3)
-        val swapped = swap(suf, i, j)  // swapped = Seq(0, 2, 4, 3, 5, 1)
+          val j = suf.lastIndexWhere(p => a < p)  // j = 5 (1 < 3)
+          val swapped = swap(suf, i, j)  // swapped = Seq(0, 2, 4, 3, 5, 1)
 
           val (first, second) = swapped.splitAt(i+1)  // first = Seq(0, 2, 4, 3), second = Seq(5, 1)
-        val newSuf = first ++ second.reverse  // newSuf = Seq(0, 2, 4, 3, 1, 5)
-          Some(new Permutation.SeqPermutation(newSuf))
+          val newSuffices = first ++ second.reverse  // newSuffices = Seq(0, 2, 4, 3, 1, 5)
+          Some(new Permutation.SeqPermutation(newSuffices))
       }
   }
 
@@ -325,8 +325,97 @@ object Permutation{
       def toPermutation: Permutation = signed(suffices, sign)
     }
 
-    val init = Builder(Vector(), (0 until degree).toVector, 1)
-    generateCombinatorial(init, degree).map(_.toPermutation)
+    val start = Builder(Vector(), (0 until degree).toVector, 1)
+    generateCombinatorial(start, degree).map(_.toPermutation)
+  }
+
+  /* For implementation interest */
+  private[combinatorial]
+  def allPermutations2(degree: Int): Seq[Seq[Int]] = {
+
+    case class Builder(suffices: Vector[Int])
+      extends CombinatorialBuilder[Int, Builder]{
+
+      val length: Int = suffices.length
+
+      override def nextGeneration: Seq[Builder] = {
+        @tailrec
+        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
+          i match {
+            case -1 => accum
+            case _ =>
+              val newSuffices = insertAt(suffices, i, length)
+              val newBuilder = Builder(newSuffices)
+              nextGeneration(accum :+ newBuilder, i-1)
+          }
+
+        nextGeneration(Vector(), length)
+      }
+    }
+
+    val start = Builder(Vector())
+    generateCombinatorial(start, degree).map(_.suffices)
+  }
+
+  /* For implementation interest */
+  private[combinatorial]
+  def allPermutations3[E](seq: Seq[E]): Seq[Seq[E]] = {
+
+    case class Builder(suffices: Vector[E], n: Int)
+      extends CombinatorialBuilder[E, Builder]{
+
+      override def nextGeneration: Seq[Builder] = {
+        @tailrec
+        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
+          i match {
+            case -1 => accum
+            case _ =>
+              val newSuffices = swap(suffices, i, n)
+              val newBuilder = Builder(newSuffices, n-1)
+              nextGeneration(accum :+ newBuilder, i-1)
+          }
+
+        nextGeneration(Vector(), n)
+      }
+    }
+
+    val start = Builder(seq.toVector, seq.length-1)
+    generateCombinatorial(start, seq.length).map(_.suffices)
+  }
+
+  /* For implementation interest */
+  private[combinatorial]
+  def allPermutations4[E](arg: Seq[E]): Seq[Seq[E]] = {
+
+    val counters = factorialCounters(arg.length)
+
+    Stream.iterate((arg, counters)){
+      case (a, Nil) => (Nil, Nil)
+      case (a, fcs) =>
+        val FactorialCounter(c, k) = fcs.head
+        val i = if(k % 2 == 0) 0 else c(k)
+        val newA = swap(a, i, k)
+        (newA, fcs.tail)
+    }.takeWhile(_._1.nonEmpty).drop(1).map(_._1)
+  }
+
+  private[combinatorial]
+  case class FactorialCounter(c: Seq[Int], k: Int){
+    def hasNext: Boolean = k != -1
+    def next: FactorialCounter =
+      c.indexWhere(_ != 0) match {
+        case -1 => FactorialCounter(Nil, -1)
+        case newK =>
+          val s = c.slice(newK, c.length)
+          val newC = (0 until newK) ++: (s.head-1) +: s.tail
+          FactorialCounter(newC, newK)
+      }
+  }
+
+  private[combinatorial]
+  def factorialCounters(degree: Int): Seq[FactorialCounter] = {
+    val start = FactorialCounter(0 until degree, 1)
+    Stream.iterate(start)(_.next).takeWhile(_.hasNext)
   }
 
   //**** Other permutation generators *****
@@ -353,9 +442,9 @@ object Permutation{
       }
     }
 
-    val init = Builder(Vector(), (0 until degree).toVector, 1)
+    val start = Builder(Vector(), (0 until degree).toVector, 1)
 
-    generateCombinatorial(init, degree-2).map{
+    generateCombinatorial(start, degree-2).map{
       case b if b.sign == parity =>
         b.suffices ++: b.available
       case b =>
@@ -405,8 +494,8 @@ object Permutation{
     degree match {
       case 1 => Nil
       case _ =>
-        val init = Builder(Vector(), (0 until degree).toVector, 0)
-        generateCombinatorial(init, degree).map(b => new SeqPermutation(b.suffices))
+        val start = Builder(Vector(), (0 until degree).toVector, 0)
+        generateCombinatorial(start, degree).map(b => new SeqPermutation(b.suffices))
     }
   }
 }

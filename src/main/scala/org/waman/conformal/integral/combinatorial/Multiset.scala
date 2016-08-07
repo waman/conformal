@@ -70,8 +70,8 @@ object Multiset extends CombinatorialGenerator{
       }
     }
 
-    val init = Builder(Vector(), map)
-    generateCombinatorial(init, rank).map(_.suffices)
+    val start = Builder(Vector(), map)
+    generateCombinatorial(start, rank).map(_.suffices)
   }
 
   //***** Combination *****
@@ -118,7 +118,7 @@ object Multiset extends CombinatorialGenerator{
       }
     }
 
-    val init = Builder(Vector(), map)
-    generateCombinatorial(init, rank).map(_.suffices)
+    val start = Builder(Vector(), map)
+    generateCombinatorial(start, rank).map(_.suffices)
   }
 }

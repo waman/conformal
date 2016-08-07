@@ -114,8 +114,8 @@ object PartialPermutation{
       }
     }
 
-    val init = Builder(Vector(), seq.toVector)
-    generateCombinatorial(init, rank).map(_.suffices)
+    val start = Builder(Vector(), seq.toVector)
+    generateCombinatorial(start, rank).map(_.suffices)
   }
 
   def allPermutations(degree: Int, rank: Int): Seq[PartialPermutation] =
