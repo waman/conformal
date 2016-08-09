@@ -10,8 +10,10 @@ class PermutationSpec extends ConformalCustomSpec{
   val id = Permutation.identity(4)
   val prod = perm * Permutation(1, 2, 0, 3)  // [1032]
   val inv = perm.inverse // [2130]
+  val permPI = Permutation.byProperIndices(2, 1, 3, 0)
 
   def range(n: Int): Seq[Int] = 0 until n
+  def alphabet(n: Int): String = ('a' to 'z').take(n).mkString
 
   /**
     * -Permutation
@@ -40,7 +42,11 @@ class PermutationSpec extends ConformalCustomSpec{
           (inv, 0, 2),
           (inv, 1, 1),
           (inv, 2, 3),
-          (inv, 3, 0)
+          (inv, 3, 0),
+          (permPI, 0, 3),
+          (permPI, 1, 1),
+          (permPI, 2, 0),
+          (permPI, 3, 2)
         )
 
       forAll(conversions) { (p: Permutation, index: Int, expected: Int) =>
@@ -73,7 +79,11 @@ class PermutationSpec extends ConformalCustomSpec{
           (inv, 0, 3),
           (inv, 1, 1),
           (inv, 2, 0),
-          (inv, 3, 2)
+          (inv, 3, 2),
+          (permPI, 0, 2),
+          (permPI, 1, 1),
+          (permPI, 2, 3),
+          (permPI, 3, 0)
         )
 
       forAll(conversions) { (p: Permutation, i: Int, expected: Int) =>
@@ -91,11 +101,12 @@ class PermutationSpec extends ConformalCustomSpec{
       val conversions =
         Table(
           ("p", "expected"),
-          (perm, Seq(3, 1, 0, 2)),
-          (Permutation(2, 5, 3, 1, 0, 4), Seq(2, 5, 3, 1, 0, 4)),
+          (perm, Seq(2, 1, 3, 0)),
+          (Permutation(2, 5, 3, 1, 0, 4), Seq(4, 3, 0, 2, 5, 1)),
           (id, Seq(0, 1, 2, 3)),
           (prod, Seq(1, 0, 3, 2)),
-          (inv, Seq(2, 1, 3, 0))
+          (inv, Seq(3, 1, 0, 2)),
+          (permPI, Seq(2, 1, 3, 0))
         )
 
       forAll(conversions) { (p: Permutation, expected: Seq[Int]) =>
@@ -159,7 +170,8 @@ class PermutationSpec extends ConformalCustomSpec{
           (Permutation(0, 2, 1), Permutation(0, 2, 1)),
           (id, Permutation(0, 1, 2, 3)),
           (prod, Permutation(1, 0, 3, 2)),  // [1032]^{-1} = [1032]
-          (inv, Permutation(3, 1, 0, 2))
+          (inv, Permutation(3, 1, 0, 2)),
+          (permPI, Permutation(2, 1, 3, 0))
         )
 
       forAll(conversions) { (p: Permutation, expected: Permutation) =>
@@ -177,7 +189,8 @@ class PermutationSpec extends ConformalCustomSpec{
         perm,
         id,
         prod,
-        inv)
+        inv,
+        permPI)
 
       forAll(conversions) { p: Permutation =>
         __SetUp__
@@ -274,7 +287,8 @@ class PermutationSpec extends ConformalCustomSpec{
           (Permutation(0, 2, 4, 1, 5, 3), Permutation(0, 2, 4, 3, 1, 5)),
 
           (prod /* [1032] */, Permutation(1, 2, 0, 3)),
-          (inv /* [2130] */ , Permutation(2, 3, 0, 1))
+          (inv /* [2130] */ , Permutation(2, 3, 0, 1)),
+          (permPI /* [3102] */, Permutation(3, 1, 2, 0))
         )
 
         forAll(conversions) { (p: Permutation, expected: Permutation) =>
@@ -349,7 +363,8 @@ class PermutationSpec extends ConformalCustomSpec{
             (perm, Permutation(3, 1, 0, 2)),
             (id, Permutation(0, 1, 2, 3)),
             (prod, Permutation(1, 0, 3, 2)),
-            (inv, Permutation(2, 1, 3, 0))
+            (inv, Permutation(2, 1, 3, 0)),
+            (permPI, perm)
           )
 
         forAll(conversions) { (p0: Permutation, p1: Permutation) =>
@@ -369,7 +384,8 @@ class PermutationSpec extends ConformalCustomSpec{
             (perm, Permutation(3, 1, 0, 2)),
             (id, Permutation(0, 1, 2, 3)),
             (prod, Permutation(1, 0, 3, 2)),
-            (inv, Permutation(2, 1, 3, 0))
+            (inv, Permutation(2, 1, 3, 0)),
+            (permPI, perm)
           )
 
         forAll(conversions) { (p0: Permutation, p1: Permutation) =>
@@ -599,7 +615,6 @@ class PermutationSpec extends ConformalCustomSpec{
             Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0))
 
           forAll(conversions) { ps: Seq[Permutation] =>
-            val list = ps.toList
             __Verify__
             ps.toSet should equal(expected)
           }
@@ -617,7 +632,7 @@ class PermutationSpec extends ConformalCustomSpec{
 
           val degreeConversions = Table("degree", 1, 2, 3, 4, 5)
 
-          forAll(allPermutationsConversions){ gen: (Int => Seq[PassivePermutation[Int]]) =>
+          forAll(allPermutationsConversions){ gen: (Int => Seq[Permutation]) =>
             forAll(degreeConversions) { degree: Int =>
               __Exercise__
               val sut = gen(degree)
@@ -792,6 +807,30 @@ class PermutationSpec extends ConformalCustomSpec{
           }
         }
 
+        "evenPermutations(String) method should" - {
+
+          "return all even permutations of string characters" in {
+            val conversions = Table(
+              ("degree", "expected"),
+              (1, Set("a")),
+              (2, Set("ab")),
+              (3, Set("abc", "bca", "cab")),
+              (4, Set(
+                "abcd", "acdb", "adbc",
+                "badc", "bcad", "bdca",
+                "cabd", "cbda", "cdab",
+                "dacb", "dbac", "dcba"))
+            )
+
+            forAll(conversions){ (degree: Int, expected: Set[String]) =>
+              __Exercise__
+              val sut = Permutation.evenPermutations(alphabet(degree)).toSet
+              __Verify__
+              sut should equal (expected)
+            }
+          }
+        }
+
         "oddPermutations(Int) method should" - {
 
           "return all even permutations" in {
@@ -829,28 +868,99 @@ class PermutationSpec extends ConformalCustomSpec{
             }
           }
         }
+
+        "oddPermutations(String) method should" - {
+
+          "return all odd permutations of string characters" in {
+            val conversions = Table(
+              ("degree", "expected"),
+              (1, Set[String]()),
+              (2, Set("ba")),
+              (3, Set("acb", "bac", "cba")),
+              (4, Set(
+                "abdc", "acbd", "adcb",
+                "bacd", "bcda", "bdac",
+                "cadb", "cbad", "cdba",
+                "dabc", "dbca", "dcab"))
+            )
+
+            forAll(conversions){ (degree: Int, expected: Set[String]) =>
+              __Exercise__
+              val sut = Permutation.oddPermutations(alphabet(degree)).toSet
+              __Verify__
+              sut should equal (expected)
+            }
+          }
+        }
       }
 
-      "derangements(Int) method should" - {
+      "derangements" - {
 
-        "return all derangements" in {
-          val conversions = Table(
-            ("degree", "expected"),
-            (1, Set[Permutation]()),
-            (2, Set(Permutation(1, 0))),
-            (3, Set(Permutation(1, 2, 0), Permutation(2, 0, 1))),
-            (4, Set(
-              Permutation(1, 0, 3, 2), Permutation(1, 2, 3, 0), Permutation(1, 3, 0, 2),
-              Permutation(2, 0, 3, 1), Permutation(2, 3, 0, 1), Permutation(2, 3, 1, 0),
-              Permutation(3, 0, 1, 2), Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0)
-            ))
-          )
+        "derangementCount(Int) method should" - {
 
-          forAll(conversions){ (degree: Int, expected: Set[Permutation]) =>
-            __Exercise__
-            val sut = Permutation.derangements(degree)
-            __Verify__
-            sut.toSet should equal (expected)
+          "return the number of derangements with the specified degree" in {
+            val conversions = Table(
+              ("degree", "expected"),
+              (1, 0),
+              (2, 1),
+              (3, 2),
+              (4, 9),
+              (5, 44)
+            )
+
+            forAll(conversions){ (degree: Int, expected: Int) =>
+              __Exercise__
+              val sut = Permutation.derangementCount(degree)
+              __Verify__
+              sut should equal (expected)
+            }
+          }
+        }
+
+        "derangements(Int) method should" - {
+
+          "return all derangements" in {
+            val conversions = Table(
+              ("degree", "expected"),
+              (1, Set[Permutation]()),
+              (2, Set(Permutation(1, 0))),
+              (3, Set(Permutation(1, 2, 0), Permutation(2, 0, 1))),
+              (4, Set(
+                Permutation(1, 0, 3, 2), Permutation(1, 2, 3, 0), Permutation(1, 3, 0, 2),
+                Permutation(2, 0, 3, 1), Permutation(2, 3, 0, 1), Permutation(2, 3, 1, 0),
+                Permutation(3, 0, 1, 2), Permutation(3, 2, 0, 1), Permutation(3, 2, 1, 0)
+              ))
+            )
+
+            forAll(conversions){ (degree: Int, expected: Set[Permutation]) =>
+              __Exercise__
+              val sut = Permutation.derangements(degree)
+              __Verify__
+              sut.toSet should equal (expected)
+            }
+          }
+        }
+
+        "derangements(String) method should" - {
+
+          "return all derangement permutations of string characters" in {
+            val conversions = Table(
+              ("degree", "expected"),
+              (1, Set[String]()),
+              (2, Set("ba")),
+              (3, Set("bca", "cab")),
+              (4, Set(
+                "badc", "bcda", "bdac",
+                "cadb", "cdab", "cdba",
+                "dabc", "dcab", "dcba"))
+            )
+
+            forAll(conversions){ (degree: Int, expected: Set[String]) =>
+              __Exercise__
+              val sut = Permutation.derangements(alphabet(degree)).toSet
+              __Verify__
+              sut should equal (expected)
+            }
           }
         }
       }

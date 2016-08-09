@@ -1,27 +1,22 @@
 package org.waman.conformal.integral.combinatorial
 
-trait Combinatorial[I, T]{
+trait Combinatorial[T]{
 
   def degree: Int
-
-  def indices: Seq[I]
-  def indexIsDefinedAt(i: I): Boolean = indices.contains(i)
-
-  def apply(i: I): T
-}
-
-trait IntCombinatorial[T] extends Combinatorial[Int, T]{
-
-  override def indices: Seq[Int] = 0 until degree
-}
-
-trait PartialIntCombinatorial[T] extends IntCombinatorial[T]{
   def rank: Int
+
+  def indices: Seq[Int] = 0 until degree
+  def indexIsDefinedAt(i: Int): Boolean = indices.contains(i)
+
+  def apply(i: Int): T
   def apply[E](seq: Seq[E]): Seq[E]
   def apply(s: String): String = apply(s: Seq[Char]).mkString
 }
 
-object PartialIntCombinatorial{
+object Combinatorial{
+
+  def validateArgument(arg: Seq[Int], s: String): Unit =
+    validateArgument(arg.length, arg, s)
 
   def validateArgument(degree: Int, arg: Traversable[Int], s: String): Unit = {
 
@@ -42,7 +37,7 @@ object PartialIntCombinatorial{
     }
   }
 
-  def validateComparablity[C <: PartialIntCombinatorial[_]](thiz: C, that: C): Unit = {
+  def validateComparablity[C <: Combinatorial[_]](thiz: C, that: C): Unit = {
 
     require(thiz.degree == that.degree,
       s"""Two partial permutations can be compared when these degrees are the same values:

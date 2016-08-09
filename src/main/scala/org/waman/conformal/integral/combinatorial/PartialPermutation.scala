@@ -6,25 +6,22 @@ import spire.math.Integral
 import scala.annotation.tailrec
 
 /**
-  * Note that apply(Seq[E]) method work in a different way
-  * from Permutation and PassivePermutation trait.
-  *
   * The apply method is place-base permutation
   *
   * Example
   *   degree: 4
   *   rank: 3
   *
-  * / 3 1 0 (2) \  <- proper indices in this order (NOT containing 2)
-  * \ 0 1 2 (-) /
+  * / 0 1 (2) 3 \  <- indices (containing 2)
+  * \ 2 1 (-) 0 /  <- suffices
   *
-  * = / 0 1 (2) 3 \  <- indices (containing 2)
-  *   \ 2 1 (-) 0 /  <- suffices
+  * = / 3 1 0 (2) \  <- proper indices in this order (NOT containing 2)
+  *   \ 0 1 2 (-) /
   *
   * In the above example, an object at place 3 is moved to place 0
   */
 trait PartialPermutation
-    extends PartialIntCombinatorial[Int]
+    extends Combinatorial[Int]
     with Ordered[PartialPermutation]{
 
   def properIndices: Seq[Int]
@@ -33,13 +30,11 @@ trait PartialPermutation
 
   //***** Order related *****
   override def compare(that: PartialPermutation): Int = {
-    PartialIntCombinatorial.validateComparablity(this, that)
+    Combinatorial.validateComparablity(this, that)
 
     properIndices.zip(that.properIndices).find(p => p._1 != p._2) match {
       case None => 0
-      case Some((x, y)) =>
-        if (x < y) -1
-        else 1
+      case Some((x, y)) => if (x < y) -1 else 1
     }
   }
 
@@ -68,7 +63,7 @@ object PartialPermutation{
 
   //***** apply() factory method *****
   def apply(degree: Int, properIndices: Seq[Int]): PartialPermutation = {
-    PartialIntCombinatorial.validateArgument(degree, properIndices, "proper indices")
+    Combinatorial.validateArgument(degree, properIndices, "proper indices")
     new SeqPartialPermutation(degree, properIndices.toVector)
   }
 
@@ -93,9 +88,9 @@ object PartialPermutation{
     }
   }
 
-  def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] ={
+  def allPermutations[E](arg: Seq[E], rank: Int): Seq[Seq[E]] ={
 
-    case class Builder(suffices: Vector[E], available: Vector[E])
+    case class Builder(seq: Vector[E], available: Vector[E])
       extends CombinatorialBuilder[E, Builder]{
 
       override def nextGeneration: Seq[Builder] = {
@@ -104,9 +99,9 @@ object PartialPermutation{
           i match {
             case -1 => accum
             case _  =>
-              val newSuffices = suffices :+ available(i)
+              val newSeq = seq :+ available(i)
               val newAvailable = removeAt(available, i)
-              val newBuilder = Builder(newSuffices, newAvailable)
+              val newBuilder = Builder(newSeq, newAvailable)
               nextGeneration(newBuilder +: accum, i-1)
           }
 
@@ -114,8 +109,8 @@ object PartialPermutation{
       }
     }
 
-    val start = Builder(Vector(), seq.toVector)
-    generateCombinatorial(start, rank).map(_.suffices)
+    val start = Builder(Vector(), arg.toVector)
+    generateCombinatorial(start, rank).map(_.seq)
   }
 
   def allPermutations(degree: Int, rank: Int): Seq[PartialPermutation] =

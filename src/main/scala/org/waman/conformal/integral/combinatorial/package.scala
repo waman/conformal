@@ -38,7 +38,4 @@ package object combinatorial {
       (0 until mapping.size).map(mapping)
     }
   }
-
-  implicit def convertSeqToPassivePermutationFactory[E](seq: Seq[E]): PassivePermutationFactory[E] =
-    Permutation.factory(seq)
 }

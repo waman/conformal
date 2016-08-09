@@ -72,10 +72,10 @@ class CombinationSpec extends ConformalCustomSpec{
       }
     }
 
-    "Two Permutations can not be compared when these degrees do not equal" in {
+    "Two Combinations can not be compared when these degrees do not equal" in {
       __SetUp__
-      val c0 = Permutation(0, 2, 1)
-      val c1 = Permutation(0, 1, 3, 2)
+      val c0 = Combination(4, Set(0, 2, 1))
+      val c1 = Combination(4, Set(0, 1, 3, 2))
       __Verify__
       an [IllegalArgumentException] should be thrownBy{
         c0 < c1

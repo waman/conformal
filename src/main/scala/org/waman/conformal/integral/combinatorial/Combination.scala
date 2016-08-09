@@ -8,7 +8,7 @@ import scala.annotation.tailrec
 import scala.collection.SortedSet
 
 trait Combination
-    extends PartialIntCombinatorial[Boolean]
+    extends Combinatorial[Boolean]
     with Ordered[Combination]{
 
   def elements: Set[Int]
@@ -25,13 +25,11 @@ trait Combination
 
   //***** Order related *****
   override def compare(that: Combination): Int = {
-    PartialIntCombinatorial.validateComparablity(this, that)
+    Combinatorial.validateComparablity(this, that)
 
     sortedElements.zip(that.sortedElements).find(p => p._1 != p._2) match {
       case None => 0
-      case Some((x, y)) =>
-        if (x < y) -1
-        else 1
+      case Some((x, y)) => if (x < y) -1 else 1
     }
   }
 
@@ -82,16 +80,13 @@ object Combination{
   }
 
   //***** apply() factory methods *****
-  private def validateElements(degree: Int, elements: Traversable[Int]): Unit =
-    PartialIntCombinatorial.validateArgument(degree, elements, "elements")
-
   def apply(degree: Int, elements: Seq[Int]): Combination = {
-    validateElements(degree, elements)
+    Combinatorial.validateArgument(degree, elements, "element")
     new SeqCombination(degree, elements.sorted)
   }
 
   def apply(degree: Int, elements: Set[Int]): Combination = {
-    validateElements(degree, elements)
+    Combinatorial.validateArgument(degree, elements, "element")
     new SetCombination(degree, elements)
   }
 
