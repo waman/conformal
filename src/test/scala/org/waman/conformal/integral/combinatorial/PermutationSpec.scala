@@ -914,6 +914,8 @@ class PermutationSpec extends ConformalCustomSpec{
               __Verify__
               sut should equal (expected)
             }
+
+//            println(Permutation.derangementCount[BigInt](20))
           }
         }
 

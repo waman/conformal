@@ -498,17 +498,33 @@ object Permutation{
   def oddPermutations(s: String): Seq[String] = oddPermutations(s: Seq[Char]).map(_.mkString)
 
 
-  def derangementCount[I: Integral](degree: I): I = {
-    require(degree > 0, s"Degree of derangement must be positive: appear $degree")
-
+  def derangementCount[I: Integral](degree: I): I = degree match {
+    case 1 => 0
+    case _ =>
       @tailrec
-      def derangementCount(sum: I, k: I, sign: I): I = k match {
-        case 1 => sum
+      def derangementCount(current: I, previous: I, n: I, i: Int): I = i match {
+        case 2 => current
         case _ =>
-          derangementCount(sum + sign * permutationCount(degree, degree-k), k-1, -sign)
+          val next = n * (current + previous)
+          derangementCount(next, current, n+1, i-1)
       }
 
-      derangementCount(0, degree, (-1)**degree.toInt)
+      derangementCount(1, 0, 2, degree.toInt)
+  }
+
+  // For implementation interest
+  private[combinatorial]
+  def derangementCount1[I: Integral](degree: I): I = {
+    require(degree > 0, s"Degree of derangement must be positive: appear $degree")
+
+    @tailrec
+    def derangementCount(sum: I, k: I, sign: I): I = k match {
+      case 1 => sum
+      case _ =>
+        derangementCount(sum + sign * permutationCount(degree, degree-k), k-1, -sign)
+    }
+
+    derangementCount(0, degree, (-1)**degree.toInt)
   }
 
   private def generateDerangements(degree: Int): Seq[Seq[Int]] = {
