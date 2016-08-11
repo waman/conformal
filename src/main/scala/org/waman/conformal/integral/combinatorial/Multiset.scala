@@ -3,7 +3,6 @@ package org.waman.conformal.integral.combinatorial
 import spire.implicits._
 import spire.math.Rational
 
-import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 
 object Multiset extends CombinatorialGenerator{
@@ -50,24 +49,14 @@ object Multiset extends CombinatorialGenerator{
     case class Builder(suffices: Vector[E], available: Map[E, Int])
       extends CombinatorialBuilder[E, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], ite: Iterable[E]): Seq[Builder] =
-          ite.isEmpty match {
-            case true  => accum
-            case false =>
-              val key = ite.head
-              val newSuffices = suffices :+ key
-              val newAvailable = available(key) match {
-                case 1 => available - key
-                case i => available.updated(key, i-1)
-              }
-              val newBuilder = Builder(newSuffices, newAvailable)
-              nextGeneration(accum :+ newBuilder, ite.tail)
+      override def nextGeneration: Seq[Builder] =
+        available.map{ case (key, value) =>
+          val newAvailable = value match {
+            case 1 => available - key
+            case _ => available.updated(key, value-1)
           }
-
-        nextGeneration(Vector(), available.keys)
-      }
+          Builder(suffices :+ key, newAvailable)
+        }.toSeq
     }
 
     val start = Builder(Vector(), map)
@@ -93,29 +82,14 @@ object Multiset extends CombinatorialGenerator{
     case class Builder(suffices: Vector[Int], available: Map[Int, Int])
       extends CombinatorialBuilder[Int, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], ite: Iterable[Int]): Seq[Builder] =
-          ite.isEmpty match {
-            case true  => accum
-            case false =>
-              val key = ite.head
-              if(suffices.isEmpty || suffices.last <= key){
-                val newSuffices = suffices :+ key
-                val newAvailable = available(key) match {
-                  case 1 => available - key
-                  case i => available.updated(key, i-1)
-                }
-                val newBuilder = Builder(newSuffices, newAvailable)
-                nextGeneration(accum :+ newBuilder, ite.tail)
-
-              }else{
-                nextGeneration(accum, ite.tail)
-              }
+      override def nextGeneration: Seq[Builder] = //{
+        available.collect{ case (key, value) if suffices.isEmpty || suffices.last <= key =>
+          val newAvailable = value match {
+            case 1 => available - key
+            case _ => available.updated(key, value-1)
           }
-
-        nextGeneration(Vector(), available.keys)
-      }
+          Builder(suffices :+ key, newAvailable)
+        }.toSeq
     }
 
     val start = Builder(Vector(), map)

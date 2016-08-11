@@ -1,10 +1,9 @@
 package org.waman.conformal.integral.combinatorial
 
-import org.waman.conformal._
 import org.waman.conformal.integral.BinomialCoefficient
+import spire.implicits._
 import spire.math.Integral
 
-import scala.annotation.tailrec
 import scala.collection.SortedSet
 
 trait Combination
@@ -112,31 +111,48 @@ object Combination{
   private[combinatorial]
   def generateCombinations(degree: Int, rank: Int): Seq[Seq[Int]] = {
 
-    case class Builder(elements: Vector[Int], available: Vector[Int])
+    case class Builder(elements: Vector[Int], available: Seq[Int])
         extends CombinatorialBuilder[Int, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val entry = available(i)
-              if(elements.isEmpty || elements.last < entry){
-                val newElements = elements :+ entry
-                val newAvailable = removeAt(available, i)
-                val newBuilder = Builder(newElements, newAvailable)
-                nextGeneration(newBuilder +: accum, i-1)
-              }else{
-                nextGeneration(accum, i-1)
-              }
-          }
-
-        nextGeneration(Nil, available.length-1)
-      }
+      override def nextGeneration: Seq[Builder] =
+        available.collect{ case e if elements.isEmpty || elements.last < e =>
+          Builder(
+            elements :+ e,
+            available.filter(_ != e)
+          )
+        }
     }
 
-    val start = Builder(Vector(), (0 until degree).toVector)
+    val start = Builder(Vector(), 0 until degree)
     generateCombinatorial(start, rank).map(_.elements)
+  }
+
+  // For implementation interest
+  private[combinatorial]
+  def allCombinations1[E](seq: Seq[E], rank: Int): Seq[Seq[E]] = {
+    val indices = seq.indices
+
+    generateCombinations1(seq.length, rank).map{ bits: Long =>
+      indices.filter(i => (2L**i & bits) != 0).map(seq)
+    }
+  }
+
+  // For implementation interest
+  private[combinatorial]
+  def generateCombinations1(degree: Int, rank: Int): Seq[Long] = {
+    def lowBit(n: Long): Long = (1L << n) - 1L
+    def lowestBit(x: Long): Long = x & -x
+
+    val start = lowBit(rank)          // start = 00001111
+    val terminator = ~lowBit(degree)  // terminator = 11...100000000
+
+    Stream.iterate(start){ x =>       // for x = 10011100
+      val smallest = lowestBit(x)     // smallest = 00000100
+      val ripple = x + smallest       // ripple = 10100000
+      val newSmallest = lowestBit(ripple)  // newSmallest = 00100000
+      val ones = ((newSmallest / smallest) >> 1) - 1L
+        // newSmallest / smallest = 00001000, ones = 00000011
+      ripple | ones                  // ripple | ones = 10100011
+    }.takeWhile(x => (x & terminator) == 0L)
   }
 }

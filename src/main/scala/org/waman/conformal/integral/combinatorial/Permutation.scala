@@ -242,16 +242,6 @@ object Permutation{
     new ProperIndicesBasedSeqPermutation(properIndices.toVector)
   }
 
-//  private def validateSuffices(suffices: Seq[Int]): Unit = {
-//    val degree = suffices.length
-//
-//    require(degree > 0, s"The degree of permutation must be positive: $degree")
-//    suffices.indices.foreach { i =>
-//      require(suffices.count(_ == i) == 1,
-//        s"Suffices of permutation must contain all integers of [0, $degree) once")
-//    }
-//  }
-
   trait ConstructorVarargManager[E]{
     def apply(args: Seq[E]): Seq[Int]
   }
@@ -327,21 +317,13 @@ object Permutation{
     case class Builder(suffices: Vector[Int], available: Vector[Int], sign: Int)
       extends CombinatorialBuilder[Int, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val newSuffices = suffices :+ available(i)
-              val newAvailable = removeAt(available, i)
-              val newSign = if(i % 2 == 0) sign else -sign
-              val newBuilder = Builder(newSuffices, newAvailable, newSign)
-              nextGeneration(newBuilder +: accum, i-1)
-          }
-
-        nextGeneration(Nil, available.length-1)
-      }
+      override def nextGeneration: Seq[Builder] =
+        available.zipWithIndex.map{ case (e, i) =>
+          Builder(
+            suffices :+ e,
+            available.filter(_ != e),
+            if(i % 2 == 0) sign else -sign)
+        }
 
       def toPermutation: Permutation = signed(suffices, sign)
     }
@@ -396,8 +378,7 @@ object Permutation{
           i match {
             case -1 => accum
             case _ =>
-              val newSeq = swap(seq, i, n)
-              val newBuilder = Builder(newSeq, n-1)
+              val newBuilder = Builder(swap(seq, i, n), n-1)
               nextGeneration(accum :+ newBuilder, i-1)
           }
 
@@ -425,6 +406,7 @@ object Permutation{
     }.takeWhile(_._1.nonEmpty).drop(1).map(_._1)
   }
 
+  // For implementation interest
   private[combinatorial]
   case class FactorialCounter(c: Seq[Int], k: Int){
     def hasNext: Boolean = k != -1
@@ -438,6 +420,7 @@ object Permutation{
       }
   }
 
+  // For implementation interest
   private[combinatorial]
   def factorialCounters(degree: Int): Seq[FactorialCounter] = {
     val start = FactorialCounter(0 until degree, 1)
@@ -451,27 +434,20 @@ object Permutation{
     if(degree == 1)
       return if(parity >= 0) Seq(Seq(0)) else Nil
 
-    case class Builder(seq: Vector[Int], available: Vector[Int], sign: Int)
+    case class Builder(seq: Vector[Int], available: Seq[Int], sign: Int)
       extends CombinatorialBuilder[Int, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val newSeq = seq :+ available(i)
-              val newAvailable = removeAt(available, i)
-              val newSign = if(i % 2 == 0) sign else -sign
-              val newBuilder = Builder(newSeq, newAvailable, newSign)
-              nextGeneration(newBuilder +: accum, i-1)
-          }
-
-        nextGeneration(Nil, available.length-1)
-      }
+      override def nextGeneration: Seq[Builder] =
+        available.zipWithIndex.map{ case (e, i) =>
+          Builder(
+            seq :+ e,
+            available.filter(_ != e),
+            if(i % 2 == 0) sign else -sign
+          )
+        }
     }
 
-    val start = Builder(Vector(), (0 until degree).toVector, 1)
+    val start = Builder(Vector(), 0 until degree, 1)
 
     generateCombinatorial(start, degree-2).map{
       case b if b.sign == parity =>
@@ -530,35 +506,22 @@ object Permutation{
   private def generateDerangements(degree: Int): Seq[Seq[Int]] = {
     require(degree > 0)
 
-    case class Builder(seq: Vector[Int], available: Vector[Int], n: Int)
+    case class Builder(seq: Vector[Int], available: Seq[Int], position: Int)
       extends CombinatorialBuilder[Int, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] = {
-          i match {
-            case -1 => accum
-            case _ =>
-              val entry = available(i)
-              if(entry == n) {
-                nextGeneration(accum, i-1)
-              }else{
-                val newProperIndices = seq :+ entry
-                val newAvailable = removeAt(available, i)
-                val newBuilder = Builder(newProperIndices, newAvailable, n+1)
-                nextGeneration(newBuilder +: accum, i-1)
-              }
-          }
+      override def nextGeneration: Seq[Builder] =
+        available.collect{ case e if e != position =>
+          Builder(
+            seq :+ e,
+            available.filter(_ != e),
+            position+1)
         }
-
-        nextGeneration(Nil, available.length-1)
-      }
     }
 
     degree match {
       case 1 => Nil
       case _ =>
-        val start = Builder(Vector(), (0 until degree).toVector, 0)
+        val start = Builder(Vector(), 0 until degree, 0)
         generateCombinatorial(start, degree).map(_.seq)
     }
   }

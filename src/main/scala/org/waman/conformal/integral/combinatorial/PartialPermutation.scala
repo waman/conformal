@@ -1,9 +1,6 @@
 package org.waman.conformal.integral.combinatorial
 
-import org.waman.conformal._
 import spire.math.Integral
-
-import scala.annotation.tailrec
 
 /**
   * The apply method is place-base permutation
@@ -90,26 +87,14 @@ object PartialPermutation{
 
   def allPermutations[E](arg: Seq[E], rank: Int): Seq[Seq[E]] ={
 
-    case class Builder(seq: Vector[E], available: Vector[E])
+    case class Builder(seq: Vector[E], available: Seq[E])
       extends CombinatorialBuilder[E, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val newSeq = seq :+ available(i)
-              val newAvailable = removeAt(available, i)
-              val newBuilder = Builder(newSeq, newAvailable)
-              nextGeneration(newBuilder +: accum, i-1)
-          }
-
-        nextGeneration(Nil, available.length-1)
-      }
+      override def nextGeneration: Seq[Builder] =
+        available.map(e => Builder(seq :+ e, available.filter(_ != e)))
     }
 
-    val start = Builder(Vector(), arg.toVector)
+    val start = Builder(Vector(), arg)
     generateCombinatorial(start, rank).map(_.seq)
   }
 

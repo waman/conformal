@@ -261,10 +261,10 @@ class MultisetSpec extends ConformalCustomSpec{
       "generate all combinations of the specified String and the specified length (rank)" in {
         val conversions = Table(
           ("arg", "length", "expected"),
-          ("", 0, Seq("")),
-
-          ("abc", 0, Seq("")),
-          ("abc", 1, Seq("a", "b", "c")),
+//          ("", 0, Seq("")),
+//
+//          ("abc", 0, Seq("")),
+//          ("abc", 1, Seq("a", "b", "c")),
           ("abc", 2, Seq("ab", "ac", "bc")),
           ("abc", 3, Seq("abc")),
 

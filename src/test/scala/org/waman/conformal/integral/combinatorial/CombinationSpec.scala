@@ -298,6 +298,47 @@ class CombinationSpec extends ConformalCustomSpec{
           }
         }
       }
+
+      // For implementation interest
+      "generateCombinations1(Int, Int) method" in {
+        val conversions = Table(
+          ("degree", "rank", "expected"),
+          (5, 2, Seq(
+            "00011", "00101", "00110", "01001", "01010",
+            "01100", "10001", "10010", "10100", "11000"
+          ))
+        )
+
+        forAll(conversions){ (degree: Int, rank: Int, expected: Seq[String]) =>
+          __SetUp__
+          def toBinaryString(i: Long): String = {
+            val s = java.lang.Long.toBinaryString(i)
+            Seq.fill(degree-s.length)('0').mkString + s
+          }
+          __Exercise__
+          val sut = Combination.generateCombinations1(5, 2).map(toBinaryString)
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+
+      // For implementation interest
+      "allCombinations1(Seq[E], Int) method" in {
+        val conversions = Table(
+          ("arg", "rank", "expected"),
+          ("abcde", 2, Seq(
+            "ab", "ac", "bc", "ad", "bd",
+            "cd", "ae", "be", "ce", "de"
+          ))
+        )
+
+        forAll(conversions){ (arg: String, rank: Int, expected: Seq[String]) =>
+          __Exercise__
+          val sut = Combination.allCombinations1(arg: Seq[Char], 2).map(_.mkString)
+          __Verify__
+          sut should equal (expected)
+        }
+      }
     }
   }
 }

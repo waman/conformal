@@ -1,10 +1,8 @@
 package org.waman.conformal.integral.combinatorial
 
 import org.waman.conformal.integral.GeneralizedBinomialCoefficient
-import spire.math.Integral
 import spire.implicits._
-
-import scala.annotation.tailrec
+import spire.math.Integral
 
 object WithRepetition extends CombinatorialGenerator{
 
@@ -20,19 +18,8 @@ object WithRepetition extends CombinatorialGenerator{
     case class Builder(suffices: Vector[E])
       extends CombinatorialBuilder[E, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val newSuffices = suffices :+ entries(i)
-              val newBuilder = Builder(newSuffices)
-              nextGeneration(newBuilder +: accum, i-1)
-          }
-
-        nextGeneration(Nil, entries.length-1)
-      }
+      override def nextGeneration: Seq[Builder] =
+        seq.map( e => Builder(suffices :+ e))
     }
 
     generateCombinatorial(Builder(Vector()), rank).map(_.suffices)
@@ -43,29 +30,15 @@ object WithRepetition extends CombinatorialGenerator{
     GeneralizedBinomialCoefficient(degree+rank-1, rank)
 
   override def allCombinations(degree: Int, rank: Int): Seq[Seq[Int]] = {
-    val entries = (0 until degree).toVector
+    val entries = 0 until degree
 
     case class Builder(elements: Vector[Int])
       extends CombinatorialBuilder[Int, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _  =>
-              val entry = entries(i)
-              if(elements.isEmpty || elements.last <= entry){
-                val newElements = elements :+ entry
-                val newBuilder = Builder(newElements)
-                nextGeneration(newBuilder +: accum, i-1)
-              }else{
-                nextGeneration(accum, i-1)
-              }
-          }
-
-        nextGeneration(Nil, degree-1)
-      }
+      override def nextGeneration: Seq[Builder] =
+        entries.collect{ case e if elements.isEmpty || elements.last <= e =>
+          Builder(elements :+ e)
+        }
     }
 
     generateCombinatorial(Builder(Vector()), rank).map(_.elements)
