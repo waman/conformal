@@ -332,11 +332,71 @@ class PermutationSpec extends ConformalCustomSpec{
     }
   }
 
+  "Cycles" - {
+
+    "cycles method should" - {
+
+      "return cycles of this permutation" in {
+        val conversions = Table(
+          ("p", "expected"),
+          (Permutation(1, 0, 3, 2), Set(Cycle(0, 1), Cycle(2, 3)))
+        )
+
+        forAll(conversions){ (p: Permutation, expected: Set[Cycle]) =>
+          __Exercise__
+          val sut = p.cycles.toSet
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+    }
+
+    "toCycleNotationString method should" - {
+
+      "return String representation of this permutation in cycle notation" in {
+
+        val conversions = Table(
+          ("p", "expected"),
+          (Permutation(1, 0, 3, 2), "(0 1)(2 3)"),
+          (Permutation(3, 1, 0, 2), "(0 3 2)"),
+          (Permutation.identity(4), "")
+        )
+
+        forAll(conversions){ (p: Permutation, expected: String) =>
+          __Exercise__
+          val sut = p.toCycleNotation
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+    }
+  }
+
+  "Type conversions" - {
+
+    "toMap() method should" - {
+
+      "convert Permutation object to a Map[Int, Int] one" in {
+        val conversions = Table(
+          ("permutation", "expected"),
+          (perm, Map(0 -> 3, 1 -> 1, 2 -> 0, 3 -> 2))
+        )
+
+        forAll(conversions){ (p: Permutation, expected: Map[Int, Int]) =>
+          __Exercise__
+          val sut = p.toMap
+          __Verify__
+          sut should equal (expected)
+        }
+      }
+    }
+  }
+
   "The methods of Any class" - {
 
     "toString method should" - {
 
-      "create a String representation of permutation like [1 3 2]" in {
+      "create a String representation of permutation like [0 2 1]" in {
         val conversions =
           Table(
             ("p", "expected"),
@@ -391,26 +451,6 @@ class PermutationSpec extends ConformalCustomSpec{
         forAll(conversions) { (p0: Permutation, p1: Permutation) =>
           __Verify__
           p0.hashCode should equal(p1.hashCode)
-        }
-      }
-    }
-  }
-
-  "Type conversions" - {
-
-    "toMap() method should" - {
-
-      "convert Permutation object to a Map[Int, Int] one" in {
-        val conversions = Table(
-          ("permutation", "expected"),
-          (perm, Map(0 -> 3, 1 -> 1, 2 -> 0, 3 -> 2))
-        )
-
-        forAll(conversions){ (p: Permutation, expected: Map[Int, Int]) =>
-          __Exercise__
-          val sut = p.toMap
-          __Verify__
-          sut should equal (expected)
         }
       }
     }

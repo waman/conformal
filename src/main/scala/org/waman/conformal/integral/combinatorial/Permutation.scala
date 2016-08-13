@@ -126,6 +126,30 @@ trait Permutation extends Combinatorial[Int] with Ordered[Permutation]{
           Some(new Permutation.SeqPermutation(newProperIndices))
       }
   }
+
+  //***** Cycles *****
+  lazy val cycles: Seq[Cycle] = {
+    @tailrec
+    def extractCycles(accum: Seq[Cycle], rest: Seq[Int]): Seq[Cycle] =
+      rest.isEmpty match {
+        case true  => accum
+        case false =>
+          @tailrec
+          def extractCycle(c: Vector[Int], x: Int, rest: Seq[Int]): (Cycle, Seq[Int]) =
+            if(c.isEmpty || x != c.head)
+              extractCycle(c :+ x, apply(x), rest.filter(_ != x))
+            else
+              (new Cycle.SeqCycle(c), rest)
+
+          val (c, r) = extractCycle(Vector(), rest.head, rest.tail)
+          extractCycles(accum :+ c, r)
+      }
+
+    extractCycles(Vector(), suffices)
+  }
+
+  def toCycleNotation: String =
+    cycles.filter(_.length > 1).map(_.toString).mkString
   
   //***** Type Conversions *****
   def toMap: Map[Int, Int] = indices.map(i => (i, apply(i))).toMap
