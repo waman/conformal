@@ -46,7 +46,7 @@ object Multiset extends CombinatorialGenerator{
 
   def generatePermutations[E](map: Map[E, Int], rank: Int): Seq[Seq[E]] = {
 
-    case class Builder(suffices: Vector[E], available: Map[E, Int])
+    case class Builder(seq: Vector[E], available: Map[E, Int])
       extends CombinatorialBuilder[E, Builder]{
 
       override def nextGeneration: Seq[Builder] =
@@ -55,12 +55,12 @@ object Multiset extends CombinatorialGenerator{
             case 1 => available - key
             case _ => available.updated(key, value-1)
           }
-          Builder(suffices :+ key, newAvailable)
+          Builder(seq :+ key, newAvailable)
         }.toSeq
     }
 
     val start = Builder(Vector(), map)
-    generateCombinatorial(start, rank).map(_.suffices)
+    generateCombinatorials(start, rank).map(_.seq)
   }
 
   //***** Combination *****
@@ -79,20 +79,20 @@ object Multiset extends CombinatorialGenerator{
 
   private def generateCombinations(map: Map[Int, Int], rank: Int): Seq[Seq[Int]] = {
 
-    case class Builder(suffices: Vector[Int], available: Map[Int, Int])
+    case class Builder(seq: Vector[Int], available: Map[Int, Int])
       extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] = //{
-        available.collect{ case (key, value) if suffices.isEmpty || suffices.last <= key =>
+        available.collect{ case (key, value) if seq.isEmpty || seq.last <= key =>
           val newAvailable = value match {
             case 1 => available - key
             case _ => available.updated(key, value-1)
           }
-          Builder(suffices :+ key, newAvailable)
+          Builder(seq :+ key, newAvailable)
         }.toSeq
     }
 
     val start = Builder(Vector(), map)
-    generateCombinatorial(start, rank).map(_.suffices)
+    generateCombinatorials(start, rank).map(_.seq)
   }
 }

@@ -124,7 +124,7 @@ object Combination{
     }
 
     val start = Builder(Vector(), 0 until degree)
-    generateCombinatorial(start, rank).map(_.elements)
+    generateCombinatorials(start, rank).map(_.elements)
   }
 
   // For implementation interest

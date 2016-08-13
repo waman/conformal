@@ -9,7 +9,7 @@ package object combinatorial {
 
   //***** Combinatorial Builder *****
   private[combinatorial]
-  def generateCombinatorial[B <: CombinatorialBuilder[_, B]](start: B, n: Int): Stream[B] = {
+  def generateCombinatorials[B <: CombinatorialBuilder[_, B]](start: B, n: Int): Stream[B] = {
 
     @tailrec
     def generateAll(stream: Stream[B], n: Int): Stream[B] =

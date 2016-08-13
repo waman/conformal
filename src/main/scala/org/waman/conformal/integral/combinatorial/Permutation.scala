@@ -314,7 +314,7 @@ object Permutation{
   def generatePermutationsWithSign(degree: Int): Seq[Permutation] = {
     require(degree > 0)
 
-    case class Builder(suffices: Vector[Int], available: Vector[Int], sign: Int)
+    case class Builder(suffices: Vector[Int], available: Seq[Int], sign: Int)
       extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] =
@@ -328,14 +328,14 @@ object Permutation{
       def toPermutation: Permutation = signed(suffices, sign)
     }
 
-    val start = Builder(Vector(), (0 until degree).toVector, 1)
-    generateCombinatorial(start, degree).map(_.toPermutation)
+    val start = Builder(Vector(), 0 until degree, 1)
+    generateCombinatorials(start, degree).map(_.toPermutation)
   }
 
   def allPermutations[E](arg: Seq[E]): Seq[Seq[E]] =
     PartialPermutation.allPermutations(arg, arg.length)
 
-  def allPermutation(s: String): Seq[String] = allPermutations(s: Seq[Char]).map(_.mkString)
+  def allPermutations(s: String): Seq[String] = allPermutations(s: Seq[Char]).map(_.mkString)
 
   /* For implementation interest */
   private[combinatorial]
@@ -362,7 +362,7 @@ object Permutation{
     }
 
     val start = Builder(Vector())
-    generateCombinatorial(start, degree).map(_.seq)
+    generateCombinatorials(start, degree).map(_.seq)
   }
 
   /* For implementation interest */
@@ -387,7 +387,7 @@ object Permutation{
     }
 
     val start = Builder(arg.toVector, arg.length-1)
-    generateCombinatorial(start, arg.length).map(_.seq)
+    generateCombinatorials(start, arg.length).map(_.seq)
   }
 
   /* For implementation interest */
@@ -449,7 +449,7 @@ object Permutation{
 
     val start = Builder(Vector(), 0 until degree, 1)
 
-    generateCombinatorial(start, degree-2).map{
+    generateCombinatorials(start, degree-2).map{
       case b if b.sign == parity =>
         b.seq ++: b.available
       case b =>
@@ -522,7 +522,7 @@ object Permutation{
       case 1 => Nil
       case _ =>
         val start = Builder(Vector(), 0 until degree, 0)
-        generateCombinatorial(start, degree).map(_.seq)
+        generateCombinatorials(start, degree).map(_.seq)
     }
   }
 

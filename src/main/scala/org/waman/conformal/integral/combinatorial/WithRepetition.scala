@@ -13,16 +13,15 @@ object WithRepetition extends CombinatorialGenerator{
   def permutationCount[I: Integral](degree: I, rank: I): I = degree ** rank.toInt
 
   override def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] = {
-    val entries = seq.toVector
 
-    case class Builder(suffices: Vector[E])
+    case class Builder(seq: Vector[E])
       extends CombinatorialBuilder[E, Builder]{
 
       override def nextGeneration: Seq[Builder] =
-        seq.map( e => Builder(suffices :+ e))
+        seq.map(e => Builder(seq :+ e))
     }
 
-    generateCombinatorial(Builder(Vector()), rank).map(_.suffices)
+    generateCombinatorials(Builder(Vector()), rank).map(_.seq)
   }
 
   //***** Combination *****
@@ -41,6 +40,6 @@ object WithRepetition extends CombinatorialGenerator{
         }
     }
 
-    generateCombinatorial(Builder(Vector()), rank).map(_.elements)
+    generateCombinatorials(Builder(Vector()), rank).map(_.elements)
   }
 }
