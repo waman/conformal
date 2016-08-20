@@ -1,97 +1,94 @@
 package org.waman.conformal.integral
 
 import org.waman.conformal.ConformalCustomSpec
-
 import org.waman.conformal.integral.ConformalIntegralOps._
+import org.waman.conformal.integral.combinatorial.{Combination, Permutation, WithRepetition}
 
 import scala.language.postfixOps
 
 class ConformalIntegralOpsSpec extends ConformalCustomSpec{
 
-  "! should" - {
+  "combinatorial" - {
 
-    "return factorial of an integer" in {
-      val conversions =
-        Table(
-          ("n", "expected"),
-          (0, 1),
-          (1, 1),
-          (2, 2),
-          (3, 6),
-          (4, 24),
-          (5, 120),
-          (6, 720)
-        )
+    val conversions = Table("n", 0, 1, 2, 3, 4, 5, 6)
 
-      forAll(conversions){ (n: Int, expected: Int) =>
-        __Exercise__
-        val sut = n!;
-        __Verify__
-        sut should equal (expected)
+    "! operator should" - {
+
+      "return factorial of the specified integer" in {
+        //import spire.implicits._
+        forAll(conversions){ n: Int=>
+          __SetUp__
+          val expected = factorial(n)
+          __Exercise__
+          val sut = n!;
+          __Verify__
+          sut should equal (expected)
+        }
       }
     }
-  }
 
-  "P(Int) method should" - {
+    "!! operator should" - {
 
-    "return nPr (permutation count)" - {
-      val conversions = Table(
-        ("n", "r", "expected"),
-        (0, 0, 1),
+      "return factorial of the specified integer" in {
 
-        (1, 0, 1),
-        (1, 1, 1),
-
-        (3, 0, 1),
-        (3, 1, 3),
-        (3, 2, 6),
-        (3, 3, 6),
-
-        (5, 0, 1),
-        (5, 1, 5),
-        (5, 2, 20),
-        (5, 3, 60),
-        (5, 4, 120),
-        (5, 5, 120)
-      )
-
-      forAll(conversions){ (n: Int, r: Int, expected: Int) =>
-        __Exercise__
-        val sut = n P r
-        __Verify__
-        sut should equal (expected)
+        forAll(conversions){ n: Int=>
+          __SetUp__
+          val expected = doubleFactorial(n)
+          __Exercise__
+          val sut = n!!;
+          __Verify__
+          sut should equal (expected)
+        }
       }
     }
-  }
 
-  "C(Int) method should" - {
+    "P(Int) method should" - {
 
-    "return nCr (combination count)" - {
-      val conversions = Table(
-        ("n", "r", "expected"),
-        (0, 0, 1),
+      "return nPr (permutation count)" in {
+        forAll(conversions) { n: Int =>
+          (0 to n).foreach { r =>
+            __SetUp__
+            val expected = Permutation.permutationCount(n, r)
+            __Exercise__
+            val sut = n P r
+            __Verify__
+            sut should equal(expected)
+          }
+        }
+      }
+    }
 
-        (1, 0, 1),
-        (1, 1, 1),
+    "C(Int) method should" - {
 
-        (3, 0, 1),
-        (3, 1, 3),
-        (3, 2, 3),
-        (3, 3, 1),
+      "return nCr (combination count)" - {
 
-        (5, 0, 1),
-        (5, 1, 5),
-        (5, 2, 10),
-        (5, 3, 10),
-        (5, 4, 5),
-        (5, 5, 1)
-      )
+        forAll(conversions){ n: Int =>
+          (0 to n).foreach{ r =>
+            __SetUp__
+            val expected = Combination.combinationCount(n, r)
+            __Exercise__
+            val sut = n C r
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+      }
+    }
 
-      forAll(conversions){ (n: Int, r: Int, expected: Int) =>
-        __Exercise__
-        val sut = n C r
-        __Verify__
-        sut should equal (expected)
+    "H(Int) method should" - {
+
+      "return nHr (the number of combinations with repetition)" - {
+
+        forAll(conversions){ n: Int =>
+          (0 to (n+2)).foreach{ r =>
+            __SetUp__
+            val expected = WithRepetition.combinationCount(n, r)
+            __Exercise__
+            val sut = n H r
+            __Verify__
+            sut should equal (expected)
+          }
+        }
       }
     }
   }

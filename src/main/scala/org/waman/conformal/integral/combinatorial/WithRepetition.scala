@@ -12,13 +12,13 @@ object WithRepetition extends CombinatorialGenerator{
   //***** Partial Permutation *****
   def permutationCount[I: Integral](degree: I, rank: I): I = degree ** rank.toInt
 
-  override def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] = {
+  override def allPermutations[E](arg: Seq[E], rank: Int): Seq[Seq[E]] = {
 
     case class Builder(seq: Vector[E])
       extends CombinatorialBuilder[E, Builder]{
 
       override def nextGeneration: Seq[Builder] =
-        seq.map(e => Builder(seq :+ e))
+        arg.map(e => Builder(seq :+ e))
     }
 
     generateCombinatorials(Builder(Vector()), rank).map(_.seq)
@@ -35,9 +35,9 @@ object WithRepetition extends CombinatorialGenerator{
       extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] =
-        entries.collect{ case e if elements.isEmpty || elements.last <= e =>
+        entries.filter(elements.isEmpty || elements.last <= _).map(e =>
           Builder(elements :+ e)
-        }
+        )
     }
 
     generateCombinatorials(Builder(Vector()), rank).map(_.elements)

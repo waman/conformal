@@ -1,6 +1,8 @@
 package org.waman.conformal.integral.combinatorial
 
+import scala.annotation.tailrec
 import spire.math.Integral
+import spire.implicits._
 
 /**
   * The apply method is place-base permutation
@@ -18,7 +20,7 @@ import spire.math.Integral
   * In the above example, an object at place 3 is moved to place 0
   */
 trait PartialPermutation
-    extends Combinatorial[Int]
+    extends Combinatorial[Option[Int]]
     with Ordered[PartialPermutation]{
 
   def properIndices: Seq[Int]
@@ -55,8 +57,23 @@ trait PartialPermutation
 object PartialPermutation{
 
   //***** Partial permutation count *****
-  def permutationCount[I: Integral](degree: I, rank: I): I =
-    Permutation.permutationCount(degree, rank)
+  def permutationCount[I: Integral](degree: I, rank: I): I = {
+    require(degree >= 0, "The degree must be non-negative")
+    require(0 <= rank && rank <= degree, s"The rank must be in [0, $degree]")
+
+    @tailrec
+    def permutationCount(prod: I, n: I, r: I): I = r match {
+      case 0 => prod
+      case _ => permutationCount(prod * n, n-1, r-1)
+    }
+
+    permutationCount(1, degree, rank)
+  }
+
+  // For implementation interest
+  private[integral]
+  def permutationCount1(n: Long, r: Long): Long =
+    (n until (n - r) by -1).product
 
   //***** apply() factory method *****
   def apply(degree: Int, properIndices: Seq[Int]): PartialPermutation = {
@@ -80,8 +97,10 @@ object PartialPermutation{
 
     override def rank = properIndices.length
     override def apply(i: Int) = properIndices.indexOf(i) match {
-      case -1 => throw new IllegalArgumentException(s"$i is not contained in the proper indices")
-      case n  => n
+      case -1 =>
+        if(indices.contains(i)) None
+        else throw new IllegalArgumentException(s"The argument Int must be in [0, $degree): $i")
+      case n  => Some(n)
     }
   }
 

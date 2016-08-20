@@ -4,6 +4,118 @@ import org.waman.conformal.ConformalCustomSpec
 
 class IntegralPackageSpec extends ConformalCustomSpec{
 
+  "factorial(Int) method should" - {
+
+    "return a factorial n!" in {
+      val conversions = Table(
+        ("n", "expected"),
+        (0, 1),
+        (1, 1),
+        (2, 2),
+        (3, 6),
+        (4, 24),
+        (5, 120),
+        (6, 720)
+      )
+
+      forAll(conversions){ (n: Int, expected: Int) =>
+        __Exercise__
+        val sut = factorial(n)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+
+    "throw an IllegalArgumentException when the argument is negative" in {
+      an [IllegalArgumentException] should be thrownBy{
+        factorial(-1)
+      }
+    }
+  }
+
+  // For implementation interest
+  "factorial1(Int) method should" - {
+
+    "return a factorial n!" in {
+      val conversions = Table(
+        ("n", "expected"),
+        (0L, 1L),
+        (1L, 1L),
+        (2L, 2L),
+        (3L, 6L),
+        (4L, 24L),
+        (5L, 120L),
+        (6L, 720L)
+      )
+
+      forAll(conversions){ (n: Long, expected: Long) =>
+        __Exercise__
+        val sut = factorial1(n)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+  }
+
+  "doubleFactorial(Int) method should" - {
+
+    "return a factorial n!!" in {
+      val conversions = Table(
+        ("n", "expected"),
+        (0, 1),
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 8),
+        (5, 15),
+        (6, 48)
+      )
+
+      forAll(conversions){ (n: Int, expected: Int) =>
+        __Exercise__
+        val sut = doubleFactorial(n)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+
+    "throw an IllegalArgumentException when the argument is negative" in {
+      an [IllegalArgumentException] should be thrownBy{
+        factorial(-1)
+      }
+    }
+  }
+
+  "doubleFactorial1(Int) method should" - {
+
+    "return a factorial n!!" in {
+      val conversions = Table(
+        ("n", "expected"),
+        (0L, 1L),
+        (1L, 1L),
+        (2L, 2L),
+        (3L, 3L),
+        (4L, 8L),
+        (5L, 15L),
+        (6L, 48L)
+      )
+
+      forAll(conversions){ (n: Long, expected: Long) =>
+        __Exercise__
+        val sut = doubleFactorial1(n)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+
+    "throw an IllegalArgumentException when the argument is negative" in {
+      an [IllegalArgumentException] should be thrownBy{
+        factorial(-1)
+      }
+    }
+  }
+
+
   "gcd(Int, Int) method should" - {
 
     "return gcd of the specified Int values" in {

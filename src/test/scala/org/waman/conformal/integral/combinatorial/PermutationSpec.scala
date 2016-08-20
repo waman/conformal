@@ -351,7 +351,7 @@ class PermutationSpec extends ConformalCustomSpec{
       }
     }
 
-    "toCycleNotationString method should" - {
+    "toCycleNotation method should" - {
 
       "return String representation of this permutation in cycle notation" in {
 
@@ -482,30 +482,6 @@ class PermutationSpec extends ConformalCustomSpec{
           }
         }
       }
-
-      "permutationCount(Int, Int) method should" - {
-
-        "return the value nPr" in {
-          val conversions = Table(
-            ("n", "r", "expected"),
-            (0, 0, 1),
-
-            (1, 0, 1), (1, 1, 1),
-
-            (2, 0, 1), (2, 1, 2), (2, 2, 2),
-
-            (5, 0, 1) , (5, 1, 5)  , (5, 2, 20),
-            (5, 3, 60), (5, 4, 120), (5, 5, 120)
-          )
-
-          forAll(conversions){ (n: Int, r: Int, expected: Int) =>
-            __Exercise__
-            val sut = Permutation.permutationCount(n, r)
-            __Verify__
-            sut should equal (expected)
-          }
-        }
-      }
     }
 
     "apply() factory methods" - {
@@ -579,6 +555,22 @@ class PermutationSpec extends ConformalCustomSpec{
     "Permutation generation" - {
 
       "allPermutations(Int) method should" - {
+
+        "generate all permutations of degree 0" in {
+          val conversions = Table(
+            "permutations",
+            Permutation.generatePermutations(0)//,
+//            Permutation.generatePermutationsWithSign(0)
+          )
+
+          __SetUp__
+          val expected = Set(Permutation(List[Int]()))
+
+          forAll(conversions) { ps: Seq[Permutation] =>
+            __Verify__
+            ps.toSet should equal(expected)
+          }
+        }
 
         "generate all permutations of degree 1" in {
           val conversions = Table(
@@ -758,6 +750,7 @@ class PermutationSpec extends ConformalCustomSpec{
         "factorialCounters(Int)" in {
           val conversions = Table(
             ("degree", "expected"),
+            (0, Seq(Nil)),
             (1, Seq(Seq(0))),
             (2, Seq(Seq(0, 1), Seq(0, 0))),
             (3, Seq(
@@ -781,8 +774,8 @@ class PermutationSpec extends ConformalCustomSpec{
         "allPermutations4(Seq[E])" in {
           val conversions = Table(
             ("degree", "expected"),
-//            (0, Seq(Nil)),
-//            (1, Seq(Seq(0))),
+            (0, Seq(Nil)),
+            (1, Seq(Seq(0))),
             (2, Seq(Seq(0, 1), Seq(1, 0))),
             (3, Seq(
               Seq(0, 1, 2),

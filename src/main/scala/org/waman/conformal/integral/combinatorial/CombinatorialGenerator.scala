@@ -15,7 +15,7 @@ trait CombinatorialGenerator{
   // Subtypes implementing this trait must override
   // either allPermutations(Seq[E], Int) or allPermutations(Int, Int)
   def allPermutations[E](seq: Seq[E], rank: Int): Seq[Seq[E]] =
-  allPermutations(seq.length, rank).map(s => s.map(seq))
+    allPermutations(seq.length, rank).map(s => s.map(seq))
 
   def allPermutations(degree: Int, rank: Int): Seq[Seq[Int]] =
     allPermutations(0 until degree, rank)

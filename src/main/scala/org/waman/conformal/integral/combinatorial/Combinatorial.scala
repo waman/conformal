@@ -20,7 +20,12 @@ object Combinatorial{
 
   def validateArgument(degree: Int, arg: Traversable[Int], s: String): Unit = {
 
-    require(degree > 0, s"The degree of the partial combinatorial must be positive: $degree")
+    require(degree >= 0, s"The degree of the partial combinatorial must be positive: $degree")
+
+    if(degree == 0){
+      require(arg.isEmpty)
+      return
+    }
 
     val range = 0 until degree
 

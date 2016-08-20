@@ -83,7 +83,7 @@ object Multiset extends CombinatorialGenerator{
       extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] = //{
-        available.collect{ case (key, value) if seq.isEmpty || seq.last <= key =>
+        available.filter(seq.isEmpty || seq.last <= _._1).map{ case (key, value) =>
           val newAvailable = value match {
             case 1 => available - key
             case _ => available.updated(key, value-1)

@@ -115,12 +115,12 @@ object Combination{
         extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] =
-        available.collect{ case e if elements.isEmpty || elements.last < e =>
+        available.filter(elements.isEmpty || elements.last < _).map(e =>
           Builder(
             elements :+ e,
             available.filter(_ != e)
           )
-        }
+        )
     }
 
     val start = Builder(Vector(), 0 until degree)

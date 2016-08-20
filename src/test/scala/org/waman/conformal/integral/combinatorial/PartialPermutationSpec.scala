@@ -12,13 +12,13 @@ class PartialPermutationSpec extends ConformalCustomSpec{
       val conversions =
         Table(
           ("p", "index", "expected"),
-          (perm, 0, 1),
-          (perm, 1, 2),
-//          (perm, 2, -),
-          (perm, 3, 0)
+          (perm, 0, Some(1)),
+          (perm, 1, Some(2)),
+          (perm, 2, None),
+          (perm, 3, Some(0))
         )
 
-      forAll(conversions) { (p: PartialPermutation, index: Int, expected: Int) =>
+      forAll(conversions) { (p: PartialPermutation, index: Int, expected: Option[Int]) =>
         __Exercise__
         val sut = p(index)
         __Verify__
@@ -29,7 +29,7 @@ class PartialPermutationSpec extends ConformalCustomSpec{
     "throw an IllegalArgumentException if the corresponding suffix is not defined" in {
       __Verify__
       an [Exception] should be thrownBy{
-        perm(2)
+        perm(100)
       }
     }
   }
@@ -133,6 +133,58 @@ class PartialPermutationSpec extends ConformalCustomSpec{
   }
 
   "companion object" - {
+
+    "The number of permutations" - {
+
+      "permutationCount(Int, Int) method should" - {
+
+        "return the value nPr" in {
+          val conversions = Table(
+            ("n", "r", "expected"),
+            (0, 0, 1),
+
+            (1, 0, 1), (1, 1, 1),
+
+            (2, 0, 1), (2, 1, 2), (2, 2, 2),
+
+            (5, 0, 1) , (5, 1, 5)  , (5, 2, 20),
+            (5, 3, 60), (5, 4, 120), (5, 5, 120)
+          )
+
+          forAll(conversions){ (n: Int, r: Int, expected: Int) =>
+            __Exercise__
+            val sut = PartialPermutation.permutationCount(n, r)
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+      }
+
+
+      "permutationCount1(Int, Int) method should" - {
+
+        "return the value nPr" in {
+          val conversions = Table(
+            ("n", "r", "expected"),
+            (0, 0, 1),
+
+            (1, 0, 1), (1, 1, 1),
+
+            (2, 0, 1), (2, 1, 2), (2, 2, 2),
+
+            (5, 0, 1) , (5, 1, 5)  , (5, 2, 20),
+            (5, 3, 60), (5, 4, 120), (5, 5, 120)
+          )
+
+          forAll(conversions){ (n: Int, r: Int, expected: Int) =>
+            __Exercise__
+            val sut = PartialPermutation.permutationCount1(n, r)
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+      }
+    }
 
     "Partial permutation generation" - {
 

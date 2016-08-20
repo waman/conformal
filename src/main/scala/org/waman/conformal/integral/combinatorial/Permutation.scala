@@ -174,15 +174,9 @@ object Permutation{
 
   //***** n! and nPr *****
   def permutationCount[I: Integral](degree: I): I = factorial(degree)
-  def permutationCount[I: Integral](degree: I, rank: I): I = {
-    @tailrec
-    def permutationCount(prod: I, n: I, r: I): I = r match {
-      case 0 => prod
-      case _ => permutationCount(prod * n, n-1, r-1)
-    }
 
-    permutationCount(1, degree, rank)
-  }
+  def permutationCount[I: Integral](degree: I, rank: I): I =
+    Permutation.permutationCount(degree, rank)
 
   //***** Subclasses of IntPermutation *****
   private[combinatorial]
@@ -243,7 +237,7 @@ object Permutation{
       override def sign: Int = signOfPermutation
     }
 
-  private def signedWithProperIndices(properIndices: Seq[Int], signOfPermutation: Int): Permutation =
+  private def signedPI(properIndices: Seq[Int], signOfPermutation: Int): Permutation =
     new ProperIndicesBasedSeqPermutation(properIndices){
       override def sign: Int = signOfPermutation
     }
@@ -320,11 +314,23 @@ object Permutation{
   }
 
   //***** Some implementations of generating all permutations *****
-  def allPermutations(degree: Int, calculateSign: Boolean = false): Seq[Permutation] =
-    if(calculateSign)
-      generatePermutationsWithSign(degree)
-    else
-      generatePermutations(degree)
+  private lazy val allPermutationsWithDegree1: Seq[Permutation] = Seq(identity(1))
+  private lazy val allPermutationsWithDegree2: Seq[Permutation] = Seq(identity(2), signed(Seq(1, 0), -1))
+  private lazy val allPermutationsWithDegree3: Seq[Permutation] = generatePermutationsWithSign(3)
+  private lazy val allPermutationsWithDegree4: Seq[Permutation] = generatePermutationsWithSign(4)
+
+  def allPermutations(degree: Int, calculateSign: Boolean = false): Seq[Permutation] = degree match {
+    case 0 => Nil
+    case 1 => allPermutationsWithDegree1
+    case 2 => allPermutationsWithDegree2
+    case 3 => allPermutationsWithDegree3
+    case 4 => allPermutationsWithDegree4
+    case _ =>
+      if (calculateSign)
+        generatePermutationsWithSign(degree)
+      else
+        generatePermutations(degree)
+  }
 
   private[combinatorial]
   def generatePermutations(degree: Int): Seq[Permutation] =
@@ -370,19 +376,8 @@ object Permutation{
 
       val length: Int = seq.length
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _ =>
-              val newSeq = insertAt(seq, i, length)
-              val newBuilder = Builder(newSeq)
-              nextGeneration(accum :+ newBuilder, i-1)
-          }
-
-        nextGeneration(Vector(), length)
-      }
+      override def nextGeneration: Seq[Builder] =
+        (length to 0 by -1).map(i => Builder(insertAt(seq, i, length)))
     }
 
     val start = Builder(Vector())
@@ -396,18 +391,8 @@ object Permutation{
     case class Builder(seq: Vector[E], n: Int)
       extends CombinatorialBuilder[E, Builder]{
 
-      override def nextGeneration: Seq[Builder] = {
-        @tailrec
-        def nextGeneration(accum: Seq[Builder], i: Int): Seq[Builder] =
-          i match {
-            case -1 => accum
-            case _ =>
-              val newBuilder = Builder(swap(seq, i, n), n-1)
-              nextGeneration(accum :+ newBuilder, i-1)
-          }
-
-        nextGeneration(Vector(), n)
-      }
+      override def nextGeneration: Seq[Builder] =
+        (n to 0 by -1).map(i => Builder(swap(seq, i, n), n-1))
     }
 
     val start = Builder(arg.toVector, arg.length-1)
@@ -417,8 +402,9 @@ object Permutation{
   /* For implementation interest */
   private[combinatorial]
   def allPermutations4[E](arg: Seq[E]): Seq[Seq[E]] = {
+    if(arg.isEmpty)return Seq(Nil)
 
-    val counters = factorialCounters(arg.length)
+    val counters = factorialCounters(arg.length).drop(1)
 
     Stream.iterate((arg, counters)){
       case (a, Nil) => (Nil, Nil)
@@ -427,7 +413,7 @@ object Permutation{
         val i = if(k % 2 == 0) 0 else c(k)
         val newA = swap(a, i, k)
         (newA, fcs.tail)
-    }.takeWhile(_._1.nonEmpty).drop(1).map(_._1)
+    }.takeWhile(_._1.nonEmpty).map(_._1)
   }
 
   // For implementation interest
@@ -534,12 +520,12 @@ object Permutation{
       extends CombinatorialBuilder[Int, Builder]{
 
       override def nextGeneration: Seq[Builder] =
-        available.collect{ case e if e != position =>
+        available.filter(_ != position).map( e  =>
           Builder(
             seq :+ e,
             available.filter(_ != e),
             position+1)
-        }
+        )
     }
 
     degree match {
