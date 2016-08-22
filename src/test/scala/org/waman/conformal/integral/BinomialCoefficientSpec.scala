@@ -61,7 +61,8 @@ class BinomialCoefficientSpec extends ConformalCustomSpec{
       "method",
       BinomialCoefficient.binomialCoefficient1(_, _),
       BinomialCoefficient.binomialCoefficient2(_, _),
-      BinomialCoefficient.binomialCoefficient3(_: Int, _: Int))
+      BinomialCoefficient.binomialCoefficient3(_, _),
+      BinomialCoefficient.binomialCoefficient4(_: Int, _: Int))
 
     "return the binomial coefficient value in the case n >= 0, 0 <= r <= n" in {
       val conversions = Table(
@@ -89,12 +90,12 @@ class BinomialCoefficientSpec extends ConformalCustomSpec{
   }
 
   // For implementation interest
-  "binomialCoefficient3() method should" - {
+  "binomialCoefficient2() method should" - {
 
     "return the binomial coefficient value" in {
       val conversions = Table(
         ("n", "r", "expected"),
-        (0, 0, 1),
+//        (0, 0, 1),
 
         (1, 0, 1), (1, 1, 1),
 
@@ -107,7 +108,7 @@ class BinomialCoefficientSpec extends ConformalCustomSpec{
 
       forAll(conversions) { (n: Int, r: Int, expected: Int) =>
         __Exercise__
-        val sut = BinomialCoefficient.binomialCoefficient3(n, r)
+        val sut = BinomialCoefficient.binomialCoefficient2(n, r)
         __Verify__
         sut should equal(expected)
       }

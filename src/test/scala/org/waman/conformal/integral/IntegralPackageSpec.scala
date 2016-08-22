@@ -172,25 +172,33 @@ class IntegralPackageSpec extends ConformalCustomSpec{
     }
   }
 
-  "ngcd(Int, Int*) method should" - {
+  "ngcd(Int, Int*)/ngcd(Seq[Int]) method should" - {
 
     "accept Int values as vararg" in {
       noException should be thrownBy{
-        ngcd(1, 2, 3, 4)
+        nGCD(1, 2, 3, 4)
       }
+    }
+
+    "return the same result as each other" in {
+      __Exercise__
+      val sut = nGCD(18, 24, 6)
+      val expected = nGCD(18, 24, 6)
+      __Verify__
+      sut should equal (expected)
     }
 
     "return gcd of the specified Int values" in {
       val conversions = Table(
-        ("m", "n", "expected"),
-        (18, Seq(24, 6), 6),
-        (21, Seq(91), 7),
-        (51, Seq(13, 26, 101), 1)
+        ("arg", "expected"),
+        (Seq(18, 24, 6), 6),
+        (Seq(21, 91), 7),
+        (Seq(51, 13, 26, 101), 1)
       )
 
-      forAll(conversions){ (m: Int, ns: Seq[Int], expected: Int) =>
+      forAll(conversions){ (arg: Seq[Int], expected: Int) =>
         __Exercise__
-        val sut = ngcd(m, ns:_*)
+        val sut = nGCD(arg)
         __Verify__
         sut should equal (expected)
       }
@@ -210,6 +218,39 @@ class IntegralPackageSpec extends ConformalCustomSpec{
       forAll(conversions){ (m: Int, n: Int, expected: Int) =>
         __Exercise__
         val sut = lcm(m, n)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+  }
+
+  "nlcm(Int, Int*)/nlcm(Seq[Int]) method should" - {
+
+    "accept Int values as vararg" in {
+      noException should be thrownBy{
+        nGCD(1, 2, 3, 4)
+      }
+    }
+
+    "return the same result as each other" in {
+      __Exercise__
+      val sut = nLCM(18, 24, 6)
+      val expected = nLCM(18, 24, 6)
+      __Verify__
+      sut should equal (expected)
+    }
+
+    "return gcd of the specified Int values" in {
+      val conversions = Table(
+        ("arg", "expected"),
+        (Seq(18, 24, 6), 72),
+        (Seq(21, 91), 273),
+        (Seq(51, 13, 26, 101), 133926)
+      )
+
+      forAll(conversions){ (arg: Seq[Int], expected: Int) =>
+        __Exercise__
+        val sut = nLCM(arg)
         __Verify__
         sut should equal (expected)
       }
