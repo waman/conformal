@@ -1,6 +1,6 @@
 package org.waman.conformal.algebra
 
-import org.waman.conformal.integral.combinatorial.Permutation
+import org.waman.conformal.number.integer.combinatorics.Permutation
 import spire.algebra.Group
 import spire.implicits._
 import scala.language.postfixOps
