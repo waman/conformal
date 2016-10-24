@@ -1,6 +1,5 @@
 package org.waman.conformal.computerscience
 
-
 trait ISBN extends Checksum[Int, Int]{
 
   val modulus: Int

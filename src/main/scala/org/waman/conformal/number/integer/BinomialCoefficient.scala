@@ -15,10 +15,8 @@ object BinomialCoefficient{
     if(s == 0) return 1
     if(s == 1) return n
 
-    // The following 2 lines can be written by iterate() methods of Vector/Seq class,
-    // but toInt method of I object must be called.
-    val nums = Stream.iterate[I](n-r+1)(_+1).takeWhile(_ <= n).toVector
-    val denos = Stream.iterate[I](2)(_+1).takeWhile(_ <= r)
+    val nums  = IntegerSequence.from(n-r+1).takeWhile(_ <= n)
+    val denos = IntegerSequence.from[I](2).takeWhile(_ <= r)
 
     reduceIntegralFraction(nums, denos)
   }

@@ -165,7 +165,7 @@ trait Permutation extends Combinatorial[Int] with Ordered[Permutation]{
   def canEqual(other: Any): Boolean = other.isInstanceOf[Permutation]
 
   // a call of asInstanceOf method is for suppressing warning
-  override def hashCode: Int = (degree +: suffices.asInstanceOf[Seq[Any]]).hashCode
+  override def hashCode: Int = (degree, suffices).##
 
   override def toString: String = suffices.mkString("[", " ", "]")
 }
@@ -406,14 +406,17 @@ object Permutation{
 
     val counters = factorialCounters(arg.length).drop(1)
 
-    Stream.iterate((arg, counters)){
-      case (a, Nil) => (Nil, Nil)
-      case (a, fcs) =>
-        val FactorialCounter(c, k) = fcs.head
-        val i = if(k % 2 == 0) 0 else c(k)
-        val newA = swap(a, i, k)
-        (newA, fcs.tail)
-    }.takeWhile(_._1.nonEmpty).map(_._1)
+    def perms(a: Seq[E], counters: Seq[FactorialCounter]): Stream[Seq[E]] =
+      counters.isEmpty match {
+        case true  => Stream(a)
+        case false =>
+          val FactorialCounter(c, k) = counters.head
+          val i = if(k % 2 == 0) 0 else c(k)
+          val newA = swap(a, i, k)
+          a #:: perms(newA, counters.tail)
+      }
+
+    perms(arg, counters)
   }
 
   // For implementation interest

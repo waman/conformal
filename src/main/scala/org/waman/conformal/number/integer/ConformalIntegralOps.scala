@@ -1,10 +1,8 @@
 package org.waman.conformal.number.integer
 
-import spire.math.Integral
-import spire.implicits._
-
 import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
 import org.waman.conformal.number.{integer => intpack}
+import spire.math.Integral
 
 import scala.language.implicitConversions
 

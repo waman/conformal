@@ -3,14 +3,9 @@ package org.waman.conformal.number.integer
 import spire.math.Integral
 import spire.implicits._
 
-trait PolygonalNumber {
-  def apply[I: Integral](n: I): I
-  def stream[I: Integral]: Stream[I] = PolygonalNumber.integers[I].map(apply(_))
-}
+trait PolygonalNumber extends IntegerSequence
 
 object PolygonalNumber{
-  private[integer]
-  def integers[I: Integral]: Stream[I] = Stream.from(1).map(implicitly[Integral[I]].fromInt)
 
   def apply(s: Int): PolygonalNumber = s match {
     case 3 => TriangularNumber

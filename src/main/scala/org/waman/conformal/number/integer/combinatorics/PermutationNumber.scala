@@ -4,7 +4,6 @@ import scala.annotation.tailrec
 
 import org.waman.conformal._
 
-
 object PermutationNumber{
 
   def encode(p: Permutation): Long = {

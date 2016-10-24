@@ -64,8 +64,7 @@ object Multiset extends CombinatorialGenerator{
   }
 
   //***** Combination *****
-  def combinationCount(seq: Seq[Any], rank: Int): Int =
-    allCombinations(seq, rank).length
+  def combinationCount(seq: Seq[Any], rank: Int): Int = allCombinations(seq, rank).length
 
   def combinationCount(s: String, rank: Int): Int = combinationCount(s: Seq[Char], rank)
 

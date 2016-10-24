@@ -24,8 +24,7 @@ trait Cycle{
   def canEqual(other: Any): Boolean = other.isInstanceOf[Cycle]
 
   // a call of asInstanceOf method is for suppressing warning
-  override lazy val hashCode: Int =
-    (length +: elementsWithMinHead.asInstanceOf[Seq[Any]]).hashCode
+  override lazy val hashCode: Int = (length, elementsWithMinHead).##
 
   override def toString: String = elementsWithMinHead.mkString("(", " ", ")")
 }

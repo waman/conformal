@@ -48,7 +48,7 @@ trait PartialPermutation
   def canEqual(other: Any): Boolean = other.isInstanceOf[PartialPermutation]
 
   // a call of asInstanceOf method is for suppressing warning
-  override def hashCode: Int = (degree +: properIndices).hashCode
+  override def hashCode: Int = (degree, properIndices).##
 
   override def toString: String =
     (properIndices.map(_.toString) ++: Seq.fill(degree-rank)("-")).mkString("[[", " ", "]]")

@@ -162,5 +162,17 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         sut should equal (expected)
       }
     }
+
+    "streamFrom(n: I) method should" - {
+
+      "return a stream of heptagonal numbers from the n-th polygonal number (inclusive) with ascending" in {
+        __SetUp__
+        val expected = heptagonals.tail
+        __Exercise__
+        val sut = hepta.streamFrom[Int](2) take 4
+        __Verify__
+        sut should equal (expected)
+      }
+    }
   }
 }

@@ -63,9 +63,10 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
         coefficientsInDescendant == that.coefficientsInDescendant
   }
 
+  // TODO: equality to integral values
   def canEqual(that: Any): Boolean = that.isInstanceOf[FactorialRepresentation]
 
-  override def hashCode(): Int = coefficientsInDescendant.hashCode
+  override def hashCode(): Int = coefficientsInDescendant.##
 }
 
 object FactorialRepresentation{
