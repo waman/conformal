@@ -146,16 +146,7 @@ object Combination{
     val start = lowBit(rank)          // start = 00001111
     val terminator = ~lowBit(degree)  // terminator = 11...100000000
 
-//    Stream.iterate(start){ x =>       // for x = 10011100
-//      val smallest = lowestBit(x)     // smallest = 00000100
-//      val ripple = x + smallest       // ripple = 10100000
-//      val newSmallest = lowestBit(ripple)  // newSmallest = 00100000
-//      val ones = ((newSmallest / smallest) >> 1) - 1L
-//        // newSmallest / smallest = 00001000, ones = 00000011
-//      ripple | ones                  // ripple | ones = 10100011
-//    }.takeWhile(x => (x & terminator) == 0L)
-
-    def comb(x: Long): Stream[Long] = x & terminator match {
+    def generate(x: Long): Stream[Long] = x & terminator match {
       case 0L => // for x = 10011100
         val smallest = lowestBit(x)     // smallest = 00000100
         val ripple = x + smallest       // ripple = 10100000
@@ -163,9 +154,9 @@ object Combination{
         val ones = ((newSmallest / smallest) >> 1) - 1L
           // newSmallest / smallest = 00001000, ones = 00000011
         val next = ripple | ones        // ripple | ones = 10100011
-        x #:: comb(next)
+        x #:: generate(next)
       case _ => Stream.empty
     }
-    comb(start)
+    generate(start)
   }
 }

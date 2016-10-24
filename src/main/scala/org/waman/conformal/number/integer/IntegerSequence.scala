@@ -5,7 +5,11 @@ import spire.implicits._
 
 trait IntegerSequence {
   def apply[I: Integral](n: I): I
-  def stream[I: Integral]: Stream[I] = streamFrom(1)
+
+  /** This method is equivalent to streamFrom(0) */
+  def stream[I: Integral]: Stream[I] = streamFrom(0)
+  /** This method is equivalent to streamFrom(1) */
+  def stream1[I: Integral]: Stream[I] = streamFrom(1)
   def streamFrom[I: Integral](n: I): Stream[I] = IntegerSequence.from[I](n).map(apply(_))
 }
 
