@@ -35,7 +35,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = triangulars
         __Exercise__
-        val sut = TriangularNumber.stream[Int] take 6
+        val sut = TriangularNumber.stream take 6
         __Verify__
         sut should equal (expected)
       }
@@ -47,7 +47,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = triangulars.tail
         __Exercise__
-        val sut = TriangularNumber.stream1[Int] take 5
+        val sut = TriangularNumber.stream1Of[Int] take 5
         __Verify__
         sut should equal (expected)
       }
@@ -77,7 +77,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = squares
         __Exercise__
-        val sut = SquareNumber.stream[Int] take 6
+        val sut = SquareNumber.stream take 6
         __Verify__
         sut should equal (expected)
       }
@@ -89,7 +89,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = squares.tail
         __Exercise__
-        val sut = SquareNumber.stream1[Int] take 5
+        val sut = SquareNumber.stream1Of[Int] take 5
         __Verify__
         sut should equal (expected)
       }
@@ -119,7 +119,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = pentagonals
         __Exercise__
-        val sut = PentagonalNumber.stream[Int] take 6
+        val sut = PentagonalNumber.stream take 6
         __Verify__
         sut should equal (expected)
       }
@@ -131,7 +131,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = pentagonals.tail
         __Exercise__
-        val sut = PentagonalNumber.stream1[Int] take 5
+        val sut = PentagonalNumber.stream1Of[Int] take 5
         __Verify__
         sut should equal (expected)
       }
@@ -161,7 +161,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = hexagonals
         __Exercise__
-        val sut = HexagonalNumber.stream[Int] take 6
+        val sut = HexagonalNumber.stream take 6
         __Verify__
         sut should equal (expected)
       }
@@ -173,7 +173,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = hexagonals.tail
         __Exercise__
-        val sut = HexagonalNumber.stream1[Int] take 5
+        val sut = HexagonalNumber.stream1Of[Int] take 5
         __Verify__
         sut should equal (expected)
       }
@@ -205,7 +205,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = heptagonals
         __Exercise__
-        val sut = hepta.stream[Int] take 6
+        val sut = hepta.stream take 6
         __Verify__
         sut should equal (expected)
       }
@@ -217,7 +217,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = heptagonals.tail
         __Exercise__
-        val sut = hepta.stream1[Int] take 5
+        val sut = hepta.stream1Of[Int] take 5
         __Verify__
         sut should equal (expected)
       }
@@ -229,7 +229,7 @@ class PolygonalNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val expected = heptagonals.tail.tail
         __Exercise__
-        val sut = hepta.streamFrom[Int](2) take 4
+        val sut = hepta.streamNthFrom[Int](2) take 4
         __Verify__
         sut should equal (expected)
       }
