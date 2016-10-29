@@ -3,12 +3,12 @@ package org.waman.conformal.number.integer
 import spire.math.Integral
 import spire.implicits._
 
-object PrimeNumber extends IntegerSequence{
+object PrimeNumber extends IntegralSequence{
 
   override def apply[I: Integral](n: I): I = streamOf.apply(n.toInt)
 
   override def streamOf[I: Integral]: Stream[I] =
-    2 #:: IntegerSequence.from[I](3, 2).filter(isPrime(_))
+    2 #:: IntegralSequence.from[I](3, 2).filter(isPrime(_))
 
   override def streamNthFrom[I: Integral](n: I): Stream[I] = streamOf.drop(n.toInt)
 

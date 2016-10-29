@@ -15,8 +15,8 @@ object BinomialCoefficient{
     if(s == 0) return 1
     if(s == 1) return n
 
-    val nums  = IntegerSequence.from(n-r+1).takeWhile(_ <= n)
-    val denos = IntegerSequence.from[I](2).takeWhile(_ <= r)
+    val nums  = IntegralSequence.from(n-r+1).takeWhile(_ <= n)
+    val denos = IntegralSequence.from[I](2).takeWhile(_ <= r)
 
     reduceIntegralFraction(nums, denos)
   }

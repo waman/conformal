@@ -3,7 +3,8 @@ package org.waman.conformal.number.integer
 import spire.math.Integral
 import spire.implicits._
 
-trait IntegerSequence {
+trait IntegralSequence {
+
   def apply[I: Integral](n: I): I
 
   /** This method is equivalent to streamOf[Int] */
@@ -14,17 +15,17 @@ trait IntegerSequence {
   def streamFrom(n: Int): Stream[Int] = streamNthFrom[Int](n)
 
   /**
-    * Return an integer stream starting at 0 index.
+    * Return an Integral stream starting at 0 index.
     * Use this method as <code>streamOf[Long]</code>
     * This method is equivalent to <code>streamFrom(0)</code>.
     */
   def streamOf[I: Integral]: Stream[I] = streamNthFrom(0)
   /** This method is equivalent to streamFrom(1) */
   def stream1Of[I: Integral]: Stream[I] = streamNthFrom(1)
-  def streamNthFrom[I: Integral](n: I): Stream[I] = IntegerSequence.from[I](n).map(apply(_))
+  def streamNthFrom[I: Integral](n: I): Stream[I] = IntegralSequence.from[I](n).map(apply(_))
 }
 
-object IntegerSequence{
+object IntegralSequence{
 
   def sequence[I: Integral]: Stream[I] = from(1)
 

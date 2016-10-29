@@ -26,6 +26,23 @@ package object integer {
     else if(divisor > 0) (dividend % divisor) + divisor
     else                 (dividend % divisor) - divisor
 
+  //********** Factorization **********
+  def factorize[I: Integral](n: I): Seq[I] = {
+    @tailrec
+    def factorize(factors: Vector[I], n: I, ps: Stream[I]): Seq[I] = n match {
+      case 1 => factors
+      case _ =>
+        val p = ps.head
+        if (n % p == 0) factorize(factors :+ p, n /~ p, ps)
+        else            factorize(factors, n, ps.tail)
+    }
+
+    val ps = 2 #:: 3 #:: IntegralSequence.from[I](5, 6).flatMap(i => Seq(i, i+2))
+
+    factorize(Vector(), n, ps)
+  }
+
+  //********** Factorials **********
   def factorial[I: Integral](i: I): I = {
     require(i >= 0, s"The argument must be non-negative: $i")
 
@@ -64,6 +81,7 @@ package object integer {
     case _ => (i to 2L by -2L).product
   }
 
+  //********** GCD and LCM **********
   def gcd[I: Integral](m: I, n: I): I = {
     @tailrec
     def gcdPositive(m: I, n:I): I = n match {
@@ -154,34 +172,30 @@ package object integer {
 
   def nLCM[I: Integral](m: I, ns: I*): I = nLCM(m +: ns)
 
-  def reduceIntegralFraction[I: Integral](nFactors: Seq[I], dFactors: Seq[I]): I = {
+  def reduceIntegralFraction[I: Integral](nums: Seq[I], denos: Seq[I]): I = {
 
-    @tailrec
-    def reduceByFactors(nFactors: Seq[I], dFactors: Seq[I]): Seq[I] = dFactors match {
-      case Nil => nFactors
-      case dHead +: dTail =>
-        @tailrec // reduce i-th factor of the numerator
-        def reduceByFactor(nFactors: Seq[I], d: I, i: Int): Seq[I] = d match {
-          case 1 => nFactors
-          case _ =>
-            if(!nFactors.isDefinedAt(i))
-              throw new IllegalArgumentException(s"The numerator does not contain the factor $d")
+    def reduceByFactor(nums: Seq[I], d: I): Seq[I] = {
+      @tailrec
+      def reduceByFactor(reduced: Vector[I], nums: Seq[I], d: I): Seq[I] = d match {
+        case 1 => reduced ++: nums
+        case _ =>
+          if(nums.isEmpty)
+            throw new IllegalArgumentException(s"The numerator does not contain the factor $d")
 
-            nFactors(i) match {
-              case 1 => reduceByFactor(nFactors, d, i+1)
-              case nFactor =>
-                gcd(nFactor, d) match {
-                  case 1 => reduceByFactor(nFactors, d, i+1)
-                  case g => reduceByFactor(nFactors.updated(i, nFactor/~g), d/~g, i+1)
-                }
-            }
-        }
+          val n = nums.head
+          gcd(n, d) match {
+            case 1 => reduceByFactor(reduced :+ n, nums.tail, d)
+            case g =>
+              val f = n/~g
+              if(f == 1) reduceByFactor(reduced, nums.tail, d/~g)
+              else       reduceByFactor(reduced :+ f, nums.tail, d/~g)
+          }
+      }
 
-        reduceByFactors(reduceByFactor(nFactors, dHead, 0), dTail)
+      reduceByFactor(Vector(), nums, d)
     }
 
-    reduceByFactors(nFactors, dFactors)
-      .filter(_ != 1)
-      .reduceLeft( (b, i) => b * i )
+    denos.foldLeft(nums)((nums, d) => reduceByFactor(nums, d))
+         .reduce((x, y) => x * y)
   }
 }

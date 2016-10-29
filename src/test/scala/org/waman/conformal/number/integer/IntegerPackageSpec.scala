@@ -2,7 +2,27 @@ package org.waman.conformal.number.integer
 
 import org.waman.conformal.ConformalCustomSpec
 
-class IntegralPackageSpec extends ConformalCustomSpec{
+class IntegerPackageSpec extends ConformalCustomSpec{
+
+  "factorize(I) method should" - {
+
+    "factorize the specified integer" in {
+      val conversions = Table(
+        ("n", "expected"),
+        (1, Seq()),
+        (2*3*4*5, Seq(2, 2, 2, 3, 5)),
+        (10*11*12*13*14*15, Seq(2, 2, 2, 2, 3, 3, 5, 5, 7, 11, 13)),
+        (1024, Seq.fill(10)(2))
+      )
+
+      forAll(conversions){ (n: Int, expected: Seq[Int]) =>
+        __Exercise__
+        val sut = factorize(n)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+  }
 
   "factorial(Int) method should" - {
 

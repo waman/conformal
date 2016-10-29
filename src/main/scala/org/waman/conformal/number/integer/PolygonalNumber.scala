@@ -3,7 +3,7 @@ package org.waman.conformal.number.integer
 import spire.math.Integral
 import spire.implicits._
 
-trait PolygonalNumber extends IntegerSequence
+trait PolygonalNumber extends IntegralSequence
 
 object PolygonalNumber{
 
