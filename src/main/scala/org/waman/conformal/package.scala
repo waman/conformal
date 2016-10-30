@@ -41,15 +41,18 @@ package object conformal {
 
   def removeAt[E](seq: Vector[E], i: Int): Vector[E] = removeAt(seq: Seq[E], i).toVector
 
-  def indexOfMax[T](seq: Seq[T])(implicit ord: Ordering[T]): Int =
-    seq.zipWithIndex.reduceLeft[(T, Int)]{ case (x, y) =>
-      if(ord.compare(x._1, y._1) > 0) x
-      else y
-    }._2
+  def indexOfMax[T: Ordering](seq: Seq[T]): Int =
+    seq.zipWithIndex.maxBy(_._1)._2
 
-  def indexOfMin[T](seq: Seq[T])(implicit ord: Ordering[T]): Int =
-    seq.zipWithIndex.reduceLeft[(T, Int)]{ case (x, y) =>
-      if(ord.compare(x._1, y._1) < 0) x
-      else y
-    }._2
+  def indexOfMin[T: Ordering](seq: Seq[T]): Int =
+    seq.zipWithIndex.minBy(_._1)._2
+
+  def groupSequentialDuplicates[A](seq: Seq[A]): Stream[(A, Int)] = seq.isEmpty match {
+    case true  => Stream()
+    case false =>
+      val head = seq.head
+      val dup = seq.takeWhile(_ == head)
+      val n = dup.length
+      (head, n) #:: groupSequentialDuplicates(seq.drop(n))
+  }
 }

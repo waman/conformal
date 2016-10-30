@@ -78,4 +78,17 @@ class ConformalFunctionSpec  extends ConformalCustomSpec{
       }
     }
   }
+
+  "group() method should" - {
+
+    "return a Stream object whose sequential duplicated element grouped" in {
+      __SetUp__
+      val seq = Seq(1, 1, 1, 2, 3, 3, 5, 6, 6)
+      val expected = Seq((1, 3), (2, 1), (3, 2), (5, 1), (6, 2))
+      __Exercise__
+      val sut = groupSequentialDuplicates(seq)
+      __Verify__
+      sut should equal (expected)
+    }
+  }
 }

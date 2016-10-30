@@ -4,7 +4,7 @@ import org.waman.conformal.ConformalCustomSpec
 
 class IntegerPackageSpec extends ConformalCustomSpec{
 
-  "factorize(I) method should" - {
+  "flatFactorize(I) method should" - {
 
     "factorize the specified integer" in {
       val conversions = Table(
@@ -16,6 +16,26 @@ class IntegerPackageSpec extends ConformalCustomSpec{
       )
 
       forAll(conversions){ (n: Int, expected: Seq[Int]) =>
+        __Exercise__
+        val sut = flatFactorize(n)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+  }
+
+  "factorize(I) method should" - {
+
+    "factorize the specified integer and return Seq of (prime factor, duplication) pair" in {
+      val conversions = Table(
+        ("n", "expected"),
+        (1, Seq()),
+        (2*3*4*5, Seq((2, 3), (3, 1), (5, 1))),
+        (10*11*12*13*14*15, Seq((2, 4), (3, 2), (5, 2), (7, 1), (11, 1), (13, 1))),
+        (1024, Seq((2, 10)))
+      )
+
+      forAll(conversions){ (n: Int, expected: Seq[(Int, Int)]) =>
         __Exercise__
         val sut = factorize(n)
         __Verify__

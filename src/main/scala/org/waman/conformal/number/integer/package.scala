@@ -2,6 +2,7 @@ package org.waman.conformal.number
 
 import org.waman.conformal.number.integer.combinatorics.Combination
 import org.waman.conformal.number.integer.ConformalIntegralOps._
+import org.waman.conformal.groupSequentialDuplicates
 import spire.implicits._
 import spire.math.Integral
 
@@ -27,20 +28,25 @@ package object integer {
     else                 (dividend % divisor) - divisor
 
   //********** Factorization **********
-  def factorize[I: Integral](n: I): Seq[I] = {
+  def flatFactorize[I: Integral](n: I): Seq[I] = {
     @tailrec
-    def factorize(factors: Vector[I], n: I, ps: Stream[I]): Seq[I] = n match {
-      case 1 => factors
-      case _ =>
-        val p = ps.head
-        if (n % p == 0) factorize(factors :+ p, n /~ p, ps)
-        else            factorize(factors, n, ps.tail)
-    }
+    def factorize(factors: Vector[I], n: I, ps: Stream[I]): Seq[I] =
+      n match {
+        case 1 => factors
+        case _ => ps.head match {
+          case p if p * p > n  => factors :+ n
+          case p if n % p == 0 => factorize(factors :+ p, n /~ p, ps)
+          case _               => factorize(factors, n, ps.tail)
+        }
+      }
 
     val ps = 2 #:: 3 #:: IntegralSequence.from[I](5, 6).flatMap(i => Seq(i, i+2))
 
     factorize(Vector(), n, ps)
   }
+
+  def factorize[I: Integral](n: I): Seq[(I, Int)] =
+    groupSequentialDuplicates(flatFactorize(n))
 
   //********** Factorials **********
   def factorial[I: Integral](i: I): I = {
