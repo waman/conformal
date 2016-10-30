@@ -1,12 +1,13 @@
 package org.waman.conformal.number.integer
 
 import org.waman.conformal.ConformalCustomSpec
+import org.waman.conformal.tags.ForImplementationInterest
 
 class IntegerPackageSpec extends ConformalCustomSpec{
 
   "flatFactorize(I) method should" - {
 
-    "factorize the specified integer" in {
+    "factorize the specified integer with prime factors included flatly in the result seq" in {
       val conversions = Table(
         ("n", "expected"),
         (1, Seq()),
@@ -26,7 +27,7 @@ class IntegerPackageSpec extends ConformalCustomSpec{
 
   "factorize(I) method should" - {
 
-    "factorize the specified integer and return Seq of (prime factor, duplication) pair" in {
+    "factorize the specified integer and return Seq of (prime factor, duplication) pairs" in {
       val conversions = Table(
         ("n", "expected"),
         (1, Seq()),
@@ -73,10 +74,9 @@ class IntegerPackageSpec extends ConformalCustomSpec{
     }
   }
 
-  // For implementation interest
   "factorial1(Int) method should" - {
 
-    "return a factorial n!" in {
+    "return a factorial n!" taggedAs ForImplementationInterest in {
       val conversions = Table(
         ("n", "expected"),
         (0L, 1L),
@@ -197,10 +197,9 @@ class IntegerPackageSpec extends ConformalCustomSpec{
     }
   }
 
-  // For implementation interest
   "gcd1(Int, Int) method should" - {
 
-    "return gcd of the specified Int values" in {
+    "return gcd of the specified Int values" taggedAs ForImplementationInterest in {
       val conversions = Table(
         ("m", "n", "expected"),
         (18, 1, 1),
@@ -224,10 +223,9 @@ class IntegerPackageSpec extends ConformalCustomSpec{
     }
   }
 
-  // For implementation interest
   "gcd2(Int, Int) method should" - {
 
-    "return gcd of the specified Int values" in {
+    "return gcd of the specified Int values" taggedAs ForImplementationInterest in {
       val conversions = Table(
         ("m", "n", "expected"),
         (18, 1, 1),

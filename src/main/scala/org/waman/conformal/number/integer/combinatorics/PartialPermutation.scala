@@ -1,5 +1,7 @@
 package org.waman.conformal.number.integer.combinatorics
 
+import org.waman.conformal.ForImplementationInterest
+
 import scala.annotation.tailrec
 import spire.math.Integral
 import spire.implicits._
@@ -70,7 +72,7 @@ object PartialPermutation{
     permutationCount(1, degree, rank)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def permutationCount1(n: Long, r: Long): Long =
     (n until (n - r) by -1).product

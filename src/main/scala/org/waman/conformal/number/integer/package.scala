@@ -2,7 +2,7 @@ package org.waman.conformal.number
 
 import org.waman.conformal.number.integer.combinatorics.Combination
 import org.waman.conformal.number.integer.ConformalIntegralOps._
-import org.waman.conformal.groupSequentialDuplicates
+import org.waman.conformal.{ForImplementationInterest, groupSequentialDuplicates}
 import spire.implicits._
 import spire.math.Integral
 
@@ -29,20 +29,20 @@ package object integer {
 
   //********** Factorization **********
   def flatFactorize[I: Integral](n: I): Seq[I] = {
-    @tailrec
-    def factorize(factors: Vector[I], n: I, ps: Stream[I]): Seq[I] =
+
+    def factorize(n: I, ps: Stream[I]): Stream[I] =
       n match {
-        case 1 => factors
+        case 1 => Stream()
         case _ => ps.head match {
-          case p if p * p > n  => factors :+ n
-          case p if n % p == 0 => factorize(factors :+ p, n /~ p, ps)
-          case _               => factorize(factors, n, ps.tail)
+          case p if p * p > n  => Stream(n)
+          case p if n % p == 0 => p #:: factorize(n /~ p, ps)
+          case _               => factorize(n, ps.tail)
         }
       }
 
     val ps = 2 #:: 3 #:: IntegralSequence.from[I](5, 6).flatMap(i => Seq(i, i+2))
 
-    factorize(Vector(), n, ps)
+    factorize(n, ps)
   }
 
   def factorize[I: Integral](n: I): Seq[(I, Int)] =
@@ -61,7 +61,7 @@ package object integer {
     factorial(1, i)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def factorial1(i: Long): Long = i match {
     case 0L | 1L => 1L
@@ -80,7 +80,7 @@ package object integer {
     doubleFactorial(1, i)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def doubleFactorial1(i: Long): Long = i match {
     case 0L | 1L => 1L
@@ -98,14 +98,14 @@ package object integer {
     gcdPositive(m.abs, n.abs)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   @tailrec
   def gcd1[I: Integral](m: I, n: I): I = n match {
     case 0 => m
     case _ => gcd1(n, m |%| n)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def gcd2[I: Integral](m: I, n: I): I = {
     require(m > 0 && n > 0)

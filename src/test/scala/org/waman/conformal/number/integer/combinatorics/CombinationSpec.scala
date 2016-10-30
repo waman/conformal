@@ -1,6 +1,7 @@
 package org.waman.conformal.number.integer.combinatorics
 
 import org.waman.conformal.ConformalCustomSpec
+import org.waman.conformal.tags.ForImplementationInterest
 
 class CombinationSpec extends ConformalCustomSpec{
   
@@ -299,8 +300,7 @@ class CombinationSpec extends ConformalCustomSpec{
         }
       }
 
-      // For implementation interest
-      "generateCombinations1(Int, Int) method" in {
+      "generateCombinations1(Int, Int) method" taggedAs ForImplementationInterest in {
         val conversions = Table(
           ("degree", "rank", "expected"),
           (5, 2, Seq(
@@ -322,8 +322,7 @@ class CombinationSpec extends ConformalCustomSpec{
         }
       }
 
-      // For implementation interest
-      "allCombinations1(Seq[E], Int) method" in {
+      "allCombinations1(Seq[E], Int) method" taggedAs ForImplementationInterest in {
         val conversions = Table(
           ("arg", "rank", "expected"),
           ("abcde", 2, Seq(

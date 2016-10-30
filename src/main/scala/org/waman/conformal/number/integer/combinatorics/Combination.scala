@@ -1,5 +1,6 @@
 package org.waman.conformal.number.integer.combinatorics
 
+import org.waman.conformal.ForImplementationInterest
 import org.waman.conformal.number.integer.BinomialCoefficient
 import spire.implicits._
 import spire.math.Integral
@@ -127,7 +128,7 @@ object Combination{
     generateCombinatorials(start, rank).map(_.elements)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[combinatorics]
   def allCombinations1[E](seq: Seq[E], rank: Int): Seq[Seq[E]] = {
     val indices = seq.indices
@@ -137,7 +138,7 @@ object Combination{
     }
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[combinatorics]
   def generateCombinations1(degree: Int, rank: Int): Seq[Long] = {
     def lowBit(n: Long): Long = (1L << n) - 1L

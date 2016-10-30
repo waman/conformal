@@ -1,6 +1,7 @@
 package org.waman.conformal.number.integer
 
 import org.waman.conformal.ConformalCustomSpec
+import org.waman.conformal.tags.ForImplementationInterest
 
 class BinomialCoefficientSpec extends ConformalCustomSpec{
 
@@ -54,7 +55,6 @@ class BinomialCoefficientSpec extends ConformalCustomSpec{
     }
   }
 
-  // For implementation interest
   "binomialCoefficientN() method should" - {
 
     val methodConversions = Table(
@@ -64,7 +64,7 @@ class BinomialCoefficientSpec extends ConformalCustomSpec{
       BinomialCoefficient.binomialCoefficient3(_, _),
       BinomialCoefficient.binomialCoefficient4(_: Int, _: Int))
 
-    "return the binomial coefficient value in the case n >= 0, 0 <= r <= n" in {
+    "return the binomial coefficient value in the case n >= 0, 0 <= r <= n" taggedAs ForImplementationInterest in {
       val conversions = Table(
         ("n", "r", "expected"),
         (0, 0, 1),
@@ -89,10 +89,9 @@ class BinomialCoefficientSpec extends ConformalCustomSpec{
     }
   }
 
-  // For implementation interest
   "binomialCoefficient2() method should" - {
 
-    "return the binomial coefficient value" in {
+    "return the binomial coefficient value" taggedAs ForImplementationInterest in {
       val conversions = Table(
         ("n", "r", "expected"),
 //        (0, 0, 1),

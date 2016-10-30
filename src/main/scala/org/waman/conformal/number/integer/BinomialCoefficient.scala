@@ -1,5 +1,6 @@
 package org.waman.conformal.number.integer
 
+import org.waman.conformal.ForImplementationInterest
 import spire.math.{Integral, Rational}
 import spire.implicits._
 
@@ -21,13 +22,13 @@ object BinomialCoefficient{
     reduceIntegralFraction(nums, denos)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def binomialCoefficient1(n: Int, r: Int): Int =
     if(r == 0 || r == n) 1
     else binomialCoefficient1(n-1, r-1) + binomialCoefficient1(n-1, r)
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def binomialCoefficient2(n: Int, r: Int): Int = {
     val s = if(n-r < r) n-r else r
@@ -44,7 +45,7 @@ object BinomialCoefficient{
     binomialCoefficient(Vector(1), n)(s)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def binomialCoefficient3(n: Int, r: Int): Int = {
     val s = if(n-r < r) n-r else r
@@ -67,7 +68,7 @@ object BinomialCoefficient{
     binomialCoefficient(Vector(1), n).head
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[integer]
   def binomialCoefficient4[I: Integral](n: I, r: I): I = {
     require(n >= 0, s"n must be non-negative: $n")

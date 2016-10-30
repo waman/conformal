@@ -367,7 +367,7 @@ object Permutation{
 
   def allPermutations(s: String): Seq[String] = allPermutations(s: Seq[Char]).map(_.mkString)
 
-  /* For implementation interest */
+  @ForImplementationInterest
   private[combinatorics]
   def allPermutations2(degree: Int): Seq[Seq[Int]] = {
 
@@ -384,7 +384,7 @@ object Permutation{
     generateCombinatorials(start, degree).map(_.seq)
   }
 
-  /* For implementation interest */
+  @ForImplementationInterest
   private[combinatorics]
   def allPermutations3[E](arg: Seq[E]): Seq[Seq[E]] = {
 
@@ -399,7 +399,7 @@ object Permutation{
     generateCombinatorials(start, arg.length).map(_.seq)
   }
 
-  /* For implementation interest */
+  @ForImplementationInterest
   private[combinatorics]
   def allPermutations4[E](arg: Seq[E]): Seq[Seq[E]] = {
     if(arg.isEmpty)return Seq(Nil)
@@ -419,7 +419,7 @@ object Permutation{
     perms(arg, counters)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[combinatorics]
   case class FactorialCounter(c: Seq[Int], k: Int){
     def hasNext: Boolean = k != -1
@@ -433,7 +433,7 @@ object Permutation{
       }
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[combinatorics]
   def factorialCounters(degree: Int): Seq[FactorialCounter] = {
     val start = FactorialCounter(0 until degree, 1)
@@ -501,7 +501,7 @@ object Permutation{
       derangementCount(1, 0, 2, degree.toInt)
   }
 
-  // For implementation interest
+  @ForImplementationInterest
   private[combinatorics]
   def derangementCount1[I: Integral](degree: I): I = {
     require(degree > 0, s"Degree of derangement must be positive: appear $degree")

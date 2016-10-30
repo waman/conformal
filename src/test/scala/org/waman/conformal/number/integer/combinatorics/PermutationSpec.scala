@@ -3,6 +3,7 @@ package org.waman.conformal.number.integer.combinatorics
 import org.scalatest.OptionValues._
 import org.waman.conformal.ConformalCustomSpec
 import org.waman.conformal.number.integer.FactorialRepresentation
+import org.waman.conformal.tags.ForImplementationInterest
 
 class PermutationSpec extends ConformalCustomSpec{
 
@@ -204,7 +205,7 @@ class PermutationSpec extends ConformalCustomSpec{
     }
   }
 
-  "sgn method should" - {
+  "sign method should" - {
 
     "return sign of permutation" in {
       val conversions =
@@ -691,8 +692,7 @@ class PermutationSpec extends ConformalCustomSpec{
         }
       }
 
-      // For implementation interest
-      "allPermutations2(Int) method" in {
+      "allPermutations2(Int) method" taggedAs ForImplementationInterest in {
         val conversions = Table(
           ("degree", "expected"),
           (0, Seq(Nil)),
@@ -718,8 +718,7 @@ class PermutationSpec extends ConformalCustomSpec{
         }
       }
 
-      // For implementation interest
-      "allPermutations3(Seq[E]) method" in {
+      "allPermutations3(Seq[E]) method" taggedAs ForImplementationInterest in {
         val conversions = Table(
           ("degree", "expected"),
           (0, Seq(Nil)),
@@ -744,10 +743,9 @@ class PermutationSpec extends ConformalCustomSpec{
         }
       }
 
-      // For implementation interest
       "allPermutations4(Seq[E])" - {
 
-        "factorialCounters(Int)" in {
+        "factorialCounters(Int)" taggedAs ForImplementationInterest in {
           val conversions = Table(
             ("degree", "expected"),
             (0, Seq(Nil)),
@@ -771,7 +769,7 @@ class PermutationSpec extends ConformalCustomSpec{
           }
         }
 
-        "allPermutations4(Seq[E])" in {
+        "allPermutations4(Seq[E])" taggedAs ForImplementationInterest in {
           val conversions = Table(
             ("degree", "expected"),
             (0, Seq(Nil)),
