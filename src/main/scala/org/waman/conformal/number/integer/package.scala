@@ -204,4 +204,12 @@ package object integer {
     denos.foldLeft(nums)((nums, d) => reduceByFactor(nums, d))
          .reduce((x, y) => x * y)
   }
+
+  //********** Binary **********
+  def toBinary[I: Integral](n: I): Stream[I] = n match {
+    case 0 => Stream()
+    case _ =>
+      val (q, r) = n /% 2
+      r #:: toBinary(q)
+  }
 }
