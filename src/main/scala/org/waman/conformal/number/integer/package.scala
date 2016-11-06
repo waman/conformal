@@ -206,10 +206,10 @@ package object integer {
   }
 
   //********** Binary **********
-  def toBinary[I: Integral](n: I): Stream[I] = n match {
+  def toBinaryInAscendingOrder[I: Integral](n: I): Stream[I] = n match {
     case 0 => Stream()
     case _ =>
       val (q, r) = n /% 2
-      r #:: toBinary(q)
+      r #:: toBinaryInAscendingOrder(q)
   }
 }

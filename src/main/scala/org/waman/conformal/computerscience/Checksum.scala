@@ -1,7 +1,5 @@
 package org.waman.conformal.computerscience
 
-import scala.{specialized => spec}
-
 trait Checksum[I, S]{
 
   protected def sum(input: Seq[I]): S
@@ -23,5 +21,5 @@ object SimpleChecksum extends Checksum[Byte, Byte]{
   override protected def testSum(sum: Byte): Boolean = sum == 0
 
   def appendChecksum(input: Seq[Byte]): Seq[Byte] =
-    Vector() ++ input :+ calculateChecksum(input)
+    input ++: Seq(calculateChecksum(input))
 }

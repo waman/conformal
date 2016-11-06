@@ -5,15 +5,15 @@ import org.waman.conformal.tags.ForImplementationInterest
 
 class MersenneNumberSpec extends ConformalCustomSpec{
 
-  "Constructor should" - {
-
-    "throw an exception if the argument is not prime" in {
-      __Verify__
-      an [Exception] should be thrownBy {
-        MersenneNumber(4)
-      }
-    }
-  }
+//  "Constructor should" - {
+//
+//    "throw an exception if the argument is not prime" in {
+//      __Verify__
+//      an [Exception] should be thrownBy {
+//        MersenneNumber(4)
+//      }
+//    }
+//  }
 
   "isPrime method should" - {
 
@@ -44,16 +44,32 @@ class MersenneNumberSpec extends ConformalCustomSpec{
     }
   }
 
-  "lucasSequence method should" - {
+  "isPrime2 method should" - {
 
-    "transform" taggedAs ForImplementationInterest in {
-      __SetUp__
-      val p = 5
-      val mp = MersenneNumber(p)
-      __Exercise__
-      val sut = mp.lucasSequence
-      __Verify__
-      sut take 4 foreach println
+    "return true for the following integers" taggedAs ForImplementationInterest in {
+      val conversions = Table("p", 2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127, 521, 607)
+
+      forAll(conversions){ p: Int =>
+        __SetUp__
+        val mn = MersenneNumber(p)
+        __Exercise__
+        val sut = mn.isPrime
+        __Verify__
+        sut should be (true)
+      }
+    }
+
+    "return false for the following integers" taggedAs ForImplementationInterest in {
+      val conversions = Table("p", 67, 257)
+
+      forAll(conversions){ p: Int =>
+        __SetUp__
+        val mn = MersenneNumber(p)
+        __Exercise__
+        val sut = mn.isPrime
+        __Verify__
+        sut should be (false)
+      }
     }
   }
 }

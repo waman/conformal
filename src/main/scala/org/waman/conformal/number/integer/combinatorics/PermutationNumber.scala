@@ -25,7 +25,7 @@ object PermutationNumber{
       case _ =>
         val div = i+1
         val j = code % div
-        decode(swap(suffices, i, j.toInt), code / div, i+1)
+        decode(swap(suffices, i, j.toInt), code / div, div)
     }
 
     val suffices = decode((0 until degree).toVector, code, 1)

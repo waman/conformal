@@ -1,10 +1,11 @@
 name := "conformal"
 
-version := "0.1"
+version := "0.2"
 
 organization := "org.waman.conformal"
 
 scalaVersion := "2.11.7"
+sbtVersion := "0.13.13"
 
 
 //***** Custom settings *****
