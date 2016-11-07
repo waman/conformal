@@ -5,15 +5,15 @@ import org.waman.conformal.tags.ForImplementationInterest
 
 class MersenneNumberSpec extends ConformalCustomSpec{
 
-//  "Constructor should" - {
-//
-//    "throw an exception if the argument is not prime" in {
-//      __Verify__
-//      an [Exception] should be thrownBy {
-//        MersenneNumber(4)
-//      }
-//    }
-//  }
+  "Constructor should" - {
+
+    "throw an exception if the argument is not prime" ignore {
+      __Verify__
+      an [Exception] should be thrownBy {
+        MersenneNumber(4)
+      }
+    }
+  }
 
   "isPrime method should" - {
 
@@ -53,7 +53,7 @@ class MersenneNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val mn = MersenneNumber(p)
         __Exercise__
-        val sut = mn.isPrime
+        val sut = mn.isPrime2
         __Verify__
         sut should be (true)
       }
@@ -66,7 +66,7 @@ class MersenneNumberSpec extends ConformalCustomSpec{
         __SetUp__
         val mn = MersenneNumber(p)
         __Exercise__
-        val sut = mn.isPrime
+        val sut = mn.isPrime2
         __Verify__
         sut should be (false)
       }

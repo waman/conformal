@@ -1,10 +1,8 @@
 package org.waman.conformal.number.integer
 
 import org.waman.conformal.ForImplementationInterest
-import spire.math.Integral
 import spire.implicits._
-
-import scala.annotation.tailrec
+import spire.math.Integral
 
 /**
   * This class can be instantiated by p of a composite number.
@@ -16,7 +14,7 @@ case class MersenneNumber(p: Int){
   lazy val toBigInt: BigInt = toVal[BigInt]
 
   /** Lucas-Lehmer test */
-  def isPrime2: Boolean = p match {
+  def isPrime: Boolean = p match {
     case 2 => true
     case _ =>
       val m = toBigInt
@@ -24,9 +22,9 @@ case class MersenneNumber(p: Int){
       seq(p - 2) == 0
   }
 
-//  @ForImplementationInterest
-//  private[integer]
-  def isPrime: Boolean = p match {
+  @ForImplementationInterest
+  private[integer]
+  def isPrime2: Boolean = p match {
     case 2 => true
     case _ =>
       val mmod = MersenneModulo(p)

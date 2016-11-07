@@ -37,6 +37,7 @@ trait MersenneModuloNumber{
   def mersenneModulo: MersenneModulo
   def p: Int = mersenneModulo.p
   def bits: Seq[Boolean]
+  def bitsInInt: Seq[Int] = bits.map(if(_) 1 else 0)
   def isZero: Boolean
 
   def unary_- : MersenneModuloNumber
@@ -62,13 +63,13 @@ trait MersenneModuloNumber{
 
   override def hashCode: Int = (p, bits).##
   /** return a String representation of this bits with descending order of digit */
-  override def toString: String = bits.reverse.map{ if(_) 1 else 0}.mkString("(", "", ")_2")
+  override def toString: String = bitsInInt.reverse.mkString("(", "", ")_2")
 }
 
 object MersenneModuloNumber{
 
   //***** Impl of MersenneModuloNumber trait *****
-  class Impl(val bits: Seq[Boolean], val mersenneModulo: MersenneModulo)
+  class BooleanBits(val bits: Seq[Boolean], val mersenneModulo: MersenneModulo)
       extends MersenneModuloNumber{
 
     override lazy val p = mersenneModulo.p
@@ -77,23 +78,23 @@ object MersenneModuloNumber{
     override def unary_- = MersenneModuloNumber(bits.map(!_), this.mersenneModulo)
 
     override def +(that: MersenneModuloNumber): MersenneModuloNumber = {
-      require(that.p == this.p)
-      if(that.isZero) return this
-
       // add two bit seqs
-      def addBitByBit(bs: Seq[Seq[Boolean]], s: Boolean): Stream[Boolean] =
-      bs.isEmpty match {
-        case true  =>
-          if(s) Stream(true) else Stream()
-        case false => (s +: bs.head).count(_ == true) match {
-          case 0 => false #:: addBitByBit(bs.tail, s = false)
-          case 1 => true  #:: addBitByBit(bs.tail, s = false)
-          case 2 => false #:: addBitByBit(bs.tail, s = true)
-          case 3 => true  #:: addBitByBit(bs.tail, s = true)
-        }
-      }
+      def addBitByBit(as: Seq[Boolean], bs: Seq[Boolean], s: Boolean): Stream[Boolean] =
+        as.isEmpty match {
+          case true  =>
+            require(bs.isEmpty,
+              s"Two MersenneModuloNumber must have the same p when added: $p, ${that.p}")
+            if(s) Stream(true) else Stream()
 
-      val summed = addBitByBit(Seq(this.bits, that.bits).transpose, s = false)
+          case false => Seq(as.head, bs.head, s).count(_ == true) match {
+            case 0 => false #:: addBitByBit(as.tail, bs.tail, s = false)
+            case 1 => true  #:: addBitByBit(as.tail, bs.tail, s = false)
+            case 2 => false #:: addBitByBit(as.tail, bs.tail, s = true)
+            case 3 => true  #:: addBitByBit(as.tail, bs.tail, s = true)
+          }
+        }
+
+      val summed = addBitByBit(this.bits, that.bits, s = false)
       MersenneModuloNumber(summed, this.mersenneModulo)
     }
 
@@ -102,15 +103,13 @@ object MersenneModuloNumber{
       else            this + (-that)
 
     override def *(that: MersenneModuloNumber): MersenneModuloNumber = {
-      if(that.isZero) return that
+      def mod(i: Int) = if(i >= 0) i else i + p
 
-
-      val thisBits: Vector[Int] = this.bits.map{ if(_) 1 else 0 }.toVector
+      val thisBits: Vector[Int] = this.bitsInInt.toVector
       val summedInts = that.bits.zipWithIndex
-                         .collect { case (true, n) => n}
-                         .foldRight[IndexedSeq[Int]](Vector.fill(p)(0)){ (n, s) =>
-                           def mod(i: Int) = if(i >= 0) i else i + p
-                           for(i <- 0 until p) yield s(i) + thisBits(mod(i-n))
+                         .collect { case (true, n) => n}  // ignore digits of 0-value
+                         .foldRight[Seq[Int]](Vector.fill(p)(0)){ (n, s) =>
+                           (0 until p).map(i => s(i) + thisBits(mod(i-n)))
                          }
       MersenneModuloNumber(intsToBits(summedInts), this.mersenneModulo)
     }
@@ -121,34 +120,34 @@ object MersenneModuloNumber{
         else  sum * 2
       }
   }
-
+  
   //***** Utility methods *****
 
   /** This apply() factory method can be used with Seq[Boolean] whose length is not p. */
-  def apply(bits: Seq[Boolean], mmod: MersenneModulo): MersenneModuloNumber = bits match {
-    case Nil => mmod.Zero
-    case _ =>
-      val p = mmod.p
-      // Example: p=3 (mod 7), seq = (10110011)  (1 = T, 0 = F)
-      bits.grouped(p).map {
-        // ((101)(100)(11))
-        case s if s.length == p =>
-          if (bits.forall(_ == true))
-            mmod.Zero
-          else
-            new Impl(s, mmod)
-        case s if s.length < p =>
-          new Impl(s.padTo(p, false), mmod) // ((101)(100)(110))
-      }.reduce(_ + _)
-  }
+  def apply(bits: Seq[Boolean], mmod: MersenneModulo): MersenneModuloNumber =
+    bits match {
+      case Nil => mmod.Zero
+      case _ =>
+        val p = mmod.p
+        // Example: p=3 (mod 7), seq = (10110011)  (1 = T, 0 = F)
+        bits.grouped(p).map { // ((101)(100)(11))
+          case s if s.length == p =>
+            if (s.forall(_ == true))
+              mmod.Zero
+            else
+              new BooleanBits(s, mmod)
+          case s if s.length < p =>
+            new BooleanBits(s.padTo(p, false), mmod) // ((101)(100)(110))
+        }.reduce(_ + _)
+    }
 
-  def sum(seq: Seq[MersenneModuloNumber]): MersenneModuloNumber =
-    MersenneModuloNumber(
-      sumBitByBit(seq.map(_.bits).transpose),
-      seq.head.mersenneModulo)
-
-  private def sumBitByBit(bits: Seq[Seq[Boolean]]): Stream[Boolean] =
-    intsToBits(bits.map(_.count(_ == true)))
+//  def sum(seq: Seq[MersenneModuloNumber]): MersenneModuloNumber =
+//    MersenneModuloNumber(
+//      sumBitByBit(seq.map(_.bits).transpose),
+//      seq.head.mersenneModulo)
+//
+//  private def sumBitByBit(bits: Seq[Seq[Boolean]]): Stream[Boolean] =
+//    intsToBits(bits.map(_.count(_ == true)))
 
   private def intsToBits(seq: Seq[Int]): Stream[Boolean] = {
     def convert(seq: Seq[Int], s: Int): Stream[Boolean] =
