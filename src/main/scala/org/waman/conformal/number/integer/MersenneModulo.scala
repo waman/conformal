@@ -5,6 +5,9 @@ import spire.math.Integral
 
 case class MersenneModulo(p: Int){
 
+  def modulusOf[I: Integral] = implicitly[Integral[I]].fromInt(2)**p - 1
+  def modulus: Long = modulusOf[Long]
+
   val Zero: MersenneModuloNumber = new MersenneModuloNumber{
 
     override def mersenneModulo: MersenneModulo = MersenneModulo.this
@@ -132,12 +135,15 @@ object MersenneModuloNumber{
         // Example: p=3 (mod 7), seq = (10110011)  (1 = T, 0 = F)
         bits.grouped(p).map { // ((101)(100)(11))
           case s if s.length == p =>
-            if (s.forall(_ == true))
+            if (s.distinct.size == 1)  // all are true or all are false
               mmod.Zero
             else
               new BooleanBits(s, mmod)
           case s if s.length < p =>
-            new BooleanBits(s.padTo(p, false), mmod) // ((101)(100)(110))
+            if(s.forall(_ == false))
+              mmod.Zero
+            else
+              new BooleanBits(s.padTo(p, false), mmod) // ((101)(100)(110))
         }.reduce(_ + _)
     }
 

@@ -46,7 +46,7 @@ class MersenneNumberSpec extends ConformalCustomSpec{
 
   "isPrime2 method should" - {
 
-    "return true for the following integers" taggedAs ForImplementationInterest in {
+    "return true for the following integers" taggedAs ForImplementationInterest ignore {
       val conversions = Table("p", 2, 3, 5, 7, 13, 17, 19, 31, 61, 89, 107, 127, 521, 607)
 
       forAll(conversions){ p: Int =>
@@ -59,7 +59,7 @@ class MersenneNumberSpec extends ConformalCustomSpec{
       }
     }
 
-    "return false for the following integers" taggedAs ForImplementationInterest in {
+    "return false for the following integers" taggedAs ForImplementationInterest ignore {
       val conversions = Table("p", 67, 257)
 
       forAll(conversions){ p: Int =>
