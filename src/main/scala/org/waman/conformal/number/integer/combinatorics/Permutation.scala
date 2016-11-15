@@ -176,7 +176,7 @@ object Permutation{
   def permutationCount[I: Integral](degree: I): I = factorial(degree)
 
   def permutationCount[I: Integral](degree: I, rank: I): I =
-    Permutation.permutationCount(degree, rank)
+    PartialPermutation.permutationCount(degree, rank)
 
   //***** Subclasses of IntPermutation *****
   private[combinatorics]

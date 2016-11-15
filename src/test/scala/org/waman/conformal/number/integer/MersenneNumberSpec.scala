@@ -7,10 +7,10 @@ class MersenneNumberSpec extends ConformalCustomSpec{
 
   "Constructor should" - {
 
-    "throw an exception if the argument is not prime" ignore {
+    "throw an exception if the argument is negative" in {
       __Verify__
       an [Exception] should be thrownBy {
-        MersenneNumber(4)
+        MersenneNumber(-4)
       }
     }
   }
@@ -31,7 +31,7 @@ class MersenneNumberSpec extends ConformalCustomSpec{
     }
 
     "return false for the following integers" in {
-      val conversions = Table("p", 67, 257)
+      val conversions = Table("p", 0, 1, 67, 257)
 
       forAll(conversions){ p: Int =>
         __SetUp__
@@ -60,7 +60,7 @@ class MersenneNumberSpec extends ConformalCustomSpec{
     }
 
     "return false for the following integers" taggedAs ForImplementationInterest ignore {
-      val conversions = Table("p", 67, 257)
+      val conversions = Table("p", 0, 1, 67, 257)
 
       forAll(conversions){ p: Int =>
         __SetUp__

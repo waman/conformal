@@ -12,46 +12,45 @@ class MersenneModuloSpec extends ConformalCustomSpec{
       "create MersenneModuloNumber object" in {
         val conversions = Table(
           ("p", "n", "expected"),
-          (3, 0, Seq(0, 0, 0)),  // p=3 => mod 7
-          (3, 1, Seq(1, 0, 0)),
-          (3, 2, Seq(0, 1, 0)),
-          (3, 3, Seq(1, 1, 0)),
-          (3, 4, Seq(0, 0, 1)),
-          (3, 5, Seq(1, 0, 1)),
-          (3, 6, Seq(0, 1, 1)),
+          (3, 0, 0),  // p=3 => mod 7
+          (3, 1, 1),
+          (3, 2, 2),
+          (3, 3, 3),
+          (3, 4, 4),
+          (3, 5, 5),
+          (3, 6, 6),
 
-          (3, 7, Seq(0, 0, 0)),  // <=  111
-          (3, 8, Seq(1, 0, 0)),  // <= 1000 = 001 mmod 3
-          (3, 9, Seq(0, 1, 0)),   // <= 1001 = 010 mmod 3
-          (3, 10, Seq(1, 1, 0)),
-          (3, 11, Seq(0, 0, 1)),
-          (3, 12, Seq(1, 0, 1)),
-          (3, 13, Seq(0, 1, 1)),
+          (3, 7, 0),
+          (3, 8, 1),
+          (3, 9, 2),
+          (3, 10, 3),
+          (3, 11, 4),
+          (3, 12, 5),
+          (3, 13, 6),
 
-          (3, 14, Seq(0, 0, 0)),
-          (3, 15, Seq(1, 0, 0)),
+          (3, 14, 0),
+          (3, 15, 1),
 
-          (3, -1, Seq(0, 1, 1)),
-          (3, -2, Seq(1, 0, 1)),
-          (3, -3, Seq(0, 0, 1)),
-          (3, -4, Seq(1, 1, 0)),
-          (3, -5, Seq(0, 1, 0)),
-          (3, -6, Seq(1, 0, 0)),
-          (3, -7, Seq(0, 0, 0)),
+          (3, -1, 6),
+          (3, -2, 5),
+          (3, -3, 4),
+          (3, -4, 3),
+          (3, -5, 2),
+          (3, -6, 1),
+          (3, -7, 0),
 
-          (13, 13, Seq(1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-          (19, 524308, Seq(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+          (13, 13, 13),
+          (19, 524308, 21)
         )
 
-        forAll(conversions){ (p: Int, n: Int, e: Seq[Int]) =>
+        forAll(conversions){ (p: Int, n: Int, expected: Int) =>
           __SetUp__
           val mmod = MersenneModulo(p)
-          val expected = e.map(_ == 1)
           __Exercise__
           val sut = mmod(n)
           __Verify__
           sut.p should equal (p)
-          sut.bits should equal (expected)
+          sut.value should equal (expected)
         }
       }
     }
@@ -224,53 +223,6 @@ class MersenneModuloSpec extends ConformalCustomSpec{
           val sut = xm * ym
           __Verify__
           sut should equal (expected)
-        }
-      }
-    }
-
-    "Methods of Any" - {
-
-      val mmod = MersenneModulo(3)
-      val m = mmod(4)
-
-      val conversions = Table(
-        ("x", "y", "expected"),
-        (m, m, true),
-        (m, mmod(4), true),
-        (m, mmod(11), true),
-        (m, mmod(-3), true),
-        (m, mmod(3), false),
-
-        (mmod(0), mmod.Zero, true),
-        (m, mmod.Zero, false),
-        (m, mmod(0), false)
-      )
-
-      "equals method should" - {
-
-        "work well" in {
-
-          forAll(conversions){ (x: MersenneModuloNumber, y: MersenneModuloNumber, expected: Boolean) =>
-            __Exercise__
-            val sut = x == y
-            __Verify__
-            sut should equal (expected)
-          }
-        }
-      }
-
-      "hashCode method should" - {
-
-        "work well" in {
-
-          forAll(conversions){ (x: MersenneModuloNumber, y: MersenneModuloNumber, expected: Boolean) =>
-            if(expected){
-              __Exercise__
-              val sut = x.hashCode == y.hashCode
-              __Verify__
-              sut should equal (expected)
-            }
-          }
         }
       }
     }

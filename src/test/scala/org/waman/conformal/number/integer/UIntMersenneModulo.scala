@@ -11,6 +11,7 @@ object UIntMersenneNumber{
   @ForImplementationInterest
   private[integer]
   def isPrime(p: Int): Boolean = p match {
+    case 0 | 1 => false
     case 2 => true
     case _ =>
       val mmod = UIntMersenneModulo(p)
@@ -22,10 +23,10 @@ object UIntMersenneNumber{
 
 case class UIntMersenneModulo(p: Int){
 
-  require(p <= 32)
+  require(0 <= p && p <= 32)
 
-  def modulusOf[I: Integral] = implicitly[Integral[I]].fromInt(2)**p - 1
-  def modulus: Long = modulusOf[Long]
+  def modulusIn[I: Integral] = implicitly[Integral[I]].fromInt(2)**p - 1
+  def modulus: Long = modulusIn[Long]
 
   private[integer] val mask64 = 2L**p-1L
   private[integer] val mask32 = UInt(mask64.toInt)

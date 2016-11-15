@@ -1,8 +1,13 @@
 package org.waman
 
 import scala.language.higherKinds
+import scala.collection.mutable
 
 package object conformal {
+
+  def memoize[K, V](f: K => V): collection.Map[K, V] = new mutable.HashMap[K, V](){
+    override def apply(key: K): V = getOrElseUpdate(key, f(key))
+  }
 
   def swap[E](seq: Seq[E], i: Int, j: Int): Seq[E] =
     if(i == j) seq

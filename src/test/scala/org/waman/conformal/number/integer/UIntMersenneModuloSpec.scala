@@ -25,7 +25,7 @@ class UIntMersenneModuloSpec
       }
 
       "return false for the following integers" taggedAs ForImplementationInterest in {
-        val conversions = Table("p", 11)
+        val conversions = Table("p", 0, 1, 11)
 
         forAll(conversions){ p: Int =>
           __Exercise__
@@ -257,7 +257,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = MersenneModulo(p)
+          val mmod = UIntMersenneModulo(p)
           val m = mmod(n)
           val expected = n % (2**p-1)
           __Exercise__
@@ -288,7 +288,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = MersenneModulo(p)
+          val mmod = UIntMersenneModulo(p)
           val m = mmod(n)
           val expected = mmod(2**p-1 - n)
           __Exercise__
@@ -315,7 +315,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = MersenneModulo(p)
+          val mmod = UIntMersenneModulo(p)
           val m = mmod(n)
           val expected = mmod(0)
           __Exercise__
@@ -343,7 +343,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, x: Int, y: Int) =>
           __SetUp__
-          val mmod = MersenneModulo(p)
+          val mmod = UIntMersenneModulo(p)
           val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x+y))
           __Exercise__
           val sut = xm + ym
@@ -370,7 +370,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, x: Int, y: Int) =>
           __SetUp__
-          val mmod = MersenneModulo(p)
+          val mmod = UIntMersenneModulo(p)
           val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x-y))
           __Exercise__
           val sut = xm - ym
@@ -397,7 +397,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, x: Int, y: Int) =>
           __SetUp__
-          val mmod = MersenneModulo(p)
+          val mmod = UIntMersenneModulo(p)
           val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x*y))
           __Exercise__
           val sut = xm * ym
@@ -409,7 +409,7 @@ class UIntMersenneModuloSpec
 
     "Methods of Any" - {
 
-      val mmod = MersenneModulo(3)
+      val mmod = UIntMersenneModulo(3)
       val m = mmod(4)
 
       val conversions = Table(
@@ -420,8 +420,6 @@ class UIntMersenneModuloSpec
         (m, mmod(-3), true),
         (m, mmod(3), false),
 
-        (mmod(0), mmod.Zero, true),
-        (m, mmod.Zero, false),
         (m, mmod(0), false)
       )
 
@@ -429,7 +427,7 @@ class UIntMersenneModuloSpec
 
         "work well" in {
 
-          forAll(conversions){ (x: MersenneModuloNumber, y: MersenneModuloNumber, expected: Boolean) =>
+          forAll(conversions){ (x: MersenneModuloUInt, y: MersenneModuloUInt, expected: Boolean) =>
             __Exercise__
             val sut = x == y
             __Verify__
@@ -442,7 +440,7 @@ class UIntMersenneModuloSpec
 
         "work well" in {
 
-          forAll(conversions){ (x: MersenneModuloNumber, y: MersenneModuloNumber, expected: Boolean) =>
+          forAll(conversions){ (x: MersenneModuloUInt, y: MersenneModuloUInt, expected: Boolean) =>
             if(expected){
               __Exercise__
               val sut = x.hashCode == y.hashCode

@@ -1,9 +1,12 @@
 package org.waman.conformal.number.integer
 
+import scala.language.postfixOps
+
 import org.waman.conformal.ConformalCustomSpec
+import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
 import org.waman.conformal.tags.ForImplementationInterest
 
-class IntegerPackageSpec extends ConformalCustomSpec{
+class PackageSpec extends ConformalCustomSpec{
 
   "flatFactorize(I) method should" - {
 
@@ -345,6 +348,188 @@ class IntegerPackageSpec extends ConformalCustomSpec{
     "throw an IllegalArgumentException if the reduction result is not an integer" in {
       an [IllegalArgumentException] should be thrownBy {
         reduceIntegralFraction(Seq(2, 3, 4), Seq(5))
+      }
+    }
+  }
+
+  "ConformalIntegral class" - {
+
+    "Euclidean ring" - {
+
+      "|/| method should" - {
+
+        "return the quotient in terms of the true Euclidean division" in {
+
+          val conversions = Table(
+            ("dividend", "divisor", "expected"),
+            (91, 35, 2),
+            (91, -35, -2),
+            (-91, 35, -3),
+            (-91, -35, 3)
+          )
+
+          forAll(conversions){ (dividend: Int, divisor: Int, expected: Int) =>
+            __Exercise__
+            val sut = dividend |/| divisor
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+      }
+
+      "|%| method should" - {
+
+        "return the remainder in terms of the true Euclidean division" in {
+
+          val conversions = Table(
+            ("dividend", "divisor", "expected"),
+            (91, 35, 21),
+            (91, -35, 21),
+            (-91, 35, 14),
+            (-91, -35, 14)
+          )
+
+          forAll(conversions){ (dividend: Int, divisor: Int, expected: Int) =>
+            __Exercise__
+            val sut = dividend |%| divisor
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+      }
+
+
+      "The result of |/| and |%| methods should" - {
+
+        "satisfy the relation a = bq + r" in {
+
+          val conversions = Table(
+            ("dividend", "divisor"),
+            (91, 35),
+            (91, -35),
+            (-91, 35),
+            (-91, -35)
+          )
+
+          forAll(conversions){ (dividend: Int, divisor: Int) =>
+            __SetUp__
+            val q = dividend |/| divisor
+            val r = dividend |%| divisor
+            val sut = q * divisor + r
+            __Verify__
+            sut should equal (dividend)
+          }
+        }
+      }
+    }
+
+    "Combinatorial" - {
+
+      val conversions = Table("n", 0, 1, 2, 3, 4, 5, 6)
+
+      "! operator should" - {
+
+        "return factorial of the specified integer" in {
+          //import spire.implicits._
+          forAll(conversions){ n: Int=>
+            __SetUp__
+            val expected = factorial(n)
+            __Exercise__
+            val sut = n!;
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+      }
+
+      "!! operator should" - {
+
+        "return factorial of the specified integer" in {
+
+          forAll(conversions){ n: Int=>
+            __SetUp__
+            val expected = doubleFactorial(n)
+            __Exercise__
+            val sut = n!!;
+            __Verify__
+            sut should equal (expected)
+          }
+        }
+      }
+
+      "P(Int) method should" - {
+
+        "return nPr (permutation count)" in {
+          forAll(conversions) { n: Int =>
+            (0 to n).foreach { r =>
+              __SetUp__
+              val expected = Permutation.permutationCount(n, r)
+              __Exercise__
+              val sut = n P r
+              __Verify__
+              sut should equal(expected)
+            }
+          }
+        }
+      }
+
+      "C(Int) method should" - {
+
+        "return nCr (combination count)" - {
+
+          forAll(conversions){ n: Int =>
+            (0 to n).foreach{ r =>
+              __SetUp__
+              val expected = Combination.combinationCount(n, r)
+              __Exercise__
+              val sut = n C r
+              __Verify__
+              sut should equal (expected)
+            }
+          }
+        }
+      }
+
+      "H(Int) method should" - {
+
+        "return nHr (the number of combinations with repetition)" - {
+
+          forAll(conversions){ n: Int =>
+            (0 to (n+2)).foreach{ r =>
+              __SetUp__
+              val expected = WithRepetition.combinationCount(n, r)
+              __Exercise__
+              val sut = n H r
+              __Verify__
+              sut should equal (expected)
+            }
+          }
+        }
+      }
+    }
+
+    "Modulo" - {
+
+      "mod method should" - {
+
+        "create ModuloNumber object" in {
+          __Exercise__
+          val sut = 13 mod 7
+          __Verify__
+          sut should be (a [ModuloNumber[_]])
+          sut.module should equal (7)
+          sut.value should equal (6)
+        }
+
+        "memoize Modulo object" in {
+          __SetUp__
+          val x = 3 mod 11
+          val y = 5 mod 11
+          __Exercise__
+          val sut = x.modulo eq y.modulo
+          __Verify__
+          sut should be (true)
+        }
       }
     }
   }

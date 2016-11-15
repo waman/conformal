@@ -15,16 +15,18 @@ case class MersenneNumber(p: Int){
 
   /** Lucas-Lehmer test */
   def isPrime: Boolean = p match {
+    case 0 | 1 => false
     case 2 => true
     case _ =>
       val m = toBigInt
-      val seq = Stream.iterate[BigInt](4)(x => (x ** 2 - 2) % m)
+      val seq = Stream.iterate[BigInt](4)(x => (x * x - 2) % m)
       seq(p - 2) == 0
   }
 
   @ForImplementationInterest
   private[integer]
   def isPrime2: Boolean = p match {
+    case 0 | 1 => false
     case 2 => true
     case _ =>
       val mmod = MersenneModulo(p)

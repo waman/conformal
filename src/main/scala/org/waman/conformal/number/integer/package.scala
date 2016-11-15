@@ -1,7 +1,6 @@
 package org.waman.conformal.number
 
-import org.waman.conformal.number.integer.combinatorics.Combination
-import org.waman.conformal.number.integer.ConformalIntegralOps._
+import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
 import org.waman.conformal.{ForImplementationInterest, groupSequentialDuplicates}
 import spire.implicits._
 import spire.math.Integral
@@ -11,12 +10,32 @@ import scala.language.implicitConversions
 
 package object integer {
 
+  //********** implicits **********
   implicit def convertIntToFactorialRepresentation(i: Int): FactorialRepresentation =
     FactorialRepresentation.fromInt(i)
 
   implicit def convertFactorialRepresentationToInt(fr: FactorialRepresentation): Int =
     fr.toInt
 
+  implicit class ConformalIntegral[I: Integral](n: I){
+
+    def |/|(divisor: I) : I = euclideanDivide(n, divisor)
+    def |%|(divisor: I) : I = euclideanRemainder(n, divisor)
+
+    def ! : I = factorial(n)
+    def !! : I = doubleFactorial(n)
+    def P(r: I): I = Permutation.permutationCount(n, r)
+    def C(r: I): I = Combination.combinationCount(n, r)
+    def H(r: I): I = WithRepetition.combinationCount(n, r)
+
+    def gcd(m: I): I = org.waman.conformal.number.integer.gcd(n, m)
+    def lcm(m: I): I = org.waman.conformal.number.integer.lcm(n, m)
+
+    def mod(m: I)(implicit ms: ModuloSupplier[I]): ModuloNumber[I] =
+      ms(m).apply(n)
+  }
+
+  //********** Euclidian Division **********
   def euclideanDivide[I: Integral](dividend: I, divisor: I): I =
     if(dividend >= 0)     dividend /~ divisor
     else if(divisor > 0) (dividend /~ divisor) - 1
@@ -204,6 +223,11 @@ package object integer {
     denos.foldLeft(nums)((nums, d) => reduceByFactor(nums, d))
          .reduce((x, y) => x * y)
   }
+
+  //********** Modulo **********
+  implicit object IntModuloSupplier extends ModuloSupplier[Int]
+  implicit object LongModuloSupplier extends ModuloSupplier[Long]
+  implicit object BigModuloSupplier extends ModuloSupplier[BigInt]
 
   //********** Binary **********
   def toBinaryInAscendingOrder[I: Integral](n: I): Stream[I] = n match {
