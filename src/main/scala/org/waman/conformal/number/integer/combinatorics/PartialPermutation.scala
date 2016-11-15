@@ -45,6 +45,7 @@ trait PartialPermutation
       that.canEqual(this) &&
         degree == that.degree &&
         properIndices == that.properIndices
+    case _ => false
   }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[PartialPermutation]

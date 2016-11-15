@@ -1,9 +1,9 @@
 package org.waman.conformal.number.integer
 
 import scala.language.postfixOps
-
 import org.waman.conformal.ConformalCustomSpec
 import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
+import org.waman.conformal.number.integer.mod.ModuloNumber
 import org.waman.conformal.tags.ForImplementationInterest
 
 class PackageSpec extends ConformalCustomSpec{
@@ -504,31 +504,6 @@ class PackageSpec extends ConformalCustomSpec{
               sut should equal (expected)
             }
           }
-        }
-      }
-    }
-
-    "Modulo" - {
-
-      "mod method should" - {
-
-        "create ModuloNumber object" in {
-          __Exercise__
-          val sut = 13 mod 7
-          __Verify__
-          sut should be (a [ModuloNumber[_]])
-          sut.module should equal (7)
-          sut.value should equal (6)
-        }
-
-        "memoize Modulo object" in {
-          __SetUp__
-          val x = 3 mod 11
-          val y = 5 mod 11
-          __Exercise__
-          val sut = x.modulo eq y.modulo
-          __Verify__
-          sut should be (true)
         }
       }
     }

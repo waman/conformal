@@ -1,6 +1,7 @@
 package org.waman.conformal.number.integer
 
 import org.waman.conformal.ForImplementationInterest
+import org.waman.conformal.number.integer.mod.{MersenneModulo, MersenneModuloNumber}
 import spire.implicits._
 import spire.math.Integral
 

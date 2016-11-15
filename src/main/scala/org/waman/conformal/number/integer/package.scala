@@ -1,6 +1,7 @@
 package org.waman.conformal.number
 
 import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
+import org.waman.conformal.number.integer.mod.{ModuloNumber, ModuloSupplier}
 import org.waman.conformal.{ForImplementationInterest, groupSequentialDuplicates}
 import spire.implicits._
 import spire.math.Integral
@@ -30,9 +31,6 @@ package object integer {
 
     def gcd(m: I): I = org.waman.conformal.number.integer.gcd(n, m)
     def lcm(m: I): I = org.waman.conformal.number.integer.lcm(n, m)
-
-    def mod(m: I)(implicit ms: ModuloSupplier[I]): ModuloNumber[I] =
-      ms(m).apply(n)
   }
 
   //********** Euclidian Division **********
@@ -223,11 +221,6 @@ package object integer {
     denos.foldLeft(nums)((nums, d) => reduceByFactor(nums, d))
          .reduce((x, y) => x * y)
   }
-
-  //********** Modulo **********
-  implicit object IntModuloSupplier extends ModuloSupplier[Int]
-  implicit object LongModuloSupplier extends ModuloSupplier[Long]
-  implicit object BigModuloSupplier extends ModuloSupplier[BigInt]
 
   //********** Binary **********
   def toBinaryInAscendingOrder[I: Integral](n: I): Stream[I] = n match {

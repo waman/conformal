@@ -160,6 +160,7 @@ trait Permutation extends Combinatorial[Int] with Ordered[Permutation]{
       that.canEqual(this) &&
         degree == that.degree &&
         indices.forall(i => apply(i) == that.apply(i))
+    case _ => false
   }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Permutation]

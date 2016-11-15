@@ -61,6 +61,7 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
     case that: FactorialRepresentation =>
       that.canEqual(this) &&
         coefficientsInDescendant == that.coefficientsInDescendant
+    case _ => false
   }
 
   // TODO: equality to integral values

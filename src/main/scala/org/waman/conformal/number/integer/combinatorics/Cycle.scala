@@ -19,6 +19,7 @@ trait Cycle{
       that.canEqual(this) &&
         length == that.length &&
         elementsWithMinHead == that.elementsWithMinHead
+    case _ => false
   }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Cycle]

@@ -39,6 +39,7 @@ trait Combination
       that.canEqual(this) &&
         degree == that.degree &&
         equalElements(that)  // rank must equal
+    case _ => false
   }
 
   protected def equalElements(that: Combination): Boolean
