@@ -3,7 +3,7 @@ package org.waman.conformal.number.integer.mod
 import org.waman.conformal.ConformalCustomSpec
 import spire.implicits._
 
-class ModuloNumberSpec extends ConformalCustomSpec{
+class ModularNumberSpec extends ConformalCustomSpec{
 
   //    "toInt method should" - {
   //
@@ -55,7 +55,7 @@ class ModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, n: Int) =>
         __SetUp__
-        val mmod = Modulo(p)
+        val mmod = Modulus(p)
         val m = mmod(n)
         val expected = mmod(2**p-1 - n)
         __Exercise__
@@ -82,7 +82,7 @@ class ModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, n: Int) =>
         __SetUp__
-        val mmod = Modulo(p)
+        val mmod = Modulus(p)
         val m = mmod(n)
         val expected = mmod(0)
         __Exercise__
@@ -110,7 +110,7 @@ class ModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, x: Int, y: Int) =>
         __SetUp__
-        val mmod = Modulo(p)
+        val mmod = Modulus(p)
         val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x+y))
         __Exercise__
         val sut = xm + ym
@@ -137,7 +137,7 @@ class ModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, x: Int, y: Int) =>
         __SetUp__
-        val mmod = Modulo(p)
+        val mmod = Modulus(p)
         val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x-y))
         __Exercise__
         val sut = xm - ym
@@ -164,7 +164,7 @@ class ModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, x: Int, y: Int) =>
         __SetUp__
-        val mmod = Modulo(p)
+        val mmod = Modulus(p)
         val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x*y))
         __Exercise__
         val sut = xm * ym
@@ -176,7 +176,7 @@ class ModuloNumberSpec extends ConformalCustomSpec{
 
   "Methods of Any" - {
 
-    val m = Modulo(7)
+    val m = Modulus(7)
     val n = m(3)
 
     "equals() method should" - {
@@ -185,13 +185,13 @@ class ModuloNumberSpec extends ConformalCustomSpec{
         val conversions = Table(
           ("x", "y", "expected"),
           (n, n, true),
-          (n, Modulo(7).apply(3), true),
-          (n, Modulo(11).apply(3), false),
-          (n, Modulo(7).apply(4), false),
-          (n, Modulo(11).apply(4), false)
+          (n, Modulus(7).apply(3), true),
+          (n, Modulus(11).apply(3), false),
+          (n, Modulus(7).apply(4), false),
+          (n, Modulus(11).apply(4), false)
         )
 
-        forAll(conversions){ (x: ModuloNumber[Int], y: ModuloNumber[Int], expected: Boolean) =>
+        forAll(conversions){ (x: ModularNumber, y: ModularNumber, expected: Boolean) =>
           __Exercise__
           val sut = x == y
           __Verify__
@@ -201,8 +201,8 @@ class ModuloNumberSpec extends ConformalCustomSpec{
 
       "return false when two Modulo objects have the same value of module but integral types are different" in {
         __SetUp__
-        val x = Modulo(7).apply(3)
-        val y = Modulo(7L).apply(3L)
+        val x = Modulus(7).apply(3)
+        val y = Modulus(7L).apply(3L)
         __Exercise__
         val sut = x == y
         __Verify__
@@ -216,11 +216,11 @@ class ModuloNumberSpec extends ConformalCustomSpec{
         val conversions = Table(
           ("x", "y"),
           (n, n),
-          (n, Modulo(7).apply(3)),
-          (Modulo(11).apply(5), Modulo(11).apply(5))
+          (n, Modulus(7).apply(3)),
+          (Modulus(11).apply(5), Modulus(11).apply(5))
         )
 
-        forAll(conversions){ (x: ModuloNumber[Int], y: ModuloNumber[Int]) =>
+        forAll(conversions){ (x: ModularNumber, y: ModularNumber) =>
           __Exercise__
           val sut = x.hashCode == y.hashCode
           __Verify__

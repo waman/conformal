@@ -1,7 +1,7 @@
 package org.waman.conformal.number.integer
 
 import org.waman.conformal.ForImplementationInterest
-import org.waman.conformal.number.integer.mod.{MersenneModulo, MersenneModuloNumber}
+import org.waman.conformal.number.integer.mod.{MersenneModulus, MersenneModularNumber}
 import spire.implicits._
 import spire.math.Integral
 
@@ -11,8 +11,8 @@ import spire.math.Integral
   */
 case class MersenneNumber(p: Int){
 
-  def toVal[I: Integral]: I = implicitly[Integral[I]].fromInt(2)**p - 1
-  lazy val toBigInt: BigInt = toVal[BigInt]
+  def valueAs[I: Integral]: I = implicitly[Integral[I]].fromInt(2)**p - 1
+  lazy val toBigInt: BigInt = valueAs[BigInt]
 
   /** Lucas-Lehmer test */
   def isPrime: Boolean = p match {
@@ -30,9 +30,9 @@ case class MersenneNumber(p: Int){
     case 0 | 1 => false
     case 2 => true
     case _ =>
-      val mmod = MersenneModulo(p)
+      val mmod = MersenneModulus(p)
       val v2 = mmod(2)
-      val xs: Seq[MersenneModuloNumber] = Stream.iterate(mmod(4))(x => x*x - v2)
+      val xs: Seq[MersenneModularNumber] = Stream.iterate(mmod(4))(x => x*x - v2)
       xs(p-2).isZero
   }
 }

@@ -3,7 +3,7 @@ package org.waman.conformal.number.integer.mod
 import org.waman.conformal.ConformalCustomSpec
 import spire.implicits._
 
-class MersenneModuloNumberSpec extends ConformalCustomSpec{
+class MersenneModularNumberSpec extends ConformalCustomSpec{
 
   "toInt method should" - {
 
@@ -24,7 +24,7 @@ class MersenneModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, n: Int) =>
         __SetUp__
-        val mmod = MersenneModulo(p)
+        val mmod = MersenneModulus(p)
         val m = mmod(n)
         val expected = n % (2**p-1)
         __Exercise__
@@ -55,7 +55,7 @@ class MersenneModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, n: Int) =>
         __SetUp__
-        val mmod = MersenneModulo(p)
+        val mmod = MersenneModulus(p)
         val m = mmod(n)
         val expected = mmod(2**p-1 - n)
         __Exercise__
@@ -82,7 +82,7 @@ class MersenneModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, n: Int) =>
         __SetUp__
-        val mmod = MersenneModulo(p)
+        val mmod = MersenneModulus(p)
         val m = mmod(n)
         val expected = mmod(0)
         __Exercise__
@@ -110,7 +110,7 @@ class MersenneModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, x: Int, y: Int) =>
         __SetUp__
-        val mmod = MersenneModulo(p)
+        val mmod = MersenneModulus(p)
         val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x+y))
         __Exercise__
         val sut = xm + ym
@@ -137,7 +137,7 @@ class MersenneModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, x: Int, y: Int) =>
         __SetUp__
-        val mmod = MersenneModulo(p)
+        val mmod = MersenneModulus(p)
         val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x-y))
         __Exercise__
         val sut = xm - ym
@@ -164,7 +164,7 @@ class MersenneModuloNumberSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, x: Int, y: Int) =>
         __SetUp__
-        val mmod = MersenneModulo(p)
+        val mmod = MersenneModulus(p)
         val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x*y))
         __Exercise__
         val sut = xm * ym

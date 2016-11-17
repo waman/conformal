@@ -1,4 +1,4 @@
-package org.waman.conformal.number.integer
+package org.waman.conformal.number.integer.mod
 
 import org.waman.conformal.ForImplementationInterest
 import spire.implicits._
@@ -14,14 +14,14 @@ object UIntMersenneNumber{
     case 0 | 1 => false
     case 2 => true
     case _ =>
-      val mmod = UIntMersenneModulo(p)
+      val mmod = UIntMersenneModulus(p)
       val v2 = mmod(2)
-      val xs: Seq[MersenneModuloUInt] = Stream.iterate(mmod(4))(x => x*x - v2)
+      val xs: Seq[MersenneModularUInt] = Stream.iterate(mmod(4))(x => x*x - v2)
       xs(p-2).isZero
   }
 }
 
-case class UIntMersenneModulo(p: Int){
+case class UIntMersenneModulus(p: Int){
 
   require(0 <= p && p <= 32)
 
@@ -34,7 +34,7 @@ case class UIntMersenneModulo(p: Int){
     //  mask = 00...0111
     // ~mask = 11...1000
 
-  def fromUInt(n: UInt): MersenneModuloUInt = {
+  def fromUInt(n: UInt): MersenneModularUInt = {
     @tailrec
     def mod(n: UInt): UInt = n & ~mask32 match {
       case x if x == UInt(0) =>
@@ -42,14 +42,14 @@ case class UIntMersenneModulo(p: Int){
       case x => mod((n & mask32) + (n >>> p))
     }
 
-    MersenneModuloUInt(mod(n), this)
+    MersenneModularUInt(mod(n), this)
   }
 
-  def apply(n: Int): MersenneModuloUInt =
+  def apply(n: Int): MersenneModularUInt =
     if(n < 0) -fromUInt(UInt(-n))
     else       fromUInt(UInt(n))
 
-  def apply(n: Long): MersenneModuloUInt = n match {
+  def apply(n: Long): MersenneModularUInt = n match {
     case _ if n < 0L => -apply(-n)
     case _ =>
       @tailrec
@@ -59,7 +59,7 @@ case class UIntMersenneModulo(p: Int){
         case x => mod((n & mask64) + (n >>> p))
       }
 
-      MersenneModuloUInt(UInt(mod(n)), this)
+      MersenneModularUInt(UInt(mod(n)), this)
   }
 }
 
@@ -67,36 +67,36 @@ case class UIntMersenneModulo(p: Int){
   * The bit property is in ascending order (head is 2**0 digit).
   * This constructor must be used with Seq[Boolean] whose length is p.
   */
-case class MersenneModuloUInt private[integer](digit: UInt, mersenneModulo: UIntMersenneModulo){
+case class MersenneModularUInt private[integer](digit: UInt, mersenneModulo: UIntMersenneModulus){
 
   def p: Int = mersenneModulo.p
 
   def isZero: Boolean = this.digit == UInt(0)
   def isOne : Boolean = this.digit == UInt(1)
 
-  def unary_- : MersenneModuloUInt =
+  def unary_- : MersenneModularUInt =
     if(this.isZero) this
-    else            MersenneModuloUInt(mersenneModulo.mask32 & ~digit, mersenneModulo)
+    else            MersenneModularUInt(mersenneModulo.mask32 & ~digit, mersenneModulo)
 
-  def +(that: MersenneModuloUInt): MersenneModuloUInt =
+  def +(that: MersenneModularUInt): MersenneModularUInt =
     if(this.isZero) that
     else if(that.isZero) this
     else calculateSum(that)
 
-  private def calculateSum(that: MersenneModuloUInt): MersenneModuloUInt =
+  private def calculateSum(that: MersenneModularUInt): MersenneModularUInt =
     this.mersenneModulo(this.digit.toLong + that.digit.toLong)
 
-  def -(that: MersenneModuloUInt): MersenneModuloUInt =
+  def -(that: MersenneModularUInt): MersenneModularUInt =
     if(this.isZero) -that
     else if(that.isZero) this
     else this + (-that)
 
-  def *(that: MersenneModuloUInt): MersenneModuloUInt =
+  def *(that: MersenneModularUInt): MersenneModularUInt =
     if(this.isZero | that.isOne) this
     else if(this.isOne | that.isZero) that
     else calculateProduct(that)
 
-  private def calculateProduct(that: MersenneModuloUInt): MersenneModuloUInt =
+  private def calculateProduct(that: MersenneModularUInt): MersenneModularUInt =
     this.mersenneModulo(this.digit.toLong * that.digit.toLong)
 
   def toInt: Int = this.digit.toInt

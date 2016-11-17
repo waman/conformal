@@ -33,7 +33,7 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
 //  def previous: FactorialRepresentation = this - FactorialRepresentation.One
 
   //***** Conversions to other types *****
-  def toVal[@spec(Int, Long) I: Integral]: I = {
+  def valueAs[@spec(Int, Long) I: Integral]: I = {
     @tailrec
     def toVal(accum: I, cs: Seq[Int], n: Int): I = n match {
       case 0 => accum
@@ -43,8 +43,8 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
     toVal(0, coefficientsInDescendant, order)
   }
 
-  def toInt: Int = toVal[Int]
-  def toLong: Long = toVal[Long]
+  def toInt: Int = valueAs[Int]
+  def toLong: Long = valueAs[Long]
 
   //***** Methods of Any *****
   override def toString: String = coefficientsInDescendant match {

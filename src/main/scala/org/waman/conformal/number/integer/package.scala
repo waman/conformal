@@ -1,7 +1,7 @@
 package org.waman.conformal.number
 
 import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
-import org.waman.conformal.number.integer.mod.{ModuloNumber, ModuloSupplier}
+import org.waman.conformal.number.integer.mod.{ModularNumber, ModulusSupplier}
 import org.waman.conformal.{ForImplementationInterest, groupSequentialDuplicates}
 import spire.implicits._
 import spire.math.Integral

@@ -1,4 +1,4 @@
-package org.waman.conformal.number.integer
+package org.waman.conformal.number.integer.mod
 
 import org.scalactic.TypeCheckedTripleEquals
 import org.waman.conformal.ConformalCustomSpec
@@ -6,7 +6,7 @@ import org.waman.conformal.tags.ForImplementationInterest
 import spire.implicits._
 import spire.math.UInt
 
-class UIntMersenneModuloSpec
+class UIntMersenneModulusSpec
     extends ConformalCustomSpec with TypeCheckedTripleEquals{
 
   "UIntMersenneNumber object" - {
@@ -37,7 +37,7 @@ class UIntMersenneModuloSpec
     }
   }
 
-  "UIntMersenneModulo class" - {
+  "UIntMersenneModulus class" - {
 
     "modulus method should" - {
 
@@ -50,7 +50,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, expected: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           __Exercise__
           val sut = mmod.modulus
           __Verify__
@@ -61,7 +61,7 @@ class UIntMersenneModuloSpec
 
     "fromUInt" - {
 
-      "create MersenneModuloUInt object by a UInt Parameter" in {
+      "create MersenneModularUInt object by a UInt Parameter" in {
         val conversions = Table(
           ("p", "n"),
           (3, 0),  // p=3 => mod 7
@@ -89,7 +89,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val expected = UInt(n % (2**p-1))
           __Exercise__
           val sut = mmod.fromUInt(UInt(n))
@@ -103,7 +103,7 @@ class UIntMersenneModuloSpec
 
     "apply factory method should" - {
 
-      "create MersenneModuloUInt object by a positive Int Parameter" in {
+      "create MersenneModularUInt object by a positive Int Parameter" in {
         val conversions = Table(
           ("p", "n"),
           (3, 0),  // p=3 => mod 7
@@ -131,7 +131,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val expected = UInt(n % (2**p-1))
           __Exercise__
           val sut = mmod(n)
@@ -141,7 +141,7 @@ class UIntMersenneModuloSpec
         }
       }
 
-      "create UIntMersenneModuloNumber object by a negative Int Parameter" in {
+      "create MersenneModularUInt object by a negative Int Parameter" in {
         val conversions = Table(
           ("p", "n"),
           (3, -1),
@@ -158,7 +158,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p) // for p = 3, n = -2
+          val mmod = UIntMersenneModulus(p) // for p = 3, n = -2
           val mn = 2**p-1                  // mn = 2^3-1 = 7
           val e = mn - (-n) % mn     // e = 7-(2%7) = 5
           val expected = if(e == mn) UInt(0) else UInt(e)
@@ -170,7 +170,7 @@ class UIntMersenneModuloSpec
         }
       }
 
-      "create UIntMersenneModuloNumber object by a positive Long parameter" in {
+      "create MersenneModularUInt object by a positive Long parameter" in {
         val conversions = Table(
           ("p", "n"),
           (3, 0), // p=3 => mod 7
@@ -198,7 +198,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions) { (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val expected = UInt(n % (2 ** p - 1))
           __Exercise__
           val sut = mmod(n.toLong)
@@ -208,7 +208,7 @@ class UIntMersenneModuloSpec
         }
       }
 
-      "create UIntMersenneModuloNumber object by a negative Long parameter" in {
+      "create MersenneModularUInt object by a negative Long parameter" in {
         val conversions = Table(
           ("p", "n"),
           (3, -1),
@@ -222,7 +222,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions) { (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p) // for p = 3, n = -2
+          val mmod = UIntMersenneModulus(p) // for p = 3, n = -2
           val mn = 2L**p-1L                // mn = 2^3-1 = 7
           val e = mn - (-n) % mn           // e = 7-(2%7) = 5
           val expected = if(e == mn) UInt(0) else UInt(e)
@@ -236,7 +236,7 @@ class UIntMersenneModuloSpec
     }
   }
 
-  "MersenneModuloUInt class" - {
+  "MersenneModularUInt class" - {
 
     "toInt method should" - {
 
@@ -257,7 +257,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val m = mmod(n)
           val expected = n % (2**p-1)
           __Exercise__
@@ -288,7 +288,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val m = mmod(n)
           val expected = mmod(2**p-1 - n)
           __Exercise__
@@ -315,7 +315,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, n: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val m = mmod(n)
           val expected = mmod(0)
           __Exercise__
@@ -343,7 +343,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, x: Int, y: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x+y))
           __Exercise__
           val sut = xm + ym
@@ -370,7 +370,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, x: Int, y: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x-y))
           __Exercise__
           val sut = xm - ym
@@ -397,7 +397,7 @@ class UIntMersenneModuloSpec
 
         forAll(conversions){ (p: Int, x: Int, y: Int) =>
           __SetUp__
-          val mmod = UIntMersenneModulo(p)
+          val mmod = UIntMersenneModulus(p)
           val (xm, ym, expected) = (mmod(x), mmod(y), mmod(x*y))
           __Exercise__
           val sut = xm * ym
@@ -409,7 +409,7 @@ class UIntMersenneModuloSpec
 
     "Methods of Any" - {
 
-      val mmod = UIntMersenneModulo(3)
+      val mmod = UIntMersenneModulus(3)
       val m = mmod(4)
 
       val conversions = Table(
@@ -427,7 +427,7 @@ class UIntMersenneModuloSpec
 
         "work well" in {
 
-          forAll(conversions){ (x: MersenneModuloUInt, y: MersenneModuloUInt, expected: Boolean) =>
+          forAll(conversions){ (x: MersenneModularUInt, y: MersenneModularUInt, expected: Boolean) =>
             __Exercise__
             val sut = x == y
             __Verify__
@@ -440,7 +440,7 @@ class UIntMersenneModuloSpec
 
         "work well" in {
 
-          forAll(conversions){ (x: MersenneModuloUInt, y: MersenneModuloUInt, expected: Boolean) =>
+          forAll(conversions){ (x: MersenneModularUInt, y: MersenneModularUInt, expected: Boolean) =>
             if(expected){
               __Exercise__
               val sut = x.hashCode == y.hashCode

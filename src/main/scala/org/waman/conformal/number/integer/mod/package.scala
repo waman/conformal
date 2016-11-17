@@ -4,14 +4,12 @@ import spire.math.Integral
 
 package object mod {
 
-  implicit class ConformalModuloNumber[I: Integral](n: I){
+  implicit class ConformalModularNumber[I: Integral](n: I){
 
-    def mod(m: I)(implicit ms: ModuloSupplier[I]): ModuloNumber[I] =
-      ms(m).apply(n)
+    def mod[J: Integral](modulus: J)(implicit ms: ModulusSupplier): ModularNumber =
+      ms(modulus).apply(n)
   }
 
   //********** Modulo **********
-  implicit object IntModuloSupplier extends ModuloSupplier[Int]
-  implicit object LongModuloSupplier extends ModuloSupplier[Long]
-  implicit object BigModuloSupplier extends ModuloSupplier[BigInt]
+  implicit object ModulusCache extends ModulusSupplier
 }

@@ -1,13 +1,12 @@
 package org.waman.conformal.number.integer.mod
 
 import org.waman.conformal.ConformalCustomSpec
-import spire.implicits._
 
-class ModuloSpec extends ConformalCustomSpec{
+class ModulusSpec extends ConformalCustomSpec{
 
   "apply method should" - {
 
-    "create ModuloNumber object" in {
+    "create ModularNumber object" in {
       val conversions = Table(
         ("m", "n", "expected"),
         (7, 0, 0),
@@ -43,18 +42,18 @@ class ModuloSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (m: Int, n: Int, expected: Int) =>
         __SetUp__
-        val mod = Modulo(m)
+        val mod = Modulus(m)
         __Exercise__
         val sut = mod(n)
         __Verify__
-        sut.value should equal (expected)
+        sut.valueAs[Int] should equal (expected)
       }
     }
   }
 
   "Methods of Any" - {
 
-      val m = Modulo(7)
+      val m = Modulus(7)
 
       "equals() method should" - {
 
@@ -62,11 +61,11 @@ class ModuloSpec extends ConformalCustomSpec{
           val conversions = Table(
             ("x", "y", "expected"),
             (m, m, true),
-            (m, Modulo(7), true),
-            (m, Modulo(3), false)
+            (m, Modulus(7), true),
+            (m, Modulus(3), false)
           )
 
-          forAll(conversions){ (x: Modulo[Int], y: Modulo[Int], expected: Boolean) =>
+          forAll(conversions){ (x: Modulus, y: Modulus, expected: Boolean) =>
             __Exercise__
             val sut = x == y
             __Verify__
@@ -76,8 +75,8 @@ class ModuloSpec extends ConformalCustomSpec{
 
         "return false when two Modulo objects have the same value of module but integral types are different" in {
           __SetUp__
-          val x = Modulo(7)
-          val y = Modulo(7L)
+          val x = Modulus(7)
+          val y = Modulus(7L)
           __Exercise__
           val sut = x == y
           __Verify__
@@ -91,11 +90,11 @@ class ModuloSpec extends ConformalCustomSpec{
           val conversions = Table(
             ("x", "y"),
             (m, m),
-            (m, Modulo(7)),
-            (Modulo(11), Modulo(11))
+            (m, Modulus(7)),
+            (Modulus(11), Modulus(11))
           )
 
-          forAll(conversions){ (x: Modulo[Int], y: Modulo[Int]) =>
+          forAll(conversions){ (x: Modulus, y: Modulus) =>
             __Exercise__
             val sut = x.hashCode == y.hashCode
             __Verify__

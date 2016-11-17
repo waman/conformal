@@ -2,11 +2,11 @@ package org.waman.conformal.number.integer.mod
 
 import org.waman.conformal.ConformalCustomSpec
 
-class MersenneModuloSpec extends ConformalCustomSpec{
+class MersenneModulusSpec extends ConformalCustomSpec{
 
   "apply method should" - {
 
-    "create MersenneModuloNumber object" in {
+    "create MersenneModularNumber object" in {
       val conversions = Table(
         ("p", "n", "expected"),
         (3, 0, 0),  // p=3 => mod 7
@@ -42,7 +42,7 @@ class MersenneModuloSpec extends ConformalCustomSpec{
 
       forAll(conversions){ (p: Int, n: Int, expected: Int) =>
         __SetUp__
-        val mmod = MersenneModulo(p)
+        val mmod = MersenneModulus(p)
         __Exercise__
         val sut = mmod(n)
         __Verify__
