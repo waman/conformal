@@ -100,16 +100,17 @@ class CombinationSpec extends ConformalCustomSpec{
 
     "== operator should" - {
 
-      "evaluate equality of combinations" in {
+      "evaluate equality with the argument" in {
         val conversions = Table(
           ("p0", "p1", "expected"),
           (combination, combination, true),
           (combination, Combination(4, Set(3, 0, 1)), true),
           (combination, Combination(4, Set(3, 0, 2)), false),
-          (combination, Combination(5, Set(3, 0, 1)), false)
+          (combination, Combination(5, Set(3, 0, 1)), false),
+          (combination, Set(3, 0, 1), false)
         )
 
-        forAll(conversions){ (p0: Combination, p1: Combination, expected: Boolean) =>
+        forAll(conversions){ (p0: Any, p1: Any, expected: Boolean) =>
           __Exercise__
           val sut = p0 == p1
           __Verify__

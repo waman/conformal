@@ -1,20 +1,16 @@
 package org.waman.conformal.number.integer.mod
 
+import org.waman.conformal.number.integer.ScalaIntegralNumber
 import spire.math.Integral
 
-trait ModularNumber{ lhs =>
+import scala.math.{ScalaNumber, ScalaNumericConversions}
+
+@SerialVersionUID(0L)
+abstract class ModularNumber
+    extends ScalaIntegralNumber with Serializable{ lhs =>
 
   def modulus: Modulus
   def modulusAs[I: Integral]: I = modulus.valueAs[I]
-  def valueAs[I: Integral]: I
-
-//  /** Create ModuloNumber object with the row value */
-//  protected def create(value: I): ModuloNumber
-//  /** Create ModuloNumber object with the value modified */
-//  protected def build(value: I): ModuloNumber
-
-  def isZero: Boolean
-  def isOne : Boolean
 
   protected def matchModules(rhs: ModularNumber): Unit =
     require(lhs.modulus == rhs.modulus,
@@ -53,10 +49,7 @@ trait ModularNumber{ lhs =>
 
   protected def calculateProduct(rhs: ModularNumber): ModularNumber
 
-  //  def toInt: Int = value.toInt
-  //  def toLong: Long = lhs.toLong
-  //  def toBigInt: BigInt = lhs.toBigInt
-
+  //***** Methods of Any *****
   override def equals(other: Any): Boolean =
     other match {
       case that: ModularNumber =>
@@ -67,12 +60,10 @@ trait ModularNumber{ lhs =>
     }
 
   protected def hasTheSameValueAs(that: ModularNumber): Boolean
-
   def canEqual(other: Any): Boolean = other.isInstanceOf[ModularNumber]
 
   override def hashCode: Int
 
-  override def toString: String = s"$valueAsString (mod $modulus)"
-
+  override def toString: String = s"$valueAsString (mod ${modulus.valueAsString})"
   protected def valueAsString: String
 }

@@ -7,7 +7,8 @@ import scala.annotation.tailrec
 import scala.collection.LinearSeq
 import scala.{specialized => spec}
 
-class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
+class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int])
+    extends ScalaIntegralNumber with BigIntScalaIntegralNumber{
 
   def order: Int = coefficientsInDescendant.length
   def coefficient(n: Int): Int =  coefficientsInDescendant(order - n)
@@ -33,7 +34,10 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
 //  def previous: FactorialRepresentation = this - FactorialRepresentation.One
 
   //***** Conversions to other types *****
-  def valueAs[@spec(Int, Long) I: Integral]: I = {
+  // TODO
+  override def value = valueAs[BigInt]
+
+  override def valueAs[@spec(Int, Long) I: Integral]: I = {
     @tailrec
     def toVal(accum: I, cs: Seq[Int], n: Int): I = n match {
       case 0 => accum
@@ -43,8 +47,8 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
     toVal(0, coefficientsInDescendant, order)
   }
 
-  def toInt: Int = valueAs[Int]
-  def toLong: Long = valueAs[Long]
+  override def toInt: Int = valueAs[Int]
+  override def toLong: Long = valueAs[Long]
 
   //***** Methods of Any *****
   override def toString: String = coefficientsInDescendant match {
@@ -73,8 +77,8 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int]) {
 object FactorialRepresentation{
 
   //***** Constants *****
-  val Zero = fromInt(0)
-  val One = fromInt(1)
+  val Zero: FactorialRepresentation = fromInt(0)
+  val One : FactorialRepresentation = fromInt(1)
 
   /**
     * descendant

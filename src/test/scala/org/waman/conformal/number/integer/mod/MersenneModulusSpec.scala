@@ -41,13 +41,11 @@ class MersenneModulusSpec extends ConformalCustomSpec{
       )
 
       forAll(conversions){ (p: Int, n: Int, expected: Int) =>
-        __SetUp__
-        val mmod = MersenneModulus(p)
         __Exercise__
-        val sut = mmod(n)
+        val sut = n mmod p
         __Verify__
         sut.p should equal (p)
-        sut.value should equal (expected)
+        sut.toInt should equal (expected)
       }
     }
   }

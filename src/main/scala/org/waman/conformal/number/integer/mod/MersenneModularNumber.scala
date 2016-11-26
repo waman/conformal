@@ -2,9 +2,9 @@ package org.waman.conformal.number.integer.mod
 
 import spire.math.Integral
 
-class MersenneModularNumber private[integer](val modulus: MersenneModulus, val value: BigInt)
-    extends ModularNumber{ lhs =>
+abstract class MersenneModularNumber extends ModularNumber{ lhs =>
 
+  def modulus: MersenneModulus
   def p: Int = modulus.p
   private def mask = modulus.mask
 
@@ -12,66 +12,39 @@ class MersenneModularNumber private[integer](val modulus: MersenneModulus, val v
     require(lhs.p == rhs.p,
       s"Modulus of two numbers must be the same value: 2^${lhs.p}-1 and 2^${rhs.p}-1")
 
-  override def isZero: Boolean = value == BigInt(0)
-  override def isOne : Boolean = value == BigInt(1)
-
   override def unary_- : MersenneModularNumber =
     if(isZero) this
     else       calculateNegate
 
-  override protected def calculateNegate: MersenneModularNumber =
-    modulus.create(value ^ mask)
+  override protected def calculateNegate: MersenneModularNumber
 
   def +(rhs: MersenneModularNumber): MersenneModularNumber = {
     matchExponentsOfModules(rhs)
     if (lhs.isZero) rhs
     else if (rhs.isZero) lhs
-    else calculateSum(rhs.value)
+    else calculateSum(rhs)
   }
 
-  private def calculateSum(rhs: BigInt): MersenneModularNumber
-  = modulus(lhs.value + rhs)
+  protected def calculateSum(rhs: ModularNumber): MersenneModularNumber
 
   def -(rhs: MersenneModularNumber): MersenneModularNumber = {
     matchExponentsOfModules(rhs)
     if (lhs.isZero) -rhs
     else if (rhs.isZero) lhs
-    else calculateDifference(rhs.value)
+    else calculateDifference(rhs)
   }
 
-  private def calculateDifference(rhs: BigInt): MersenneModularNumber =
-    modulus(lhs.value - rhs)
+  protected def calculateDifference(rhs: ModularNumber): MersenneModularNumber
 
   def *(rhs: MersenneModularNumber): MersenneModularNumber = {
     matchExponentsOfModules(rhs)
     if (lhs.isZero | rhs.isOne) lhs
     else if (lhs.isOne | rhs.isZero) rhs
-    else calculateProduct(rhs.value)
+    else calculateProduct(rhs)
   }
 
-  private def calculateProduct(rhs: BigInt): MersenneModularNumber =
-    modulus(lhs.value * rhs)
+  protected def calculateProduct(rhs: ModularNumber): MersenneModularNumber
 
-  //*********** Methods Inherited from ModuloNumber **********
-  override protected def calculateSum(rhs: ModularNumber) =
-    calculateSum(rhs.valueAs[BigInt])
-
-  override protected def calculateDifference(rhs: ModularNumber) =
-    calculateDifference(rhs.valueAs[BigInt])
-
-  override protected def calculateProduct(rhs: ModularNumber) =
-    calculateProduct(rhs.valueAs[BigInt])
-
-  //********** Type Conversions **********
-  def valueAs[I: Integral]: I = implicitly[Integral[I]].fromBigInt(value)
-  def toInt: Int = value.toInt
-  def toLong: Long = value.toLong
-  def toBigInt: BigInt = value
-
-  override protected def hasTheSameValueAs(that: ModularNumber) =
-    this.value == that.valueAs[BigInt]
-
-  override def hashCode = (modulus, value).##
-  override protected def valueAsString = value.toString
-  override def toString: String = s"$value (mod 2^$p-1)"
+  //********** Methods of Any **********
+  override def toString: String = s"$valueAsString (mod 2^$p-1)"
 }

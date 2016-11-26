@@ -30,9 +30,9 @@ case class MersenneNumber(p: Int){
     case 0 | 1 => false
     case 2 => true
     case _ =>
-      val mmod = MersenneModulus(p)
-      val v2 = mmod(2)
-      val xs: Seq[MersenneModularNumber] = Stream.iterate(mmod(4))(x => x*x - v2)
+      val m = MersenneModulus(p)
+      val v2 = m(2)
+      val xs: Seq[MersenneModularNumber] = Stream.iterate(m(4))(x => x*x - v2)
       xs(p-2).isZero
   }
 }

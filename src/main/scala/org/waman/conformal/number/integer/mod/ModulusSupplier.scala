@@ -13,4 +13,8 @@ abstract class ModulusSupplier{
   }
 
   def apply[I: Integral](m: I): Modulus = cache(m)
+
+  private lazy val mCache: Int => MersenneModulus = memoize(MersenneModulus(_))
+
+  def mersenne(p: Int): MersenneModulus = mCache(p)
 }

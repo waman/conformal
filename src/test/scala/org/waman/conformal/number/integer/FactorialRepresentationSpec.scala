@@ -104,17 +104,24 @@ class FactorialRepresentationSpec extends ConformalCustomSpec{
 
   "Methods of Any" - {
 
-    "equals() method should" - {
+    val fr = FactorialRepresentation(3, 1, 2, 0, 0)
 
-      "return true when the arg is the equivalent value even if they are the different objects" in {
-        __SetUp__
-        val fr0 = FactorialRepresentation(3, 1, 2, 0, 0)
-        val fr1 = FactorialRepresentation(3, 1, 2, 0, 0)
-        assume( !fr0.eq(fr1) )
-        __Exercise__
-        val sut = fr0 == fr1
-        __Verify__
-        sut should be (true)
+    "== operator should" - {
+
+      "evaluate equality with the argument" in {
+        val conversions = Table(
+          ("x", "y", "expected"),
+          (fr, fr, true),
+          (fr, FactorialRepresentation(3, 1, 2, 0, 0), true),
+          (fr, Seq(3, 1, 2, 0, 0), false)
+        )
+
+        forAll(conversions){ (x: Any, y: Any, expected: Boolean) =>
+          __Exercise__
+          val sut = x == y
+          __Verify__
+          sut should be (expected)
+        }
       }
     }
 
@@ -123,10 +130,8 @@ class FactorialRepresentationSpec extends ConformalCustomSpec{
       "return the same value when the two objects are the equivalent value even if different objects" in {
         __SetUp__
         val fr0 = FactorialRepresentation(3, 1, 2, 0, 0)
-        val fr1 = FactorialRepresentation(3, 1, 2, 0, 0)
-        assume( fr0 == fr1 )
         __Exercise__
-        val sut = fr0.hashCode == fr1.hashCode
+        val sut = fr.hashCode == fr0.hashCode
         __Verify__
         sut should be (true)
       }

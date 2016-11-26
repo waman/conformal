@@ -1,10 +1,10 @@
 package org.waman.conformal.number.integer
 
-import scala.language.postfixOps
 import org.waman.conformal.ConformalCustomSpec
 import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
-import org.waman.conformal.number.integer.mod.ModularNumber
 import org.waman.conformal.tags.ForImplementationInterest
+
+import scala.language.postfixOps
 
 class PackageSpec extends ConformalCustomSpec{
 

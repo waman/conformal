@@ -414,23 +414,26 @@ class PermutationSpec extends ConformalCustomSpec{
       }
     }
 
-    "equals() method should" - {
+    "== operator should" - {
 
       "return true when the two permutation are equivalent even if not the same objects" in {
         val conversions =
           Table(
-            ("p0", "p1"),
-            (perm, perm),
-            (perm, Permutation(3, 1, 0, 2)),
-            (id, Permutation(0, 1, 2, 3)),
-            (prod, Permutation(1, 0, 3, 2)),
-            (inv, Permutation(2, 1, 3, 0)),
-            (permPI, perm)
+            ("p0", "p1", "expected"),
+            (perm, perm, true),
+            (perm, Permutation(3, 1, 0, 2), true),
+            (id, Permutation(0, 1, 2, 3), true),
+            (prod, Permutation(1, 0, 3, 2), true),
+            (inv, Permutation(2, 1, 3, 0), true),
+            (permPI, perm, true),
+            (perm, Seq(3, 1, 0, 2), false)
           )
 
-        forAll(conversions) { (p0: Permutation, p1: Permutation) =>
+        forAll(conversions) { (p0: Any, p1: Any, expected: Boolean) =>
+          __Exercise__
+          val sut = p0 == p1
           __Verify__
-          p0 should equal(p1)
+          sut should equal(expected)
         }
       }
     }

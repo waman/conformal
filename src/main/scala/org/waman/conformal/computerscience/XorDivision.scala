@@ -63,7 +63,7 @@ object XorDivision{
 
   class ConstantDividend(val dividend: Int){
 
-    val dividendLength = binaryLength(dividend)
+    val dividendLength: Int = binaryLength(dividend)
 
     def remainder(divisor: Int): Int = {
       val divisorLength = binaryLength(divisor)
@@ -76,8 +76,8 @@ object XorDivision{
 
   class ConstantDivisor(val divisor: Int){
 
-    val divisorLength = binaryLength(divisor)
-    val placeFilter   = 1 << (divisorLength-1)
+    val divisorLength: Int = binaryLength(divisor)
+    val placeFilter  : Int = 1 << (divisorLength-1)
 
     def remainder(dividend: Int): Int =
       XorDivision.remainder(dividend, binaryLength(dividend), divisor, divisorLength, placeFilter)

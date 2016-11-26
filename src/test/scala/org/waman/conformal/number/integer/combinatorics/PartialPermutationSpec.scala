@@ -97,19 +97,22 @@ class PartialPermutationSpec extends ConformalCustomSpec{
       }
     }
 
-    "equals() method should" - {
+    "== operator should" - {
 
-      "return true when the two partial permutation are equivalent even if not the same objects" in {
+      "evaluate equality with the argument" in {
         val conversions =
           Table(
-            ("p0", "p1"),
-            (perm, perm),
-            (perm, PartialPermutation(4)(3, 0, 1))
+            ("p0", "p1", "expected"),
+            (perm, perm, true),
+            (perm, PartialPermutation(4)(3, 0, 1), true),
+            (perm, Seq(3, 0, 1), false)
           )
 
-        forAll(conversions) { (p0: PartialPermutation, p1: PartialPermutation) =>
+        forAll(conversions) { (p0: Any, p1: Any, expected: Boolean) =>
+          __Exercise__
+          val sut = p0 == p1
           __Verify__
-          p0 should equal(p1)
+          sut should equal(expected)
         }
       }
     }

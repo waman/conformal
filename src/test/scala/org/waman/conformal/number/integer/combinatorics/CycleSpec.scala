@@ -65,21 +65,24 @@ class CycleSpec extends ConformalCustomSpec{
       }
     }
 
-    "equals() method should" - {
+    "== operator should" - {
 
-      "return true when the two cycles are equivalent even if not the same objects" in {
+      "evaluate equality with the argument" in {
         val conversions =
           Table(
-            ("c0", "c1"),
-            (cycle, cycle),
-            (cycle, Cycle(0, 1, 3)),
-            (cycle, Cycle(1, 3, 0)),
-            (cycle, Cycle(3, 0, 1))
+            ("c0", "c1", "expected"),
+            (cycle, cycle, true),
+            (cycle, Cycle(0, 1, 3), true),
+            (cycle, Cycle(1, 3, 0), true),
+            (cycle, Cycle(3, 0, 1), true),
+            (cycle, Seq(0, 1, 3), false)
           )
 
-        forAll(conversions) { (c0: Cycle, c1: Cycle) =>
+        forAll(conversions) { (c0: Any, c1: Any, expected: Boolean) =>
+          __Exercise__
+          val sut = c0 == c1
           __Verify__
-          c0 should equal(c1)
+          sut should equal(expected)
         }
       }
     }

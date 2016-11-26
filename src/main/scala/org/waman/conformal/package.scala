@@ -52,12 +52,12 @@ package object conformal {
   def indexOfMin[T: Ordering](seq: Seq[T]): Int =
     seq.zipWithIndex.minBy(_._1)._2
 
-  def groupSequentialDuplicates[A](seq: Seq[A]): Stream[(A, Int)] = seq.isEmpty match {
-    case true  => Stream()
-    case false =>
-      val head = seq.head
-      val dup = seq.takeWhile(_ == head)
-      val n = dup.length
-      (head, n) #:: groupSequentialDuplicates(seq.drop(n))
-  }
+  def groupSequentialDuplicates[A](seq: Seq[A]): Stream[(A, Int)] =
+    seq match {
+      case Nil => Stream()
+      case head +: _ =>
+        val dup = seq.takeWhile(_ == head)
+        val n = dup.length
+        (head, n) #:: groupSequentialDuplicates(seq.drop(n))
+    }
 }

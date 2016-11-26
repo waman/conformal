@@ -27,18 +27,16 @@ trait CRC extends Checksum[Byte, Int] {
   }
 
   @tailrec
-  protected final def processBytes(r: Int, bytes: LinearSeq[Byte]): Int = bytes.isEmpty match {
-    case true  => r
-    case false => processBytes(processOneByte(r, bytes.head), bytes.tail)
-  }
+  protected final def processBytes(r: Int, bytes: LinearSeq[Byte]): Int =
+    if(bytes.isEmpty) r
+    else              processBytes(processOneByte(r, bytes.head), bytes.tail)
 
   protected final def processBytes(r: Int, bytes: Seq[Byte], n: Int): Int = {
     // bytes.length may not equal n
     @tailrec
-    def processBytesWithIndex(r: Int, i: Int): Int = i < n match {
-      case true  => processBytesWithIndex(processOneByte(r, bytes(i)), i+1)
-      case false => r
-    }
+    def processBytesWithIndex(r: Int, i: Int): Int =
+      if(i < n) processBytesWithIndex(processOneByte(r, bytes(i)), i+1)
+      else      r
 
     processBytesWithIndex(r, 0)
   }
@@ -57,7 +55,7 @@ trait CRC extends Checksum[Byte, Int] {
   }
 
   //***** IO *****
-  val bufferSize = 1024 * 32
+  val bufferSize: Int = 1024 * 32
 
   def calculateChecksum(path: String): Int = calculateChecksum(Paths.get(path))
 
@@ -163,7 +161,7 @@ trait NormalBitOrder{ self: CRC =>
 
 trait NormalBitOrderWithTable extends NormalBitOrder{ self: CRC =>
 
-  def tableSize = 1 << CRC.BitsPerByte
+  def tableSize: Int = 1 << CRC.BitsPerByte
 
   lazy val table: Seq[Int] = (0 until tableSize).map{ i =>
     val r = i << (bitCount - CRC.BitsPerByte)
@@ -180,7 +178,7 @@ trait ReversedBitOrder extends CRC{ self: CRC =>
   override protected def sumToChecksum(sum: Int): Int = sum ^ mask
   override protected def testSum(sum: Int): Boolean = (sum ^ mask) == 0
 
-  override lazy val divisor = CRC.reverseBits(divisorInNormalOrder, bitCount)
+  override lazy val divisor: Int = CRC.reverseBits(divisorInNormalOrder, bitCount)
   def divisorInNormalOrder: Int
 
   override protected def processOneByte(r: Int, b: Byte): Int =
@@ -207,7 +205,7 @@ trait ReversedBitOrder extends CRC{ self: CRC =>
 
 trait ReversedBitOrderWithTable extends ReversedBitOrder{ self: CRC =>
 
-  def tableLength = 1 << CRC.BitsPerByte
+  def tableLength: Int = 1 << CRC.BitsPerByte
 
   lazy val table: Seq[Int] = (0 until tableLength).map{ r =>
     processBits(r , CRC.BitsPerByte) & mask
