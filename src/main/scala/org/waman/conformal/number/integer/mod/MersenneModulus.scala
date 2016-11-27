@@ -60,18 +60,22 @@ object MersenneModulus{
       def maxLong = algebra.fromLong(Long.MaxValue)
 
       n match {
-        case _ if n < 0        => -apply(-n)
+        case _ if n < 0        =>
+          n match {
+            case _ if n == Int.MinValue  => -fromLong(Int.MaxValue + 1L)
+            case _ if n == Long.MinValue => -fromBigInt(BigInt(Long.MaxValue) + 1)
+            case _ => -apply(-n)
+          }
+
         case _ if n <= maxInt  => fromInt(n.toInt)
         case _ if n <= maxLong => fromLong(n.toLong)
         case _                 => fromBigInt(n.toBigInt)
       }
     }
 
-    private[mod] def fromInt(n: Int): MersenneModularNumber
-    private[mod] def fromLong(n: Long): MersenneModularNumber
-    private[mod] def fromBigInt(n: BigInt): MersenneModularNumber
-
-    private[mod] def create[I: Integral](n: I): MersenneModularNumber
+    protected def fromInt(n: Int): MersenneModularNumber
+    protected def fromLong(n: Long): MersenneModularNumber
+    protected def fromBigInt(n: BigInt): MersenneModularNumber
   }
 
   private[mod] class IntMersenneModulus(p: Int)
@@ -79,12 +83,11 @@ object MersenneModulus{
 
     override def value: Int = 2**p-1
 
-    override private[mod] def fromInt(n: Int): MersenneModularNumber = ???
-    override private[mod] def fromLong(n: Long): MersenneModularNumber = ???
-    override private[mod] def fromBigInt(n: BigInt): MersenneModularNumber = ???
+    override protected def fromInt(n: Int) = create(n % value)
+    override protected def fromLong(n: Long) = create((n % value).toInt)
+    override protected def fromBigInt(n: BigInt) = create((n % value).toInt)
 
-    override private[mod] def create[I: Integral](n: I): MersenneModularNumber =
-      new ModularInt(this, n.toInt)
+    private def create(n: Int) = new ModularInt(this, n)
 
     override protected def hasTheSameValueAs(that: Modulus): Boolean =
       toInt == that.toInt
@@ -95,11 +98,11 @@ object MersenneModulus{
 
     override def value: Long = 2L**p-1L
 
-    override private[mod] def fromInt(n: Int): MersenneModularNumber = ???
-    override private[mod] def fromLong(n: Long): MersenneModularNumber = ???
-    override private[mod] def fromBigInt(n: BigInt): MersenneModularNumber = ???
+    override protected def fromInt(n: Int) = create(n)
+    override protected def fromLong(n: Long) = create(n % value)
+    override protected def fromBigInt(n: BigInt) = create((n % value).toLong)
 
-    override private[mod] def create[I: Integral](n: I) = new ModularLong(this, n.toLong)
+    private def create(n: Long) = new ModularLong(this, n)
 
     override protected def hasTheSameValueAs(that: Modulus): Boolean =
       toLong == that.toLong
@@ -125,12 +128,11 @@ object MersenneModulus{
 //      separateByPBits(n.toBigInt).map(create(_)).reduce(_ + _)
 //    }
 
-    override private[mod] def fromInt(n: Int): MersenneModularNumber = ???
-    override private[mod] def fromLong(n: Long): MersenneModularNumber = ???
-    override private[mod] def fromBigInt(n: BigInt): MersenneModularNumber = ???
+    override protected def fromInt(n: Int) = create(n)
+    override protected def fromLong(n: Long) = create(n)
+    override protected def fromBigInt(n: BigInt) = create(n % value)
 
-    override private[mod] def create[I: Integral](n: I): ModularBigInt =
-      new ModularBigInt(this, n.toBigInt)
+    private def create(n: BigInt) = new ModularBigInt(this, n)
 
     override protected def hasTheSameValueAs(that: Modulus): Boolean =
       toBigInt == that.toBigInt
@@ -140,40 +142,49 @@ object MersenneModulus{
   private[mod] class ModularInt(val modulus: IntMersenneModulus, val value: Int)
     extends MersenneModularNumber with IntScalaIntegralNumber{ lhs =>
 
-    override protected def calculateNegate: MersenneModularNumber =
-      modulus.create(value ^ modulus.toInt)
+    private def create(n: Int) = new ModularInt(modulus, n)
 
-    override protected def calculateSum(rhs: ModularNumber): MersenneModularNumber = {
+    override protected def calculateNegate =
+      create(value ^ modulus.toInt)
+
+    override protected def calculateSum(rhs: ModularNumber) = {
       val sum = (UInt(lhs.toInt) + UInt(rhs.toInt)) % UInt(value.toInt)
-      modulus.create(sum.toInt)
+      create(sum.toInt)
     }
 
-    override protected def calculateDifference(rhs: ModularNumber): MersenneModularNumber =
-      modulus.fromInt(value - rhs.toInt)
+    override protected def calculateDifference(rhs: ModularNumber) =
+      lhs.toInt - rhs.toInt match {
+        case x if x >= 0 => create(x)
+        case x           => create(x + value)
+      }
 
-    override protected def calculateProduct(rhs: ModularNumber): MersenneModularNumber =
-      modulus(value * rhs.toInt)
+    override protected def calculateProduct(rhs: ModularNumber) = {
+      val prod = (lhs.toLong * rhs.toLong) % value.toLong
+      create(prod.toInt)
+    }
 
-    override protected def hasTheSameValueAs(that: ModularNumber): Boolean =
+    override protected def hasTheSameValueAs(that: ModularNumber) =
       value == that.toInt
 
-    override def hashCode: Int = (modulus, value).##
-    override protected def valueAsString: String = value.toString
+    override def hashCode = (modulus, value).##
+    override protected def valueAsString = value.toString
   }
 
   private[mod] class ModularLong(val modulus: LongMersenneModulus, val value: Long)
       extends MersenneModularNumber with LongScalaIntegralNumber{
 
-    override protected def calculateNegate: MersenneModularNumber =
-      modulus.create(value ^ modulus.toLong)
+    private def create[I: Integral](n: I) = new ModularLong(modulus, n.toLong)
 
-    override protected def calculateSum(rhs: ModularNumber): MersenneModularNumber =
+    override protected def calculateNegate =
+      create(value ^ modulus.toLong)
+
+    override protected def calculateSum(rhs: ModularNumber) =
       modulus(value + rhs.toLong)
 
-    override protected def calculateDifference(rhs: ModularNumber): MersenneModularNumber
+    override protected def calculateDifference(rhs: ModularNumber)
       = modulus(value - rhs.toLong)
 
-    override protected def calculateProduct(rhs: ModularNumber): MersenneModularNumber =
+    override protected def calculateProduct(rhs: ModularNumber) =
       modulus(value * rhs.toLong)
 
     override protected def hasTheSameValueAs(that: ModularNumber): Boolean =
@@ -186,17 +197,19 @@ object MersenneModulus{
   private[mod] class ModularBigInt(val modulus: BigIntMersenneModulus, val value: BigInt)
       extends MersenneModularNumber with BigIntScalaIntegralNumber{
 
-    override protected def calculateNegate: MersenneModularNumber =
-      modulus.create(value ^ modulus.mask)
+    private def create(n: BigInt) = new ModularBigInt(modulus, n)
 
-    override protected def calculateSum(rhs: ModularNumber): MersenneModularNumber =
-      modulus.fromBigInt(value + rhs.toBigInt)
+    override protected def calculateNegate =
+      create(value ^ modulus.mask)
 
-    override protected def calculateDifference(rhs: ModularNumber): MersenneModularNumber =
-      modulus.fromBigInt(value - rhs.toBigInt)
+    override protected def calculateSum(rhs: ModularNumber) =
+      create(value + rhs.toBigInt)
 
-    override protected def calculateProduct(rhs: ModularNumber): MersenneModularNumber =
-      modulus.fromBigInt(value * rhs.toBigInt)
+    override protected def calculateDifference(rhs: ModularNumber) =
+      create(value - rhs.toBigInt)
+
+    override protected def calculateProduct(rhs: ModularNumber) =
+      create(value * rhs.toBigInt)
 
     override protected def hasTheSameValueAs(that: ModularNumber): Boolean =
       value == that.toBigInt

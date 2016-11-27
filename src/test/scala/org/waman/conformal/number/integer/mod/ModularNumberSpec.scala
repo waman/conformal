@@ -6,7 +6,10 @@ import spire.syntax.literals.si._
 
 class ModularNumberSpec extends ConformalCustomSpec{
 
+  val maxInt = BigInt(Int.MaxValue)
+  val minInt = BigInt(Int.MinValue)
   val maxLong = BigInt(Long.MaxValue)
+  val minLong = BigInt(Long.MinValue)
 
   "unary_- method should" - {
 
@@ -16,29 +19,36 @@ class ModularNumberSpec extends ConformalCustomSpec{
         (7, 0, 0),
         (7, 1, 6),
         (7, 2, 5),
+        (7, 3, 4),
+        (7, 4, 3),
+        (7, 5, 2),
         (7, 6, 1),
 
         (7, 7, 0),
         (7, 8, 6),
-        (7, Int.MaxValue, 0),
 
         (7, -1, 1),
         (7, -2, 2),
-        (7, Int.MinValue, 0),
+
+        (7, Int.MaxValue, Int.MaxValue % 7),
+        (7, Int.MinValue, 6 - Int.MaxValue % 7),
+
 
         (Int.MaxValue, 0, 0),
-        (Int.MaxValue, Int.MaxValue - 7, 7),
-        (Int.MaxValue, Int.MaxValue, 0)
+        (Int.MaxValue, 1, 1),
+        (Int.MaxValue, -1, Int.MaxValue - 1),
+
+        (Int.MaxValue, Int.MaxValue, 0),
+        (Int.MaxValue, Int.MinValue, 6)
       )
 
-      forAll(conversions){ (m: Int, n: Int, e: Int) =>
+      forAll(conversions){ (m: Int, n: Int, expected: Int) =>
         __SetUp__
         val mn = n mod m
-        val expected = e mod m
         __Exercise__
         val sut = -mn
         __Verify__
-        sut should equal (expected)
+        sut.toInt should equal (expected)
       }
     }
 
@@ -46,42 +56,66 @@ class ModularNumberSpec extends ConformalCustomSpec{
       val conversions = Table(
         ("m", "n", "expected"),
         (Int.MaxValue + 7L, 0L, 0L),
-        (Int.MaxValue + 7L, 71L, Int.MaxValue - 64L),
+        (Int.MaxValue + 7L, 1L, Int.MaxValue + 6L),
+        (Int.MaxValue + 7L, -1L, 1L),
 
-        (Long.MaxValue - 7L, 0L, 0L),
-        (Long.MaxValue - 7L, 142L, Long.MaxValue - 149L),
+        (Int.MaxValue + 7L, Int.MaxValue.toLong, 7L),
+        (Int.MaxValue + 7L, Int.MaxValue + 1L  , 6L),
+        (Int.MaxValue + 7L, Int.MinValue.toLong, Int.MaxValue + 1L),
+        (Int.MaxValue + 7L, Int.MinValue - 1L  , Int.MaxValue + 2L),
+
+        (Int.MaxValue + 7L, Long.MaxValue, Int.MaxValue + 7L - Long.MaxValue % (Int.MaxValue + 7L)),
+        (Int.MaxValue + 7L, Long.MinValue, Long.MaxValue % (Int.MaxValue + 7L) + 1L),
+
 
         (Long.MaxValue, 0L, 0L),
-        (Long.MaxValue, Long.MaxValue - 7L, 7L),
-        (Long.MaxValue, Long.MaxValue, 0L)
+        (Long.MaxValue, 1L, Long.MaxValue - 1L),
+        (Long.MaxValue, -1L, 1L),
+
+        (Long.MaxValue, Int.MaxValue.toLong, Long.MaxValue - Int.MaxValue),
+        (Long.MaxValue, Int.MaxValue + 1L  , Long.MaxValue - Int.MaxValue - 1L),
+        (Long.MaxValue, Int.MinValue.toLong, Int.MaxValue + 1L),
+        (Long.MaxValue, Int.MinValue - 1L  , Int.MaxValue + 2L),
+
+        (Long.MaxValue, Long.MaxValue, 0L),
+        (Long.MaxValue, Long.MinValue, 1L)
       )
 
-      forAll(conversions){ (m: Long, n: Long, e: Long) =>
+      forAll(conversions){ (m: Long, n: Long, expected: Long) =>
         __SetUp__
         val mn = n mod m
-        val expected = e mod m
         __Exercise__
         val sut = -mn
         __Verify__
-        sut should equal (expected)
+        sut.toLong should equal (expected)
       }
     }
 
     "return the additive-inverse element of the argument (BigInt modulus)" in {
       val conversions = Table(
         ("m", "n", "expected"),
-        (maxLong + 7, big"0", big"0"),
-        (maxLong + 7, big"71", Long.MaxValue - big"64")
+        (maxLong + 7, BigInt(0), BigInt(0)),
+        (maxLong + 7, BigInt(1), maxLong + 6),
+        (maxLong + 7, BigInt(-1), BigInt(1)),
+
+        (maxLong + 7, maxInt, maxLong - maxInt + 7),
+        (maxLong + 7, maxInt + 1, maxLong - maxInt + 6),
+        (maxLong + 7, minInt, maxInt + 1),
+        (maxLong + 7, minInt - 1, maxInt + 2),
+
+        (maxLong + 7, maxLong, BigInt(7)),
+        (maxLong + 7, maxLong + 1, BigInt(6)),
+        (maxLong + 7, minLong, maxLong + 1),
+        (maxLong + 7, minLong - 1, maxLong + 2)
       )
 
-      forAll(conversions){ (m: BigInt, n: BigInt, e: BigInt) =>
+      forAll(conversions) { (m: BigInt, n: BigInt, expected: BigInt) =>
         __SetUp__
         val mn = n modulo m
-        val expected = e modulo m
         __Exercise__
         val sut = -mn
         __Verify__
-        sut should equal (expected)
+        sut.toBigInt should equal(expected)
       }
     }
   }

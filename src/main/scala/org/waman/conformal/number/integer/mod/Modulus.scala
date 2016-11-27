@@ -89,10 +89,10 @@ object Modulus{
       extends ModulusAdapter with IntScalaIntegralNumber{
 
     override protected def fromInt(n: Int) = create(n % value)
-    override protected def fromLong(n: Long) = create(n % value.toLong)
-    override protected def fromBigInt(n: BigInt) = create(n % value.toBigInt)
+    override protected def fromLong(n: Long) = create((n % value).toInt)
+    override protected def fromBigInt(n: BigInt) = create((n % value).toInt)
 
-    private def create[I: Integral](n: I) = new ModularInt(this, n.toInt)
+    private def create(n: Int) = new ModularInt(this, n)
 
     override protected def hasTheSameValueAs(that: Modulus) =
       toInt == that.toInt
@@ -108,9 +108,9 @@ object Modulus{
 
     override protected def fromInt(n: Int) = create(n)
     override protected def fromLong(n: Long) = create(n % value)
-    override protected def fromBigInt(n: BigInt) = create(n % value.toBigInt)
+    override protected def fromBigInt(n: BigInt) = create((n % value).toLong)
 
-    private def create[I: Integral](n: I) = new ModularLong(this, n.toLong)
+    private def create(n: Long) = new ModularLong(this, n)
 
     override protected def hasTheSameValueAs(that: Modulus) =
       toLong == that.toLong
@@ -124,9 +124,11 @@ object Modulus{
     
     require(!value.isValidLong)
 
-    override protected def fromInt(n: Int) = new ModularBigInt(this, BigInt(n))
-    override protected def fromLong(n: Long) = new ModularBigInt(this, BigInt(n))
-    override protected def fromBigInt(n: BigInt) = new ModularBigInt(this, n % value)
+    override protected def fromInt(n: Int) = create(n)
+    override protected def fromLong(n: Long) = create(n)
+    override protected def fromBigInt(n: BigInt) = create(n % value)
+
+    private def create(n: BigInt) = new ModularBigInt(this, n)
 
     override protected def hasTheSameValueAs(that: Modulus) =
       toBigInt == that.toBigInt
@@ -205,10 +207,8 @@ object Modulus{
 
     override protected def calculateNegate = create(modulus.value - value)
 
-    override protected def calculateSum(rhs: ModularNumber) = {
-      val sum = (lhs.toBigInt + rhs.toBigInt) % value
-      create(sum)
-    }
+    override protected def calculateSum(rhs: ModularNumber) =
+      create((lhs.toBigInt + rhs.toBigInt) % value)
 
     override protected def calculateDifference(rhs: ModularNumber) =
       lhs.toBigInt - rhs.toBigInt match {
@@ -216,10 +216,8 @@ object Modulus{
         case x           => create(x + value)
       }
 
-    override protected def calculateProduct(rhs: ModularNumber) = {
-      val prod = (lhs.toBigInt * rhs.toBigInt) % value
-      create(prod)
-    }
+    override protected def calculateProduct(rhs: ModularNumber) =
+      create((lhs.toBigInt * rhs.toBigInt) % value)
 
     override protected def hasTheSameValueAs(rhs: ModularNumber) =
       lhs.toBigInt == rhs.toBigInt
