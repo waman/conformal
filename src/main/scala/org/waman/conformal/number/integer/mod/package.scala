@@ -6,20 +6,21 @@ package object mod {
 
   implicit class ConformalModularNumber[I: Integral](n: I){
 
-    def mod[J: Integral](modulus: J)(implicit ms: ModulusSupplier): ModularNumber =
-      ms(modulus).apply(n)
-
     /** This method is equivalent to mod() method (defined to be usable to BigInt) */
-    def modulo[J: Integral](modulus: J)(implicit ms: ModulusSupplier): ModularNumber =
-      mod(modulus)
+//    def modulo[J: Integral](m: J): ModularNumber = ModularNumber(n, m.toBigInt)  // StackOverflow
+    def modulo(m: Int): ModularNumber = ModularNumber(n, m)
+    def modulo(m: Long): ModularNumber = ModularNumber(n, m)
+    def modulo(m: BigInt): ModularNumber = ModularNumber(n, m)
 
-    def mmod(modulus: Int)(implicit ms: ModulusSupplier): MersenneModularNumber =
-      ms.mersenne(modulus).apply(n)
+    /** ~% is equivalent to modulo (mod). */
+    final def ~%(m: Int): ModularNumber = modulo(m)
+    final def ~%(m: Long): ModularNumber = modulo(m)
+    final def ~%(m: BigInt): ModularNumber = modulo(m)
+
+//    def mmod(modulus: Int): MersenneModularNumber =
+//      ms.mersenne(modulus).apply(n)
 
     def ≡(m: I): ResultOfCongruence[I] = equiv(m)
     def equiv(m: I): ResultOfCongruence[I] = new ResultOfCongruence(n, m)
   }
-
-  //********** Modulo **********
-  implicit object ModulusCache extends ModulusSupplier
 }

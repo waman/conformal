@@ -1,7 +1,6 @@
 package org.waman.conformal.number
 
 import org.waman.conformal.number.integer.combinatorics.{Combination, Permutation, WithRepetition}
-import org.waman.conformal.number.integer.mod.{ModularNumber, ModulusSupplier}
 import org.waman.conformal.{ForImplementationInterest, groupSequentialDuplicates}
 import spire.implicits._
 import spire.math.Integral
@@ -20,8 +19,12 @@ package object integer {
 
   implicit class ConformalIntegral[I: Integral](n: I){
 
-    def |/|(divisor: I) : I = euclideanDivide(n, divisor)
-    def |%|(divisor: I) : I = euclideanRemainder(n, divisor)
+    def |/%|(divisor: I): (I, I) = euclideanDivide(n, divisor)
+    def |/|(divisor: I): I = |/%|(divisor)._1
+    /** The result is in the range [0, divisor) (different from % operator) */
+    def |%|(divisor: I): I = |/%|(divisor)._2
+    /** mod is equivalent to |%| (This is similar to BigInt.mod method)*/
+    final def mod(divisor: I): I = |%|(divisor)
 
     def ! : I = factorial(n)
     def !! : I = doubleFactorial(n)
@@ -33,16 +36,22 @@ package object integer {
     def lcm(m: I): I = org.waman.conformal.number.integer.lcm(n, m)
   }
 
-  //********** Euclidian Division **********
-  def euclideanDivide[I: Integral](dividend: I, divisor: I): I =
-    if(dividend >= 0)     dividend /~ divisor
-    else if(divisor > 0) (dividend /~ divisor) - 1
-    else                 (dividend /~ divisor) + 1
-
-  def euclideanRemainder[I: Integral](dividend: I, divisor: I): I =
-    if(dividend >= 0)     dividend % divisor
-    else if(divisor > 0) (dividend % divisor) + divisor
-    else                 (dividend % divisor) - divisor
+  //********** Euclidean Division **********
+  def euclideanDivide[I: Integral](dividend: I, divisor: I): (I, I) = {
+    val (q, r) = dividend /% divisor
+    if(dividend >= 0) (q, r)
+    else if(divisor > 0){
+      r match {
+        case 0 => (q, 0)
+        case _ => (q - 1, r + divisor)
+      }
+    }else{
+      r match {
+        case 0 => (q, 0)
+        case _ => (q + 1, r - divisor)
+      }
+    }
+  }
 
   //********** Factorization **********
   def flatFactorize[I: Integral](n: I): Seq[I] = {

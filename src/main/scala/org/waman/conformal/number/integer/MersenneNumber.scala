@@ -1,7 +1,6 @@
 package org.waman.conformal.number.integer
 
 import org.waman.conformal.ForImplementationInterest
-import org.waman.conformal.number.integer.mod.{MersenneModulus, MersenneModularNumber}
 import spire.implicits._
 import spire.math.Integral
 
@@ -24,15 +23,15 @@ case class MersenneNumber(p: Int){
       seq(p - 2) == 0
   }
 
-  @ForImplementationInterest
-  private[integer]
-  def isPrime2: Boolean = p match {
-    case 0 | 1 => false
-    case 2 => true
-    case _ =>
-      val m = MersenneModulus(p)
-      val v2 = m(2)
-      val xs: Seq[MersenneModularNumber] = Stream.iterate(m(4))(x => x*x - v2)
-      xs(p-2).isZero
-  }
+//  @ForImplementationInterest
+//  private[integer]
+//  def isPrime2: Boolean = p match {
+//    case 0 | 1 => false
+//    case 2 => true
+//    case _ =>
+//      val m = MersenneModulus(p)
+//      val v2 = m(2)
+//      val xs: Seq[MersenneModularNumber] = Stream.iterate(m(4))(x => x*x - v2)
+//      xs(p-2).isZero
+//  }
 }
