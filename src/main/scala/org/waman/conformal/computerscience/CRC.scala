@@ -28,8 +28,11 @@ trait CRC extends Checksum[Byte, Int] {
 
   @tailrec
   protected final def processBytes(r: Int, bytes: LinearSeq[Byte]): Int =
-    if(bytes.isEmpty) r
-    else              processBytes(processOneByte(r, bytes.head), bytes.tail)
+    bytes match {
+      case Nil => r
+      case head +: tail =>
+        processBytes(processOneByte(r, head), tail)
+    }
 
   protected final def processBytes(r: Int, bytes: Seq[Byte], n: Int): Int = {
     // bytes.length may not equal n
@@ -55,7 +58,7 @@ trait CRC extends Checksum[Byte, Int] {
   }
 
   //***** IO *****
-  val bufferSize: Int = 1024 * 32
+  val bufferSize: Int = 1024 * CRC.BitsPerInt
 
   def calculateChecksum(path: String): Int = calculateChecksum(Paths.get(path))
 
@@ -80,8 +83,8 @@ trait CRC extends Checksum[Byte, Int] {
 
 object CRC{
 
-  val BitsPerByte: Int = 8
-  val BitsPerInt: Int  = 32
+  val BitsPerByte: Int = java.lang.Byte.SIZE
+  val BitsPerInt: Int  = java.lang.Integer.SIZE
 
   def getMask(bit: Int): Int = (2L**bit-1L).toInt // 0xFFFF for 16 bits, 0xFFFFFFFF for 32 bits
 
@@ -91,7 +94,7 @@ object CRC{
     val s = (powers.max to 0 by -1).map{
       case d if powers.contains(d) => 1
       case _ => 0
-    }.mkString("")
+    }.mkString
 
     Integer.valueOf(s, 2)
   }
