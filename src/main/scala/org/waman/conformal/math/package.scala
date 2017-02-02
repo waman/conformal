@@ -1,6 +1,6 @@
 package org.waman.conformal
 
-import spire.algebra.{Semiring, Trig}
+import spire.algebra.{NRoot, Semiring, Trig}
 import spire.math.Complex
 
 import scala.language.implicitConversions
@@ -8,6 +8,12 @@ import scala.language.implicitConversions
 package object math {
 
   implicit def convertToComplex[T: Semiring](x: T): Complex[T] = Complex(x)
+
+  //***** NRoot *****
+  def nroot[T](x: T, n: Int)(implicit t: NRoot[T]): T = t.nroot(x, n)
+  def sqrt[T](x: T)(implicit t: NRoot[T]): T = t.sqrt(x)
+  def cbrt[T](x: T)(implicit t: NRoot[T]): T = t.nroot(x, 3)
+  def fpow[T](x: T, y: T)(implicit t: NRoot[T]): T = t.fpow(x, y)
 
   //***** Trig *****
   def e[T](implicit t: Trig[T]): T = t.e

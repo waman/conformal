@@ -1,6 +1,7 @@
 <component name="ProjectDictionaryState">
   <dictionary name="higashida">
     <words>
+      <w>cbrt</w>
       <w>ccitt</w>
       <w>combinatorials</w>
       <w>combinatorics</w>
@@ -10,6 +11,7 @@
       <w>derangements</w>
       <w>derengements</w>
       <w>expm</w>
+      <w>fpow</w>
       <w>frac</w>
       <w>github</w>
       <w>heptagonals</w>

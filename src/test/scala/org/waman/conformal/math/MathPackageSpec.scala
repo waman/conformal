@@ -28,6 +28,42 @@ class MathPackageSpec extends ConformalCustomSpec{
     }
   }
 
+  "NRoot functions" - {
+
+    "sqrt method" - {
+
+      "for Double" in {
+        __SetUp__
+        val d: Double = 3.0
+        val expected = Math.sqrt(d)
+        __Exercise__
+        val sut = sqrt(d)
+        __Verify__
+        sut should equal (expected)
+      }
+    }
+
+    "for Real" in {
+      __SetUp__
+      val r = Real(3)
+      val expected = r.sqrt()
+      __Exercise__
+      val sut = sqrt(r)
+      __Verify__
+      sut should equal (expected)
+    }
+
+    "for Complex[Double]" in {
+      __SetUp__
+      val c = Complex(3.0)
+      val expected = c.sqrt
+      __Exercise__
+      val sut = sqrt(c)
+      __Verify__
+      sut should equal (expected)
+    }
+  }
+
   "Trig constants and functions" - {
 
     "e method" - {
