@@ -10,7 +10,7 @@ class MersenneModularNumber private(val value: BigInt, val p: Int, val modulus: 
 
   def this(value: BigInt, p: Int) = this(value, p, BigInt(2)**p - 1)
 
-  override def modulusAs[A](implicit A: Numeric[A]) = A.fromBigInt(modulus)
+  override def modulusAs[A](implicit a: Numeric[A]) = a.fromBigInt(modulus)
   def modulusAsMersenneNumber: MersenneNumber = MersenneNumber(p)
 
   override def bigIntValue = value

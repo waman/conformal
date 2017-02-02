@@ -8,7 +8,7 @@ import spire.math.{Integral, Numeric, UInt, ULong}
 abstract class ModularNumber
     extends SpireIntegralNumber with Serializable{ lhs =>
 
-  def modulusAs[A](implicit A: Numeric[A]): A
+  def modulusAs[A](implicit a: Numeric[A]): A
 
   protected def matchModulus(rhs: ModularNumber): Unit =
     require(hasTheSameModulusAs(rhs),
@@ -111,7 +111,7 @@ object ModularNumber{
   private[mod] class ModularInt(val intValue: Int, val modulus: Int)
       extends ModularNumber with IntSpireIntegralNumber{ lhs =>
 
-    override def modulusAs[A](implicit A: Numeric[A]) = A.fromInt(modulus)
+    override def modulusAs[A](implicit a: Numeric[A]) = a.fromInt(modulus)
 
     private def create(n: Int) = new ModularInt(n, modulus)
 
@@ -148,7 +148,7 @@ object ModularNumber{
   private[mod] class ModularLong(val longValue: Long, val modulus: Long)
     extends ModularNumber with LongSpireIntegralNumber{ lhs =>
 
-    override def modulusAs[A](implicit A: Numeric[A]) = A.fromLong(modulus)
+    override def modulusAs[A](implicit a: Numeric[A]) = a.fromLong(modulus)
 
     private def create(n: Long) = new ModularLong(n, modulus)
 
@@ -187,7 +187,7 @@ object ModularNumber{
   private[mod] class ModularBigInt(val bigIntValue: BigInt, val modulus: BigInt)
     extends ModularNumber with BigIntSpireIntegralNumber{ lhs =>
 
-    override def modulusAs[A](implicit A: Numeric[A]) = A.fromBigInt(modulus)
+    override def modulusAs[A](implicit a: Numeric[A]) = a.fromBigInt(modulus)
 
     private def create(n: BigInt) = new ModularBigInt(n, modulus)
 

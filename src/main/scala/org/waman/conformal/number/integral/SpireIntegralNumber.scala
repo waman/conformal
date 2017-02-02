@@ -33,7 +33,7 @@ trait IntSpireIntegralNumber{ self: SpireIntegralNumber =>
   override def rationalValue = intValue.toRational
   override def realValue = intValue.toReal
 
-  override def valueAs[A](implicit A: Numeric[A]) = A.fromInt(intValue)
+  override def valueAs[A](implicit a: Numeric[A]) = a.fromInt(intValue)
 
   override def isValidInt = true
   override def isValidLong = true
@@ -53,7 +53,7 @@ trait LongSpireIntegralNumber{ self: SpireIntegralNumber =>
   override def rationalValue = longValue.toRational
   override def realValue = Real(longValue)
 
-  override def valueAs[A](implicit A: Numeric[A]) = A.fromLong(longValue)
+  override def valueAs[A](implicit a: Numeric[A]) = a.fromLong(longValue)
 
   override def isValidLong = true
 
@@ -72,7 +72,7 @@ trait BigIntSpireIntegralNumber{ self: SpireIntegralNumber =>
   override def rationalValue = bigIntValue.toRational
   override def realValue = Real(bigIntValue)
 
-  override def valueAs[A](implicit A: Numeric[A]) = A.fromBigInt(toBigInt)
+  override def valueAs[A](implicit a: Numeric[A]) = a.fromBigInt(toBigInt)
 
   override def isZero = toBigInt.isZero
   override def isOne  = toBigInt.isOne
