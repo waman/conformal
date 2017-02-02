@@ -2,14 +2,13 @@ package org.waman.conformal.number.integral.mod
 
 import org.waman.conformal.number.integral._
 import spire.implicits._
-import spire.math.{Integral, UInt, ULong}
+import spire.math.{Integral, Numeric, UInt, ULong}
 
 @SerialVersionUID(0L)
 abstract class ModularNumber
     extends SpireIntegralNumber with Serializable{ lhs =>
 
-  def valueAs[I: Integral]: I
-  def modulusAs[I: Integral]: I
+  def modulusAs[A](implicit A: Numeric[A]): A
 
   protected def matchModulus(rhs: ModularNumber): Unit =
     require(hasTheSameModulusAs(rhs),
@@ -109,20 +108,10 @@ object ModularNumber{
   }
 
   //***** ModuloNumbers *****
-  private[mod] abstract class ModularNumberAdapter[I: Integral] extends ModularNumber{
-
-    def modulus: I
-    def value: I
-
-    override def hashCode = (value, modulus).##
-    override def toString = s"$value (mod $modulus)"
-  }
-
   private[mod] class ModularInt(val intValue: Int, val modulus: Int)
-      extends ModularNumberAdapter[Int] with IntSpireIntegralNumber{ lhs =>
+      extends ModularNumber with IntSpireIntegralNumber{ lhs =>
 
-    override def valueAs[I: Integral] = implicitly[Integral[I]].fromInt(intValue)
-    override def modulusAs[I: Integral] = implicitly[Integral[I]].fromInt(modulus)
+    override def modulusAs[A](implicit A: Numeric[A]) = A.fromInt(modulus)
 
     private def create(n: Int) = new ModularInt(n, modulus)
 
@@ -151,13 +140,15 @@ object ModularNumber{
       case rhs: ModularInt => lhs.modulus == rhs.modulus
       case _ => modulus == that.modulusAs[Int]
     }
+
+    override def hashCode = (intValue, modulus).##
+    override def toString = s"$intValue (mod $modulus)"
   }
 
   private[mod] class ModularLong(val longValue: Long, val modulus: Long)
-    extends ModularNumberAdapter[Long] with LongSpireIntegralNumber{ lhs =>
+    extends ModularNumber with LongSpireIntegralNumber{ lhs =>
 
-    override def valueAs[I: Integral] = implicitly[Integral[I]].fromLong(longValue)
-    override def modulusAs[I: Integral] = implicitly[Integral[I]].fromLong(modulus)
+    override def modulusAs[A](implicit A: Numeric[A]) = A.fromLong(modulus)
 
     private def create(n: Long) = new ModularLong(n, modulus)
 
@@ -188,13 +179,15 @@ object ModularNumber{
       case rhs: ModularLong => lhs.modulus == rhs.modulus
       case _ => modulus == that.modulusAs[Long]
     }
+
+    override def hashCode = (longValue, modulus).##
+    override def toString = s"$longValue (mod $modulus)"
   }
 
   private[mod] class ModularBigInt(val bigIntValue: BigInt, val modulus: BigInt)
-    extends ModularNumberAdapter[BigInt] with BigIntSpireIntegralNumber{ lhs =>
+    extends ModularNumber with BigIntSpireIntegralNumber{ lhs =>
 
-    override def valueAs[I: Integral] = implicitly[Integral[I]].fromBigInt(bigIntValue)
-    override def modulusAs[I: Integral] = implicitly[Integral[I]].fromBigInt(modulus)
+    override def modulusAs[A](implicit A: Numeric[A]) = A.fromBigInt(modulus)
 
     private def create(n: BigInt) = new ModularBigInt(n, modulus)
 
@@ -216,5 +209,8 @@ object ModularNumber{
       case rhs: ModularBigInt => lhs.modulus == rhs.modulus
       case _ => modulus == that.modulusAs[BigInt]
     }
+
+    override def hashCode = (bigIntValue, modulus).##
+    override def toString = s"$bigIntValue (mod $modulus)"
   }
 }

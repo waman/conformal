@@ -37,7 +37,7 @@ class FactorialRepresentation private (val coefficientsInDescendant: Seq[Int])
   // TODO
   override def bigIntValue = valueAs[BigInt]
 
-  override def valueAs[@spec(Int, Long) I: Integral]: I = {
+  def valueAs[@spec(Int, Long) I: Integral]: I = {
     @tailrec
     def toVal(accum: I, cs: Seq[Int], n: Int): I = n match {
       case 0 => accum

@@ -84,7 +84,7 @@ package object integral {
   }
 
   @ForImplementationInterest
-  private[integral$]
+  private[integral]
   def factorial1(i: Long): Long = i match {
     case 0L | 1L => 1L
     case _ => (2L to i).product
@@ -103,7 +103,7 @@ package object integral {
   }
 
   @ForImplementationInterest
-  private[integral$]
+  private[integral]
   def doubleFactorial1(i: Long): Long = i match {
     case 0L | 1L => 1L
     case _ => (i to 2L by -2L).product
@@ -128,7 +128,7 @@ package object integral {
   }
 
   @ForImplementationInterest
-  private[integral$]
+  private[integral]
   def gcd2[I: Integral](m: I, n: I): I = {
     require(m > 0 && n > 0)
     if(m == 1 || n == 1) return 1

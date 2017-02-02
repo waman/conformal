@@ -1,9 +1,9 @@
 package org.waman.conformal.number.integral
 
-import org.scalactic.ConversionCheckedTripleEquals
+import org.scalactic.TypeCheckedTripleEquals
 import org.waman.conformal.ConformalCustomSpec
 
-class PrimeNumberSpec extends ConformalCustomSpec with ConversionCheckedTripleEquals{
+class PrimeNumberSpec extends ConformalCustomSpec with TypeCheckedTripleEquals{
 
   val primes = Seq(
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97)

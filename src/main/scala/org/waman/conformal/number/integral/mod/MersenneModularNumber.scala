@@ -1,16 +1,16 @@
 package org.waman.conformal.number.integral.mod
 
-import org.waman.conformal.number.integral.MersenneNumber
+import org.waman.conformal.number.integral.{BigIntSpireIntegralNumber, MersenneNumber}
 import spire.implicits._
-import spire.math.Integral
+import spire.math.{Integral, Numeric}
 
+// TODO Rewrite arithemetic operations by bit operations
 class MersenneModularNumber private(val value: BigInt, val p: Int, val modulus: BigInt)
-    extends ModularNumber{ lhs =>
+    extends ModularNumber with BigIntSpireIntegralNumber{ lhs =>
 
   def this(value: BigInt, p: Int) = this(value, p, BigInt(2)**p - 1)
 
-  override def valueAs[I: Integral] = implicitly[Integral[I]].fromBigInt(value)
-  override def modulusAs[I: Integral] = implicitly[Integral[I]].fromBigInt(modulus)
+  override def modulusAs[A](implicit A: Numeric[A]) = A.fromBigInt(modulus)
   def modulusAsMersenneNumber: MersenneNumber = MersenneNumber(p)
 
   override def bigIntValue = value
