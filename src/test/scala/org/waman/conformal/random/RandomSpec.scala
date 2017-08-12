@@ -1,5 +1,7 @@
 package org.waman.conformal.random
 
+
+import spire.math._
 import spire.implicits._
 import org.waman.conformal.ConformalCustomSpec
 
@@ -25,7 +27,7 @@ class RandomSpec extends ConformalCustomSpec{
       }
     }
 
-    "test" in {
+    "test means and variances of components" in {
       val nSamples = 10000
       val n = 3
       val zero: Seq[Double] = Seq.fill(n)(0.0)
@@ -35,6 +37,34 @@ class RandomSpec extends ConformalCustomSpec{
       val result: Summary = samples.foldLeft(init)( (s, data) => s.append(data) )
 
       println(result)
+    }
+
+    "test" in {
+
+      case class Vector(elements: Seq[Double]){
+        def -(w: Vector): Vector =
+          Vector((elements zip w.elements).map{ case (x, y) => x - y })
+
+        def norm: Double = sqrt(elements.map(_**2).sum)
+      }
+
+      val nSample = 1000
+      val n = 3
+      val dim = 2**n
+
+      val zero = Seq.fill(dim)(0.0)
+      val basisVectors: Seq[Vector] = (0 until dim).map{ i => Vector(zero.updated(i, 1.0)) }
+
+      def dif(v: Vector): Double = basisVectors.map(basis => (v - basis).norm).sum
+
+      val stream: Stream[Vector] =
+        Stream.fill(nSample)(Random.newPointOnSphere[Double](dim)).map(Vector)
+      val min = stream.map(dif).min
+      println(min)
+      println()
+
+      println( "a_j = 1  : " + ((dim-1)*sqrt(2)) )
+      println( "a_j = a_k: " + (sqrt(2) * dim * sqrt(1 - 1/(sqrt(2)**n))) )
     }
   }
 }
