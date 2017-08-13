@@ -42,7 +42,7 @@ class HermitePolynomialSpec extends ConformalCustomSpec{
 
   "stream method should" - {
 
-    "return Stream object of Hermite polynomials" in {
+    "return a Stream object of Hermite polynomials" in {
       __SetUp__
       val expected = SpecialPolynomials.physHermites[Rational](20)
       __Exercise__

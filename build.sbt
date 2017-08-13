@@ -5,7 +5,7 @@ version := "0.3"
 organization := "org.waman.conformal"
 
 scalaVersion := "2.12.1"
-sbtVersion := "0.13.13"
+sbtVersion := "1.0.0"
 
 
 //***** Custom settings *****
