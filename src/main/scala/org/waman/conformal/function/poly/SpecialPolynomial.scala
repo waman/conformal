@@ -19,4 +19,7 @@ trait SpecialPolynomial{
     require(n >= 0)
     Polynomial(data(n))
   }
+
+  def stream[C: Field: Eq: ClassTag]: Stream[Polynomial[C]] =
+    Stream.from(0).map(apply[C](_))
 }

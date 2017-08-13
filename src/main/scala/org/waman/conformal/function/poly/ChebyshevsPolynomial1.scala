@@ -11,6 +11,7 @@ object ChebyshevsPolynomial1 extends SpecialPolynomial{
 
   override def degree(n: Int): Int = n
 
+  // For efficiency
   override def apply[C: Eq : ClassTag](n: Int)(implicit f: Field[C]): Polynomial[C] =
     n match{
       case 0 => Polynomial.one
@@ -19,20 +20,19 @@ object ChebyshevsPolynomial1 extends SpecialPolynomial{
     }
 
   override def data[C: Eq: ClassTag](n: Int)(implicit f: Field[C]): Map[Int, C] =
-    n match {
-      case 0 => Map(0 -> f.one)
-      case 1 => Map(1 -> f.one)
-      case _ =>
-        @tailrec
-        def data(cMap: Map[Int, C], c: C, m: Int): Map[Int, C] =
-          if(m < 0) {
-            cMap
-          }else{
-            val c_m: C = -c * (m+2) * (m+1) / ((n-m) * (n+m))
-            data(cMap + (m -> c_m), c_m, m - 2)
-          }
+    if(n == 0) {
+      Map(0 -> f.one)
+    }else{
+      @tailrec
+      def data(cMap: Map[Int, C], c: C, m: Int): Map[Int, C] =
+        if(m < 0) {
+          cMap
+        }else{
+          val c_m: C = -c * (m+2) * (m+1) / ((n-m) * (n+m))
+          data(cMap + (m -> c_m), c_m, m-2)
+        }
 
-        val c = f.fromInt(2)**(n-1)
-        data(Map(n -> c), c, n-2)
+      val c: C = f.fromInt(2)**(n-1)
+      data(Map(n -> c), c, n-2)
     }
 }
